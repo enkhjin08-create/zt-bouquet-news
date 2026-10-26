@@ -55,6 +55,7 @@ const SAMPLE = {
   ],
   letter:
     "Чамтайгаа учирсан тэр өдрөөс хойш миний амьдралын өнгө өөр болсон юм шиг санагддаг. Хамтдаа инээсэн, уйлсан, аялсан бүх л мөч маань надад хамгийн үнэтэй дурсамж болон үлдсэн.\n\nЧи миний хамгийн дотно хүн, хамгийн сайн найз минь. Ямар ч үед хажууд минь байж, намайг өөрийнхөөрөө байхад тусалдагт чинь баярлалаа.\n\nТөрсөн өдрөөр чинь чамд эрүүл энх, аз жаргал, мөрөөдөл бүхэн чинь биелэхийг хүсье. Үргэлж хамтдаа байцгаая. Хайртай шүү ♥",
+  note: "Төрсөн өдрийн мэнд хүргэе, миний хайр.\nЧамтайгаа хамт хөгширч, олон жилийн дараа өнөөдрийнхөө тухай инээмсэглэн дурсаж суухыг хүсэж байна.\nЧамдаа маш их хайртай шүү. Өнөөдөр, маргааш, бас насан туршдаа.",
   captions: ["Анх хамтдаа аялсан өдөр", "Төрсөн өдрийн бялуу", "Гэр бүлээрээ"],
   wishes: ["Миний хайртай", "Эгэл даруу", "Үргэлж инээмсэглэдэг", "Гэр бүлийн гол", "Хамгийн сайн найз"],
 };
@@ -85,22 +86,22 @@ function news(o) {
   <section class="page n-left">
     ${top}
     <div class="scallop f1">${photo(ph[1], "", 1, { gray: true })}</div>
-    <p class="n-cap c1">${cap(1)}</p>
+    <p class="n-cap c1" data-tb="c1">${cap(1)}</p>
     <div class="scallop f2">${photo(ph[2], "", 2, { gray: true })}</div>
-    <p class="n-cap c2">${cap(2)}</p>
+    <p class="n-cap c2" data-tb="c2">${cap(2)}</p>
     <div class="scallop f3">${photo(ph[3], "", 3, { gray: true })}</div>
-    <p class="n-cap c3">${cap(3)}</p>
+    <p class="n-cap c3" data-tb="c3">${cap(3)}</p>
     <div class="n-bottom"></div>
   </section>
   <section class="page n-right">
     ${top}
-    <h1 class="n-mast fitw">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
+    <h1 class="n-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
     <div class="n-rule"></div>
-    <p class="n-its fitw">It's ${or(o.name, SAMPLE.name)}'s</p>
-    <p class="n-bday">BIRTHDAY!</p>
+    <p class="n-its fitw" data-tb="its">It's ${or(o.name, SAMPLE.name)}'s</p>
+    <p class="n-bday" data-tb="bday">BIRTHDAY!</p>
     <div class="n-body">
       <div class="n-main">${photo(ph[0], "", 0, { gray: true })}</div>
-      <div class="n-qa fit" data-base="10.5">${qaHtml}</div>
+      <div class="n-qa fit" data-base="10.5" data-tb="qa">${qaHtml}</div>
     </div>
     <div class="n-bottom"></div>
   </section>`;
@@ -117,49 +118,51 @@ function polaroid(o) {
   <section class="page p-left">
     <div class="p-top"><span>002</span></div>
     ${pc(1, "p1")}${pc(2, "p2")}${pc(3, "p3")}
-    <ul class="p-wish">${list}</ul>
+    <ul class="p-wish" data-tb="wish">${list}</ul>
     ${heart(14, 128, 11, -15)}${heart(26, 132, 9, 12)}${heart(170, 248, 12, 10)}${heart(155, 270, 9, -8)}${heart(8, 70, 7, -20, .8)}
     <div class="p-bottom"></div>
   </section>
   <section class="page p-right">
     <div class="p-top r"><span>№ ${esc(o.id || "0001")}</span></div>
-    <h1 class="p-mast fitw">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
+    <h1 class="p-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
     <div class="p-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
-    <div class="p-msg fit" data-base="22"><p>${or(o.message, SAMPLE.message)}</p></div>
+    <div class="p-msg fit" data-base="22" data-tb="msg"><p>${or(o.message, SAMPLE.message)}</p></div>
     <figure class="pol pmain">${photo(ph[0], "", 0)}<figcaption>${or(o.name, SAMPLE.name)}</figcaption><i class="tape"></i></figure>
     ${heart(150, 58, 10, 15)}${heart(166, 66, 7, -10)}${heart(18, 250, 12, -12)}${heart(176, 228, 9, 18)}${heart(160, 262, 7, 5, .8)}
     <div class="p-bottom"></div>
   </section>`;
 }
 
-// ───────────── 3. Ордын (зурхай) ─────────────
-function zodiac(o) {
+// ───────────── 3. Фото бүхээг (To / From захидал) ─────────────
+const pearl = (ph, i) => `<div class="pearl"><div class="pearl-in">${photo(ph[i], "", i)}</div></div>`;
+const film = (ph, i, cls, code) => `<figure class="film ${cls}"><span class="film-code">${code}</span>${photo(ph[i], "", i)}<span class="film-code b">▸ ${i + 43}A</span></figure>`;
+function booth(o) {
   const ph = o.photos || [];
-  const s = signFor(o.date, o.sign);
-  const headline = o.headline && o.headline.trim()
-    ? nl(o.headline)
-    : `Born under the sign of ${s.en}:<br>a special birthday edition`;
   return `
-  <section class="page z-left">
-    <div class="z-band"></div>
-    <div class="z-glyph">${s.g}&#xFE0E;</div>
-    <span class="z-star s1">✻</span><span class="z-star s2">✻</span><span class="z-star s3">✻</span>
-    <p class="z-sign">${s.en}</p>
-    <p class="z-mn">${s.mn} орд</p>
-    <p class="z-tag">${s.tag}</p>
-    <p class="z-kw">${s.kw}</p>
-    <div class="z-band b"></div>
-  </section>
-  <section class="page z-right">
-    <div class="z-num">№ ${esc(o.id || "0001")}</div>
-    <h1 class="z-mast fitw">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
-    <div class="z-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
-    <h2 class="z-head">${headline}</h2>
-    <div class="z-body">
-      <div class="z-photo">${photo(ph[0], "", 0)}</div>
-      <div class="z-msg fit" data-base="13"><p class="z-name">${or(o.name, SAMPLE.name)}</p><p>${or(o.message, SAMPLE.message)}</p></div>
+  <section class="page b-left">
+    <div class="wavy"></div>
+    <div class="b-top"><span>002</span></div>
+    <div class="b-strip" data-tbx="strip">
+      <span class="strip-code">2026 F 8.0 &nbsp;&nbsp; 43 &nbsp;&nbsp; 045/2.8 120 &nbsp;&nbsp; TRA</span>
+      <div class="strip-grid">${pearl(ph, 2)}${pearl(ph, 3)}${pearl(ph, 4)}${pearl(ph, 5)}</div>
     </div>
-    <div class="z-bottom"></div>
+    ${film(ph, 0, "f-a", "RTRA &nbsp; 44 &nbsp;&nbsp; TRA")}
+    ${film(ph, 1, "f-b", "TRA &nbsp; 45 &nbsp;&nbsp; RTRA")}
+    <div class="b-note" data-tb="note"><p>${or(o.note, SAMPLE.note)}</p><p class="b-heart">♥</p></div>
+    <div class="b-bottom"></div>
+  </section>
+  <section class="page b-right">
+    <div class="wavy"></div>
+    <div class="b-top r"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="b-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
+    <div class="b-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    <div class="b-tofrom" data-tb="tofrom">
+      <p><span class="tf-l">TO:</span><span class="tf-v">${or(o.to, "My husband")}</span></p>
+      <p><span class="tf-l">FROM:</span><span class="tf-v">${or(o.from, "Your wife")}</span></p>
+    </div>
+    <div class="b-stamps">${stamp("♥")}${stamp("❦")}</div>
+    <div class="b-body fit" data-base="12" data-tb="body"><p>${or(o.message, SAMPLE.letter)}</p></div>
+    <div class="b-bottom"></div>
   </section>`;
 }
 
@@ -175,17 +178,17 @@ function letter(o) {
     <div class="l-num">002</div>
     <div class="booth">${strip}<p class="booth-cap">${esc(dateMn(o.date))}</p></div>
     <figure class="l-print">${photo(ph[0], "", 0)}</figure>
-    <p class="l-cap fit" data-base="11"><span>${or(ph[1]?.caption || ph[0]?.caption, "Хамтдаа өнгөрүүлсэн хамгийн гоё өдрүүд маань")}</span></p>
+    <p class="l-cap fit" data-base="11" data-tb="cap"><span>${or(ph[1]?.caption || ph[0]?.caption, "Хамтдаа өнгөрүүлсэн хамгийн гоё өдрүүд маань")}</span></p>
   </section>
   <section class="page l-right">
     <div class="l-num r">№ ${esc(o.id || "0247")}</div>
-    <h1 class="l-mast fitw">${esc(mast)}</h1>
+    <h1 class="l-mast fitw" data-tb="mast">${esc(mast)}</h1>
     <div class="l-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
     <div class="l-headrow">
-      <h2 class="l-head">${head}<br><span class="l-hearts">♥ ♥</span></h2>
+      <h2 class="l-head" data-tb="head">${head}<br><span class="l-hearts">♥ ♥</span></h2>
       <div class="stamps">${stamp("♥")}${stamp("✉")}</div>
     </div>
-    <div class="l-body fit" data-base="14"><p>${or(o.message, SAMPLE.letter)}</p></div>
+    <div class="l-body fit" data-base="14" data-tb="body"><p>${or(o.message, SAMPLE.letter)}</p></div>
     <div class="l-bottom"></div>
   </section>`;
 }
@@ -196,17 +199,29 @@ export const TEMPLATES = {
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
-  zodiac: { label: "Ордын сонин", render: zodiac, photos: ["Гол зураг"], fields: ["name", "masthead", "message", "headline", "sign"] },
+  booth: { label: "Фото бүхээг", render: booth, photos: ["Хальсан зураг 1 (дээд)", "Хальсан зураг 2 (доод)", "Бүхээг 1", "Бүхээг 2", "Бүхээг 3", "Бүхээг 4"], fields: ["masthead", "tofrom", "note", "message"] },
 };
 
 export function renderSheet(el, order) {
   const t = TEMPLATES[order.template] || TEMPLATES.news;
   el.className = `sheet t-${order.template}`;
   el.innerHTML = t.render(order);
+  const tx = order.tx?.[order.template] || {};
+  el.querySelectorAll("[data-tb]").forEach((n) => {
+    const v = tx[n.dataset.tb];
+    if (!v) return;
+    if (v.dx || v.dy) n.style.translate = `${v.dx || 0}mm ${v.dy || 0}mm`;
+    if (v.s && v.s !== 1) n.dataset.s = v.s;
+  });
   fitAll(el);
 }
 
 export function fitAll(root) {
+  root.querySelectorAll("[data-tb]:not(.fit):not(.fitw)").forEach((el) => {
+    el.style.fontSize = "";
+    const s = parseFloat(el.dataset.s) || 1;
+    if (s !== 1) el.style.fontSize = parseFloat(getComputedStyle(el).fontSize) * s + "px";
+  });
   root.querySelectorAll(".fitw").forEach((el) => {
     el.style.fontSize = "";
     let size = parseFloat(getComputedStyle(el).fontSize);
@@ -215,6 +230,8 @@ export function fitAll(root) {
       size *= 0.97;
       el.style.fontSize = size + "px";
     }
+    const s = parseFloat(el.dataset.s) || 1;
+    if (s !== 1) { el.style.fontSize = size * s + "px"; el.style.overflow = "visible"; }
   });
   root.querySelectorAll(".fit").forEach((el) => {
     let size = parseFloat(el.dataset.base) || 12;
@@ -224,5 +241,7 @@ export function fitAll(root) {
       size -= 0.25;
       el.style.fontSize = size + "pt";
     }
+    const s = parseFloat(el.dataset.s) || 1;
+    if (s !== 1) { el.style.fontSize = size * s + "pt"; el.style.overflow = "visible"; }
   });
 }

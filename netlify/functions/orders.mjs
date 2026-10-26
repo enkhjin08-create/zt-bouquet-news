@@ -8,8 +8,8 @@ import { getStore } from "@netlify/blobs";
 //   DELETE /api/orders/:id    — админ: устгах
 // Админ нь "x-admin-pass" толгойгоор ADMIN_PASS орчны хувьсагчтай тулгагдана.
 
-const MAX_BODY = 5_500_000;
-const MAX_PHOTOS = 4;
+const MAX_BODY = 5_900_000;
+const MAX_PHOTOS = 6;
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 const store = () => getStore({ name: "bouquet-orders", consistency: "strong" });
@@ -49,6 +49,21 @@ const metaOf = (order) => ({
   photoCount: (order.photos || []).filter((p) => p && p.src).length,
 });
 
+const num = (v, lo, hi, d) => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
+const cleanTx = (tx) => {
+  const out = {};
+  if (!tx || typeof tx !== "object") return out;
+  for (const [tpl, blocks] of Object.entries(tx).slice(0, 8)) {
+    if (!/^[a-z]{1,12}$/.test(tpl) || !blocks || typeof blocks !== "object") continue;
+    out[tpl] = {};
+    for (const [k, v] of Object.entries(blocks).slice(0, 20)) {
+      if (!/^[a-z0-9]{1,12}$/.test(k) || !v || typeof v !== "object") continue;
+      out[tpl][k] = { dx: num(v.dx, -300, 300, 0), dy: num(v.dy, -300, 300, 0), s: num(v.s, 0.3, 3, 1) };
+    }
+  }
+  return out;
+};
+
 const clean = (body) => {
   const photos = Array.isArray(body.photos) ? body.photos.slice(0, MAX_PHOTOS) : [];
   for (const p of photos) {
@@ -58,7 +73,7 @@ const clean = (body) => {
   }
   const str = (v, n = 4000) => (typeof v === "string" ? v.slice(0, n) : "");
   return {
-    template: ["news", "polaroid", "zodiac"].includes(body.template) ? body.template : "news",
+    template: ["letter", "news", "polaroid", "booth"].includes(body.template) ? body.template : "news",
     name: str(body.name, 80),
     date: str(body.date, 20),
     masthead: str(body.masthead, 60),
@@ -66,6 +81,10 @@ const clean = (body) => {
     headline: str(body.headline, 200),
     message: str(body.message, 2000),
     sign: str(body.sign, 20),
+    to: str(body.to, 60),
+    from: str(body.from, 60),
+    note: str(body.note, 600),
+    tx: cleanTx(body.tx),
     qa: (Array.isArray(body.qa) ? body.qa : []).slice(0, 8).map((x) => ({ q: str(x?.q, 300), a: str(x?.a, 800) })),
     wishes: (Array.isArray(body.wishes) ? body.wishes : []).slice(0, 8).map((w) => str(w, 60)),
     photos: photos.map((p) => ({

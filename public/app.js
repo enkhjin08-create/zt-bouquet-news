@@ -27,12 +27,16 @@ export const blankOrder = () => ({
   sign: "auto",
   qa: DEFAULT_QA.map((q) => ({ q, a: "" })),
   wishes: ["", "", "", "", ""],
-  photos: [0, 1, 2, 3].map(() => ({ src: "", caption: "", x: 50, y: 50, z: 1 })),
+  photos: [0, 1, 2, 3, 4, 5].map(() => ({ src: "", caption: "", x: 50, y: 50, z: 1 })),
+  to: "",
+  from: "",
+  note: "",
+  tx: {},
   contact: { name: "", phone: "", pickup: "", note: "" },
 });
 
 // ── Зураг шахах: урт тал 1800px, JPEG ──
-async function compress(file, max = 1800, q = 0.85) {
+async function compress(file, max = 1600, q = 0.82) {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise((res, rej) => {
@@ -97,7 +101,15 @@ export function createEditor({ root, mode, onChange }) {
     <section class="area-preview">
       <div class="preview-card">
         <div class="stage" id="stage"><div class="sheet" id="sheet"></div></div>
-        <p class="hint">A3 хэмжээ · Зураг дээр дарж чирээд байрлалыг тааруулна. Саарал үсэг бол жишээ — хэвлэхэд гарахгүй.</p>
+        <div class="textbar" id="textbar" hidden>
+          <span class="tb-name" id="tb-name">Текст</span>
+          <button type="button" class="tb-btn" data-tbact="dec" aria-label="Үсэг жижигрүүлэх">A−</button>
+          <span class="tb-val" id="tb-val">100%</span>
+          <button type="button" class="tb-btn" data-tbact="inc" aria-label="Үсэг томруулах">A+</button>
+          <button type="button" class="link" data-tbact="reset">Анхны байрлал</button>
+          <button type="button" class="link" data-tbact="close">Болсон</button>
+        </div>
+        <p class="hint">A3 хэмжээ · Зургийг чирж байрлалыг нь, текстийг дарж хэмжээ, байрлалыг нь өөрчилнө. Саарал үсэг бол жишээ — хэвлэхэд гарахгүй.</p>
       </div>
     </section>
     <section class="area-form" id="form"></section>`;
@@ -126,6 +138,7 @@ export function createEditor({ root, mode, onChange }) {
       renderSheet(sheet, order);
       sheet.style.setProperty("--grain", grain);
       if (selected >= 0) sheet.querySelector(`.ph[data-idx="${selected}"]`)?.classList.add("sel");
+      if (selText) sheet.querySelector(`[data-tb="${selText}"]`)?.classList.add("tsel");
       rescale();
       if (user) onChange?.(order);
     });
@@ -161,7 +174,7 @@ export function createEditor({ root, mode, onChange }) {
       <h2 class="step"><b>3</b>Үгээ бичнэ үү</h2>
       <div class="fields">
         <div class="row2">
-          <div class="field"><label for="f-name">Хэнд зориулах вэ?</label><input id="f-name" data-k="name" maxlength="40" placeholder="Жишээ: Хонгорзул" value="${esc(order.name)}"></div>
+          ${has("name") ? `<div class="field"><label for="f-name">Хэнд зориулах вэ?</label><input id="f-name" data-k="name" maxlength="40" placeholder="Жишээ: Хонгорзул" value="${esc(order.name)}"></div>` : ""}
           <div class="field"><label for="f-date">Огноо</label><input id="f-date" type="date" data-k="date" value="${esc(order.date)}"></div>
         </div>
         <div class="row2">
@@ -173,6 +186,14 @@ export function createEditor({ root, mode, onChange }) {
           ${MASTHEADS.includes(order.masthead) ? "" : `<div class="field"><label for="f-mast-c">Өөрийн нэр</label><input id="f-mast-c" data-k="masthead" maxlength="24" value="${esc(order.masthead)}"></div>`}
           ${order.template === "letter" ? `<div class="field"><label for="f-headline2">Гарчиг</label><input id="f-headline2" data-k="headline" maxlength="80" placeholder="Миний бүхэл болсон чамдаа" value="${esc(order.headline)}"></div>` : ""}
         </div>
+        ${has("tofrom") ? `
+        <div class="row2">
+          <div class="field"><label for="f-to">To (хэнд)</label><input id="f-to" data-k="to" maxlength="30" placeholder="My husband" value="${esc(order.to)}"></div>
+          <div class="field"><label for="f-from">From (хэнээс)</label><input id="f-from" data-k="from" maxlength="30" placeholder="Your wife" value="${esc(order.from)}"></div>
+        </div>` : ""}
+        ${has("note") ? `
+        <div class="field"><label for="f-note">Зүүн нүүрний богино үг</label>
+          <textarea id="f-note" data-k="note" rows="3" maxlength="300" placeholder="Төрсөн өдрийн мэнд хүргэе, миний хайр.">${esc(order.note)}</textarea></div>` : ""}
         ${has("sign") ? `
         <div class="row2">
           <div class="field"><label for="f-sign">Орд</label>
@@ -229,6 +250,7 @@ export function createEditor({ root, mode, onChange }) {
     if (t.name === "tpl") {
       order.template = t.value;
       selected = -1;
+      selectText(null);
       buildForm();
       render();
       return;
@@ -279,6 +301,62 @@ export function createEditor({ root, mode, onChange }) {
     if (t.dataset.remove) { order.photos[+t.dataset.remove] = { src: "", caption: order.photos[+t.dataset.remove].caption, x: 50, y: 50, z: 1 }; buildForm(); render(); }
   });
 
+  // ── Текстийн хэмжээ, байрлал ──
+  const TB_NAMES = { mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3" };
+  let selText = null, tdrag = null;
+  const txOf = (key) => {
+    order.tx = order.tx || {};
+    const t = (order.tx[order.template] = order.tx[order.template] || {});
+    return (t[key] = t[key] || { dx: 0, dy: 0, s: 1 });
+  };
+  function updateTextBar() {
+    const bar = root.querySelector("#textbar");
+    if (!bar) return;
+    bar.hidden = !selText;
+    if (!selText) return;
+    const v = order.tx?.[order.template]?.[selText] || { s: 1 };
+    root.querySelector("#tb-name").textContent = TB_NAMES[selText] || "Текст";
+    root.querySelector("#tb-val").textContent = Math.round((v.s || 1) * 100) + "%";
+  }
+  function selectText(key) {
+    selText = key;
+    sheet.querySelectorAll(".tsel").forEach((x) => x.classList.remove("tsel"));
+    if (key) sheet.querySelector(`[data-tb="${key}"]`)?.classList.add("tsel");
+    updateTextBar();
+  }
+  root.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-tbact]");
+    if (!b || !selText) return;
+    const v = txOf(selText);
+    if (b.dataset.tbact === "inc") v.s = Math.min(2.5, Math.round((v.s + 0.05) * 100) / 100);
+    if (b.dataset.tbact === "dec") v.s = Math.max(0.4, Math.round((v.s - 0.05) * 100) / 100);
+    if (b.dataset.tbact === "reset") { v.dx = 0; v.dy = 0; v.s = 1; }
+    if (b.dataset.tbact === "close") { selectText(null); return; }
+    updateTextBar();
+    render();
+  });
+  const MM = 96 / 25.4;
+  sheet.addEventListener("pointerdown", (e) => {
+    const tb = e.target.closest("[data-tb]");
+    if (!tb || e.target.closest(".ph")) return;
+    selectText(tb.dataset.tb);
+    const v = txOf(tb.dataset.tb);
+    tdrag = { el: tb, sx: e.clientX, sy: e.clientY, dx: v.dx, dy: v.dy, k: +stage.dataset.k || 1, v, moved: false };
+    tb.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  sheet.addEventListener("pointermove", (e) => {
+    if (!tdrag) return;
+    const ddx = (e.clientX - tdrag.sx) / (tdrag.k * MM), ddy = (e.clientY - tdrag.sy) / (tdrag.k * MM);
+    if (Math.abs(ddx) + Math.abs(ddy) > 0.5) tdrag.moved = true;
+    tdrag.v.dx = Math.round((tdrag.dx + ddx) * 10) / 10;
+    tdrag.v.dy = Math.round((tdrag.dy + ddy) * 10) / 10;
+    tdrag.el.style.translate = `${tdrag.v.dx}mm ${tdrag.v.dy}mm`;
+  });
+  const tend = () => { if (tdrag) { const m = tdrag.moved; tdrag = null; if (m) onChange?.(order); } };
+  sheet.addEventListener("pointerup", tend);
+  sheet.addEventListener("pointercancel", tend);
+
   // ── Зургийг чирж байрлуулах ──
   let drag = null;
   sheet.addEventListener("pointerdown", (e) => {
@@ -319,9 +397,11 @@ export function createEditor({ root, mode, onChange }) {
   function load(o) {
     const b = blankOrder();
     order = { ...b, ...o, contact: { ...b.contact, ...(o.contact || {}) } };
-    order.photos = [0, 1, 2, 3].map((i) => ({ ...b.photos[i], ...(o.photos?.[i] || {}) }));
+    order.photos = [0, 1, 2, 3, 4, 5].map((i) => ({ ...b.photos[i], ...(o.photos?.[i] || {}) }));
     order.wishes = [0, 1, 2, 3, 4].map((i) => o.wishes?.[i] || "");
     if (!Array.isArray(o.qa)) order.qa = b.qa;
+    order.tx = o.tx && typeof o.tx === "object" ? o.tx : {};
+    selText = null; updateTextBar();
     selected = -1;
     const radio = $(`#tpl-${order.template}`, root);
     if (radio) radio.checked = true;

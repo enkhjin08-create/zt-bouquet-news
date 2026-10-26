@@ -20,6 +20,8 @@
 .ph-empty { position: absolute; inset: 0; display: grid; place-items: center;
   background: repeating-linear-gradient(135deg, #d6d1c8 0 3mm, #cfcac0 3mm 6mm); }
 .ph-empty span { font: 600 11pt "Open Sans", sans-serif; color: #7c776e; letter-spacing: .08em; text-transform: uppercase; }
+[data-tb] { cursor: move; touch-action: none; }
+.tsel { outline: .5mm dashed #e0457b; outline-offset: 1mm; }
 .ph.sel { outline: 1.2mm solid #e0457b; outline-offset: -1.2mm; }
 
 /* ───── 1. Хар цагаан сонин ───── */
@@ -129,6 +131,48 @@
 .z-bottom { position: absolute; left: 14mm; right: 14mm; bottom: 12mm; border-top: .3mm solid var(--ink); }
 
 
+
+/* ───── 3. Фото бүхээг ───── */
+.t-booth .page { --beige: #e6e0d6; --paper: #f7f4ee; --ink: #1d1b19; --red: #c8323c; background: var(--beige); }
+.t-booth .page::before { content: ""; position: absolute; inset: 0; background:
+  radial-gradient(120% 80% at 20% 10%, rgba(255,255,255,.25), transparent 60%), radial-gradient(90% 70% at 80% 95%, rgba(0,0,0,.05), transparent 70%); }
+.wavy { position: absolute; inset: 12mm 9mm; background: var(--paper);
+  -webkit-mask: radial-gradient(circle 6mm at 50% 50%, #000 98%, transparent) 0 0 / 15mm 15mm, linear-gradient(#000, #000) center / calc(100% - 12mm) calc(100% - 12mm) no-repeat;
+          mask: radial-gradient(circle 6mm at 50% 50%, #000 98%, transparent) 0 0 / 15mm 15mm, linear-gradient(#000, #000) center / calc(100% - 12mm) calc(100% - 12mm) no-repeat; }
+.b-top { position: absolute; left: 10mm; right: 10mm; top: 5mm; padding-bottom: 1.2mm; border-bottom: .3mm solid var(--ink); font: 600 7pt "Open Sans", sans-serif; display: flex; z-index: 3; }
+.b-top.r { justify-content: flex-end; }
+.b-bottom { position: absolute; left: 10mm; right: 10mm; bottom: 6mm; height: 1.8mm; border-top: .3mm solid var(--ink); border-bottom: .9mm solid var(--ink); z-index: 3; }
+
+.b-strip { position: absolute; left: 6mm; top: 28mm; width: 104mm; padding: 7mm 6mm 6mm; background: #111; transform: rotate(-6deg); z-index: 2;
+  box-shadow: 0 1.5mm 4mm rgba(0,0,0,.35); }
+.strip-code { position: absolute; left: 6mm; right: 6mm; top: 1.8mm; color: #e9d48a; font: 700 6pt "Open Sans", monospace; letter-spacing: .1em; white-space: nowrap; overflow: hidden; }
+.strip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.pearl { height: 50mm; padding: 2.4mm; border-radius: 1mm;
+  background: radial-gradient(circle at 35% 35%, #fff 0 22%, #e8e4dc 40%, #b9b3aa 62%, transparent 66%) 0 0 / 2.4mm 2.4mm, #2a2826; }
+.pearl-in { height: 100%; background: #fff; padding: .6mm; }
+.film { position: absolute; background: #121110; padding: 6mm 3mm; box-shadow: 0 1.5mm 4mm rgba(0,0,0,.35); z-index: 1; }
+.film .ph { height: 100%; }
+.film-code { position: absolute; left: 4mm; top: 1.4mm; color: #e9d48a; font: 700 6pt "Open Sans", monospace; letter-spacing: .1em; }
+.film-code.b { top: auto; bottom: 1.4mm; }
+.film.f-a { left: 104mm; top: 62mm; width: 98mm; height: 78mm; transform: rotate(4deg); }
+.film.f-b { left: 92mm; top: 134mm; width: 92mm; height: 78mm; transform: rotate(6deg); }
+.b-note { position: absolute; left: 26mm; right: 26mm; top: 228mm; z-index: 3; text-align: center; font: 400 10.5pt/1.6 "Open Sans", sans-serif; }
+.b-note p { white-space: pre-line; }
+.b-heart { color: var(--red); font-size: 13pt; margin-top: 1.5mm !important; }
+
+.b-mast { position: absolute; left: 14mm; right: 14mm; top: 13mm; text-align: center; z-index: 3;
+  font: 400 64pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.b-dateline { position: absolute; left: 12mm; right: 12mm; top: 38mm; display: flex; justify-content: space-between; z-index: 3;
+  font: 400 8pt "Open Sans", sans-serif; padding: 1.2mm 0; border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
+.b-tofrom { position: absolute; left: 20mm; top: 50mm; width: 92mm; z-index: 3; display: grid; gap: 3mm; }
+.b-tofrom p { display: flex; align-items: baseline; gap: 4mm; border-bottom: .25mm solid #b9b3aa; padding-bottom: .8mm; }
+.tf-l { width: 13mm; flex: none; font: 600 7pt "Open Sans", sans-serif; letter-spacing: .14em; color: #8b857c; }
+.tf-v { font: 400 21pt/1 "Great Vibes", cursive; color: var(--ink); }
+.b-stamps { position: absolute; right: 18mm; top: 46mm; display: flex; gap: 3mm; z-index: 3; }
+.b-body { position: absolute; left: 20mm; right: 20mm; top: 82mm; bottom: 14mm; overflow: hidden; z-index: 3;
+  font: 400 12pt/1.55 "Open Sans", sans-serif; }
+.b-body p { white-space: pre-line; }
+
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
 .t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;
@@ -177,6 +221,6 @@
   body > :not(#print-host) { display: none !important; }
   #print-host { display: block !important; }
   #print-host .ghost, #print-host .ph-empty { visibility: hidden !important; }
-  #print-host .ph.sel { outline: none; }
-  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
+  #print-host .ph.sel, #print-host .tsel { outline: none; }
+  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
 }

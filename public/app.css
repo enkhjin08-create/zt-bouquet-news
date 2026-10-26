@@ -139,3 +139,10 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .err-text { color: var(--err); font-size: 13px; margin: 0; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.textbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; padding: 8px 10px; background: var(--surface); border-radius: 8px; border: 1px solid var(--line); }
+.tb-name { font-weight: 700; font-size: 13.5px; margin-right: auto; }
+.tb-btn { min-width: 40px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); font-weight: 700; cursor: pointer; }
+.tb-val { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+.pick-booth .swatch i:first-child { background: #e6e0d6 linear-gradient(#111, #111) 30% 45% / 50% 55% no-repeat; }
+.pick-booth .swatch i { background: #f7f4ee repeating-linear-gradient(#f7f4ee 0 4px, #8b857c 4px 5px) 50% 80% / 78% 50% no-repeat; }
