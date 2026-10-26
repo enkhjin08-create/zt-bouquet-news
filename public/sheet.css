@@ -1,0 +1,182 @@
+@font-face { font-family: "Santa Catarina"; src: url("fonts/SantaCatarina.woff2") format("woff2"); font-display: block; }
+/* ── Хэвлэх хуудас: A3 хэвтээ, 420 × 297 мм ── */
+.sheet {
+  --paper: #ebe8e1; --ink: #1d1c1a; --frame: #f6f4ef;
+  width: 420mm; height: 297mm; display: grid; grid-template-columns: 210mm 210mm;
+  position: relative; overflow: hidden; color: var(--ink); background: #fff;
+  font-family: "Open Sans", "Noto Sans", Arial, sans-serif;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.sheet *, .sheet *::before, .sheet *::after { box-sizing: border-box; }
+.sheet p, .sheet h1, .sheet h2, .sheet ul, .sheet figure { margin: 0; padding: 0; }
+.page { position: relative; width: 210mm; height: 297mm; overflow: hidden; }
+.ghost { color: #9a958c; }
+.fitw { white-space: nowrap; overflow: hidden; }
+.t-polaroid .ghost { color: #a7708c; }
+
+/* Зургийн хүрээ */
+.ph { position: relative; width: 100%; height: 100%; overflow: hidden; background: #d9d5cd; cursor: grab; }
+.ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; max-width: none; user-select: none; }
+.ph-empty { position: absolute; inset: 0; display: grid; place-items: center;
+  background: repeating-linear-gradient(135deg, #d6d1c8 0 3mm, #cfcac0 3mm 6mm); }
+.ph-empty span { font: 600 11pt "Open Sans", sans-serif; color: #7c776e; letter-spacing: .08em; text-transform: uppercase; }
+.ph.sel { outline: 1.2mm solid #e0457b; outline-offset: -1.2mm; }
+
+/* ───── 1. Хар цагаан сонин ───── */
+.t-news .page {
+  background-color: var(--paper);
+  background-image: var(--grain, none), radial-gradient(120% 90% at 30% 20%, rgba(255,255,255,.45), transparent 60%),
+    radial-gradient(90% 80% at 80% 90%, rgba(0,0,0,.05), transparent 70%);
+  background-size: 140mm 140mm, 100% 100%, 100% 100%;
+}
+.n-top { position: absolute; left: 14mm; right: 14mm; top: 11mm; display: flex; justify-content: space-between;
+  font: 400 10.5pt "Old Standard TT", "Times New Roman", serif; padding-bottom: 2mm; border-bottom: .35mm solid var(--ink); }
+.n-left .n-top { right: 0; }
+.n-right .n-top { left: 10mm; }
+.n-bottom { position: absolute; left: 14mm; right: 14mm; bottom: 10mm; height: 2.2mm; border-top: .3mm solid var(--ink); border-bottom: 1.1mm solid var(--ink); }
+.n-left .n-bottom { right: 6mm; }
+.n-right .n-bottom { left: 8mm; }
+
+.scallop { position: absolute; padding: 2.6mm;
+  background: radial-gradient(circle at 50% 50%, var(--frame) 68%, transparent 71%) 0 0 / 5.2mm 5.2mm; }
+.scallop::before { content: ""; position: absolute; inset: 2.6mm; background: var(--frame); }
+.scallop .ph { position: relative; z-index: 1; border: 6mm solid var(--frame); }
+.scallop.f1 { left: 12mm; top: 26mm; width: 122mm; height: 100mm; transform: rotate(-.8deg); }
+.scallop.f2 { left: 104mm; top: 84mm; width: 100mm; height: 104mm; transform: rotate(1.2deg); z-index: 2; }
+.scallop.f3 { left: 8mm; top: 172mm; width: 128mm; height: 104mm; transform: rotate(-.4deg); }
+.n-cap { position: absolute; font: 700 10.5pt/1.25 "Open Sans", sans-serif; text-align: center; text-wrap: balance; }
+.n-cap.c1 { left: 140mm; top: 48mm; width: 58mm; }
+.n-cap.c2 { left: 22mm; top: 136mm; width: 76mm; }
+.n-cap.c3 { left: 140mm; top: 214mm; width: 58mm; }
+
+.n-mast { position: absolute; left: 10mm; right: 14mm; top: 24mm; text-align: center;
+  font: 700 36pt/1 "Old Standard TT", "Times New Roman", serif; letter-spacing: .32em; padding-left: .32em; white-space: nowrap; }
+.n-rule { position: absolute; left: 10mm; right: 14mm; top: 44mm; height: 2.4mm; border-top: 1.1mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
+.n-its { position: absolute; left: 10mm; right: 14mm; top: 49mm; text-align: center; font: 400 38pt/1.1 "Great Vibes", cursive; }
+.n-bday { position: absolute; left: 10mm; right: 14mm; top: 67mm; text-align: center; font: 700 60pt/1 "Oswald", Impact, sans-serif; letter-spacing: -.01em; }
+.n-body { position: absolute; left: 8mm; right: 14mm; top: 93mm; bottom: 16mm; display: grid; grid-template-columns: 93mm 1fr; gap: 4mm; }
+.n-main { border: .5mm solid var(--ink); min-height: 0; }
+.n-qa { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: .9em; text-align: justify; hyphens: auto; line-height: 1.2; }
+.n-qa .q { font-weight: 700; }
+.n-qa .a { font-weight: 400; }
+
+/* ───── 2. Ягаан polaroid ───── */
+.t-polaroid .page {
+  --pink: #f3c6dc; --rose: #c2477f; --ink: #34202a;
+  background-color: var(--pink);
+  background-image:
+    radial-gradient(40% 30% at 18% 22%, rgba(255,255,255,.5), transparent 70%),
+    radial-gradient(35% 28% at 80% 40%, rgba(226,120,170,.35), transparent 70%),
+    radial-gradient(45% 30% at 30% 75%, rgba(232,140,182,.35), transparent 70%),
+    radial-gradient(30% 25% at 85% 85%, rgba(255,255,255,.45), transparent 70%),
+    radial-gradient(25% 20% at 55% 10%, rgba(214,100,156,.25), transparent 70%);
+}
+.p-top { position: absolute; left: 12mm; right: 12mm; top: 10mm; padding-bottom: 1.5mm; border-bottom: .3mm solid var(--ink);
+  font: 600 8pt "Open Sans", sans-serif; display: flex; }
+.p-top.r { justify-content: flex-end; }
+.p-bottom { position: absolute; left: 12mm; right: 12mm; bottom: 9mm; border-top: .3mm solid var(--ink); }
+.pol { position: absolute; background: #fff; padding: 4.5mm 4.5mm 13mm; box-shadow: 0 1.2mm 3mm rgba(80,20,50,.25); }
+.pol .ph { height: 100%; }
+.pol figcaption { position: absolute; left: 0; right: 0; bottom: 2.5mm; text-align: center; font: 400 19pt "Great Vibes", cursive; color: var(--ink); }
+.pol .tape { position: absolute; width: 30mm; height: 9mm; background: rgba(214,90,150,.55); top: -3.5mm; left: 50%; transform: translateX(-50%) rotate(-6deg); }
+.pol.p1 { left: 14mm; top: 20mm; width: 92mm; height: 84mm; transform: rotate(-3deg); }
+.pol.p2 { left: 98mm; top: 106mm; width: 96mm; height: 92mm; transform: rotate(5deg); }
+.pol.p2 .tape { left: 85%; transform: translateX(-50%) rotate(40deg); }
+.pol.p3 { left: 10mm; top: 160mm; width: 110mm; height: 100mm; transform: rotate(-4deg); z-index: 2; }
+.pol.p3 .tape { left: 15%; transform: translateX(-50%) rotate(-40deg); }
+.p-wish { position: absolute; left: 116mm; top: 20mm; width: 84mm; list-style: none; display: flex; flex-direction: column; gap: 2.4mm;
+  font: 400 19pt/1.2 "Great Vibes", cursive; color: var(--ink); }
+.p-wish li { display: flex; gap: 2.5mm; align-items: center; }
+.p-wish .flower { width: 6mm; height: 6mm; flex: none; fill: #e98ab4; }
+.p-wish .flower .c { fill: #f7d26a; }
+.heart { position: absolute; fill: #cf4f8a; }
+.p-mast { position: absolute; left: 12mm; right: 12mm; top: 17mm; text-align: center; font: 400 66pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.p-dateline { position: absolute; left: 12mm; right: 12mm; top: 43mm; display: flex; justify-content: space-between;
+  font: 600 8.5pt "Open Sans", sans-serif; padding: 1.4mm 0; border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
+.p-msg { position: absolute; left: 20mm; right: 20mm; top: 56mm; height: 52mm; overflow: hidden; text-align: center;
+  font: 400 22pt/1.35 "Great Vibes", cursive; color: var(--ink); display: flex; flex-direction: column; justify-content: safe center; }
+.pol.pmain { left: 24mm; top: 116mm; width: 162mm; height: 160mm; transform: rotate(2deg); }
+.pol.pmain figcaption { font-size: 20pt; bottom: 2.5mm; }
+
+/* ───── 3. Ордын сонин ───── */
+.t-zodiac .z-left { --blush: #f3cfcc; --rose: #c9666b; --cream: #fff6f2; background: var(--blush); }
+.z-band { position: absolute; left: 0; right: 0; top: 12mm; height: 11mm;
+  background:
+    linear-gradient(var(--rose), var(--rose)) 0 0 / 100% .35mm no-repeat,
+    linear-gradient(var(--rose), var(--rose)) 0 100% / 100% .35mm no-repeat,
+    radial-gradient(circle, transparent 3.1mm, var(--rose) 3.15mm, var(--rose) 3.45mm, transparent 3.5mm) 0 50% / 7mm 9mm repeat-x; }
+.z-band.b { top: auto; bottom: 12mm; }
+.z-glyph { position: absolute; left: 0; right: 0; top: 46mm; text-align: center; font: 400 150pt/1 "Noto Sans Symbols", "Segoe UI Symbol", sans-serif; color: var(--rose); }
+.z-star { position: absolute; color: var(--rose); font: 400 26pt/1 "Noto Sans Symbols 2", "Noto Sans Symbols", sans-serif; }
+.z-star.s1 { left: 34mm; top: 52mm; } .z-star.s2 { left: 160mm; top: 70mm; font-size: 32pt; } .z-star.s3 { left: 150mm; top: 128mm; font-size: 20pt; }
+.z-sign { position: absolute; left: 0; right: 0; top: 176mm; text-align: center; font: 800 58pt/1 "Playfair Display", Georgia, serif; color: var(--cream); }
+.z-mn { position: absolute; left: 0; right: 0; top: 200mm; text-align: center; font: 600 11pt "Open Sans", sans-serif; letter-spacing: .3em; text-transform: uppercase; color: var(--rose); }
+.z-tag { position: absolute; left: 20mm; right: 20mm; top: 214mm; text-align: center; font: 400 15pt/1.3 "Open Sans", sans-serif; color: var(--rose); }
+.z-kw { position: absolute; left: 30mm; right: 30mm; top: 230mm; text-align: center; font: 900 italic 19pt/1.15 "Playfair Display", Georgia, serif; color: var(--cream); text-wrap: balance; }
+
+.t-zodiac .z-right { --ink: #1f1d1c; background: #fbfaf7; }
+.z-num { position: absolute; right: 14mm; top: 10mm; font: 600 7.5pt "Open Sans", sans-serif; }
+.z-mast { position: absolute; left: 14mm; right: 14mm; top: 16mm; text-align: center; font: 400 64pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.z-dateline { position: absolute; left: 14mm; right: 14mm; top: 40mm; display: flex; justify-content: space-between; font: 400 8.5pt "Open Sans", sans-serif;
+  padding-top: 1.4mm; border-top: .3mm solid var(--ink); }
+.z-head { position: absolute; left: 18mm; right: 18mm; top: 54mm; text-align: center; font: 700 21pt/1.25 "Old Standard TT", "Times New Roman", serif;
+  text-transform: uppercase; text-wrap: balance; padding-bottom: 6mm; border-bottom: .3mm solid var(--ink); }
+.z-body { position: absolute; left: 14mm; right: 14mm; top: 92mm; bottom: 20mm; display: grid; grid-template-columns: 112mm 1fr; gap: 8mm; align-items: stretch; }
+.z-photo { min-height: 0; }
+.z-msg { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: safe center; text-align: center;
+  font: italic 400 13pt/1.45 "Old Standard TT", "Times New Roman", serif; }
+.z-name { font: 400 26pt/1.1 "Great Vibes", cursive; font-style: normal; margin-bottom: .5em; }
+.z-bottom { position: absolute; left: 14mm; right: 14mm; bottom: 12mm; border-top: .3mm solid var(--ink); }
+
+
+/* ───── 4. Захидал сонин ───── */
+.t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
+.t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;
+  background: #f8f5ef;
+  -webkit-mask: radial-gradient(circle 2.6mm at 2.6mm 2.6mm, #000 98%, transparent) -2.6mm -2.6mm / 5.2mm 5.2mm,
+    linear-gradient(#000, #000) center / calc(100% - 5.2mm) calc(100% - 5.2mm) no-repeat;
+          mask: radial-gradient(circle 2.6mm at 2.6mm 2.6mm, #000 98%, transparent) -2.6mm -2.6mm / 5.2mm 5.2mm,
+    linear-gradient(#000, #000) center / calc(100% - 5.2mm) calc(100% - 5.2mm) no-repeat; }
+.l-num { position: absolute; left: 14mm; top: 4mm; font: 600 7.5pt "Open Sans", sans-serif; z-index: 2; }
+.l-num.r { left: auto; right: 14mm; }
+.booth { position: absolute; left: 20mm; top: 24mm; width: 66mm; padding: 4mm 4mm 9mm; background: #141210; transform: rotate(-6deg);
+  display: grid; gap: 3.2mm; box-shadow: 0 1.5mm 4mm rgba(0,0,0,.3); z-index: 2; }
+.booth-cell { height: 52mm; background: #fff; padding: 1.4mm; }
+.booth-cap { position: absolute; left: 0; right: 0; bottom: 2.5mm; text-align: center; color: #f3efe8; font: 400 7pt "Old Standard TT", serif; letter-spacing: .08em; }
+.l-print { position: absolute; left: 76mm; top: 66mm; width: 116mm; height: 150mm; padding: 4mm; background: #fff; transform: rotate(5deg);
+  box-shadow: 0 1.5mm 4mm rgba(0,0,0,.28); z-index: 1; }
+.l-print .ph { height: 100%; }
+.l-cap { position: absolute; left: 24mm; right: 24mm; bottom: 20mm; height: 28mm; overflow: hidden; z-index: 3; display: flex; flex-direction: column; justify-content: safe center;
+  text-align: center; font: italic 400 11pt/1.4 "Old Standard TT", "Times New Roman", serif; }
+
+.t-letter .l-right { background: #fbfaf6; }
+.l-mast { position: absolute; left: 14mm; right: 14mm; top: 12mm; text-align: center; font: 400 68pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.l-dateline { position: absolute; left: 14mm; right: 14mm; top: 38mm; display: flex; justify-content: space-between; font: 600 8pt "Open Sans", sans-serif;
+  padding: 1.3mm 0; border-top: .35mm solid var(--ink); border-bottom: .35mm solid var(--ink); }
+.l-headrow { position: absolute; left: 14mm; right: 14mm; top: 48mm; height: 34mm; display: grid; grid-template-columns: 1fr auto; gap: 6mm; align-items: center; }
+.l-head { text-align: center; font: italic 400 15pt/1.3 "Old Standard TT", "Times New Roman", serif; text-transform: uppercase; letter-spacing: .02em; }
+.l-hearts { color: var(--red); font-size: 13pt; letter-spacing: .3em; }
+.stamps { display: flex; gap: 3mm; }
+.stamp { display: block; width: 20mm; height: 25mm; padding: 1.6mm; background: #fff;
+  -webkit-mask: radial-gradient(circle 1.1mm at 1.1mm 1.1mm, transparent 95%, #000) -1.1mm -1.1mm / 3.3mm 3.3mm; mask: radial-gradient(circle 1.1mm at 1.1mm 1.1mm, transparent 95%, #000) -1.1mm -1.1mm / 3.3mm 3.3mm;
+  filter: drop-shadow(0 .4mm .6mm rgba(0,0,0,.2)); }
+.stamp:nth-child(2) { transform: rotate(6deg); }
+.st-in { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1mm; background: #f2c9c9; border: .3mm solid var(--red); color: var(--red); }
+.st-g { font: 400 20pt/1 "Noto Sans Symbols 2", "Noto Sans Symbols", sans-serif; }
+.st-t { font: 700 5pt "Open Sans", sans-serif; letter-spacing: .12em; }
+.l-body { position: absolute; left: 14mm; right: 14mm; top: 86mm; bottom: 18mm; overflow: hidden; column-count: 1;
+  font: italic 400 12.5pt/1.5 "Old Standard TT", "Times New Roman", serif; text-align: justify; hyphens: auto; }
+.l-body p { white-space: pre-line; }
+.l-bottom { position: absolute; left: 14mm; right: 14mm; bottom: 11mm; border-top: .35mm solid var(--ink); }
+
+/* ── Хэвлэх ── */
+@page { size: 420mm 297mm; margin: 0; }
+#print-host { display: none; }
+@media print {
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  body > :not(#print-host) { display: none !important; }
+  #print-host { display: block !important; }
+  #print-host .ghost, #print-host .ph-empty { visibility: hidden !important; }
+  #print-host .ph.sel { outline: none; }
+  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Сонин баглаа · Админ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Manrope:wght@400;600;700&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@400;600;700&family=Oswald:wght@700&family=Playfair+Display:ital,wght@0,800;1,900&family=Poiret+One&display=swap">
+<link rel="stylesheet" href="sheet.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div><div class="brand">Зөвхөн түүнд · Админ</div><h1>Сонин баглааны захиалга</h1></div>
+  </header>
+
+  <form class="login" id="login" hidden>
+    <h2>Нэвтрэх</h2>
+    <div class="field"><label for="pass">Нууц үг</label><input id="pass" type="password" autocomplete="current-password"></div>
+    <p class="err-text" id="login-err" hidden></p>
+    <button class="btn" type="submit">Нэвтрэх</button>
+  </form>
+
+  <div class="admin" id="admin" hidden>
+    <aside class="side">
+      <button class="btn" type="button" id="new">+ Шинэ захиалга</button>
+      <div class="filters" id="filters">
+        <button class="chip" type="button" data-f="all" aria-pressed="true">Бүгд</button>
+        <button class="chip" type="button" data-f="new" aria-pressed="false">Шинэ</button>
+        <button class="chip" type="button" data-f="printed" aria-pressed="false">Хэвлэсэн</button>
+        <button class="chip" type="button" data-f="done" aria-pressed="false">Өгсөн</button>
+      </div>
+      <ul class="olist" id="olist"><li class="empty">Ачаалж байна…</li></ul>
+    </aside>
+    <section>
+      <div class="toolbar">
+        <div class="meta"><b id="cur-id">Шинэ</b><span id="cur-info">Хадгалаагүй</span></div>
+        <select id="status" aria-label="Төлөв">
+          <option value="new">Шинэ</option><option value="printed">Хэвлэсэн</option><option value="done">Хүлээлгэж өгсөн</option>
+        </select>
+        <button class="btn secondary" type="button" id="save">Хадгалах</button>
+        <button class="btn" type="button" id="print">A3 хэвлэх</button>
+        <button class="btn danger" type="button" id="del" hidden>Устгах</button>
+      </div>
+      <div class="editor" id="editor"></div>
+    </section>
+  </div>
+</main>
+<script type="module" src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Сонин баглаа · Зөвхөн түүнд</title>
+<meta name="description" content="Төрсөн өдрийн сонин хэлбэрийн цаастай цэцгийн баглаа. Зураг, үгээ оруулаад шууд харна.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Manrope:wght@400;600;700&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@400;600;700&family=Oswald:wght@700&family=Playfair+Display:ital,wght@0,800;1,900&family=Poiret+One&display=swap">
+<link rel="stylesheet" href="sheet.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<main class="wrap" id="main">
+  <header class="top">
+    <div>
+      <div class="brand">Зөвхөн түүнд</div>
+      <h1>Түүнд зориулсан сонин баглаа</h1>
+      <p>Зураг, сэтгэлийн үгээ оруулаарай. Бид A3 цаасан дээр хэвлээд, цэцгийн баглаагаа ороож бэлдэнэ.</p>
+    </div>
+  </header>
+  <div class="editor" id="editor"></div>
+  <div class="submit-bar">
+    <button class="btn" id="submit" type="button">Захиалга илгээх</button>
+    <p id="submit-note">Илгээсний дараа бид таны утсаар холбогдож, цэцэг болон төлбөрөө тохирно.</p>
+  </div>
+</main>
+<script type="module">
+import { createEditor, toast } from "./app.js";
+const ed = createEditor({ root: document.getElementById("editor"), mode: "customer" });
+const btn = document.getElementById("submit");
+
+btn.addEventListener("click", async () => {
+  const o = ed.get();
+  if (!o.contact.phone.trim()) { toast("Утасны дугаараа оруулна уу.", "err"); document.getElementById("c-phone")?.focus(); return; }
+  if (!o.photos.some((p) => p.src)) { toast("Дор хаяж нэг зураг оруулна уу.", "err"); return; }
+  btn.disabled = true; btn.textContent = "Илгээж байна…";
+  try {
+    const res = await fetch("/api/orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(o) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Илгээж чадсангүй. Дахин оролдоно уу.");
+    document.getElementById("main").innerHTML = `
+      <div class="done">
+        <div class="brand">Зөвхөн түүнд</div>
+        <h2>Захиалга хүлээн авлаа</h2>
+        <p>Таны захиалгын дугаар</p>
+        <div class="code">№ ${data.id}</div>
+        <p>Бид удахгүй <b>${o.contact.phone.replace(/[<>&]/g, "")}</b> дугаарт холбогдоно.</p>
+        <p>Instagram DM-ээр бичихдээ энэ дугаараа хэлээрэй.</p>
+      </div>`;
+    window.scrollTo(0, 0);
+  } catch (e) {
+    toast(e.message, "err");
+    btn.disabled = false; btn.textContent = "Захиалга илгээх";
+  }
+});
+</script>
+</body>
+</html>
