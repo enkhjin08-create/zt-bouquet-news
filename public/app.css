@@ -146,3 +146,4 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .tb-val { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
 .pick-booth .swatch i:first-child { background: #e6e0d6 linear-gradient(#111, #111) 30% 45% / 50% 55% no-repeat; }
 .pick-booth .swatch i { background: #f7f4ee repeating-linear-gradient(#f7f4ee 0 4px, #8b857c 4px 5px) 50% 80% / 78% 50% no-repeat; }
+.textbar[hidden], [hidden] { display: none !important; }
