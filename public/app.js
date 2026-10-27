@@ -290,6 +290,7 @@ export function createEditor({ root, mode, onChange }) {
       </div>
 
       <h2 class="step"><b>${slots.length ? 4 : 3}</b>Цэцгээ сонгоно уу</h2>
+      <p class="help">Сонины үнэ дээр сонгосон цэцэг, хүргэлтийн үнэ нэмэгдэнэ.</p>
       <div class="flowers" id="flowers">${flowersHtml()}</div>
 
       <h2 class="step"><b>${slots.length ? 5 : 4}</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
@@ -319,18 +320,18 @@ export function createEditor({ root, mode, onChange }) {
       <div class="pk-list">${pk.map((p) => `
         <label class="pk ${f.packageId === p.id ? "on" : ""}">
           <input type="radio" name="pk" value="${esc(p.id)}" ${f.packageId === p.id ? "checked" : ""}>
-          ${p.img ? `<img class="pk-img" src="/api/cimg/${esc(p.img)}" alt="" loading="lazy">` : ""}<span class="pk-name">${esc(p.name)}</span><span class="pk-desc">${esc(p.desc)}</span><span class="pk-price">${money(p.price)}</span>
+          ${p.img ? `<img class="pk-img" src="/api/cimg/${esc(p.img)}" alt="" loading="lazy">` : ""}<span class="pk-name">${esc(p.name)}</span><span class="pk-desc">${esc(p.desc)}</span><span class="pk-price">+${money(p.price)}</span>
         </label>`).join("") || `<p class="help">Одоогоор бэлэн баглаа алга.</p>`}
-        <label class="pk ${!f.packageId ? "on" : ""}"><input type="radio" name="pk" value="" ${!f.packageId ? "checked" : ""}><span class="pk-name">Зөвхөн сонин</span><span class="pk-desc">Цэцэггүй, сониноо л авна</span><span class="pk-price">${money(0)}</span></label>
+        <label class="pk ${!f.packageId ? "on" : ""}"><input type="radio" name="pk" value="" ${!f.packageId ? "checked" : ""}><span class="pk-name">Зөвхөн сонин</span><span class="pk-desc">Цэцэггүй, сониноо л авна</span><span class="pk-price">${money(priceOf({ ...order, flowers: {}, delivery: {} }, cat).total)}</span></label>
       </div>` : `
       <div class="fl-list">${fl.map((p) => `
         <div class="fl ${qty(p.id) ? "on" : ""} ${p.img ? "has-img" : ""}">
-          ${p.img ? `<img class="fl-img" src="/api/cimg/${esc(p.img)}" alt="" loading="lazy">` : ""}<span class="fl-name">${esc(p.name)}</span><span class="fl-price">${money(p.price)} / ш</span>
+          ${p.img ? `<img class="fl-img" src="/api/cimg/${esc(p.img)}" alt="" loading="lazy">` : ""}<span class="fl-name">${esc(p.name)}</span><span class="fl-price">+${money(p.price)} / ш</span>
           <span class="qty"><button type="button" data-fq="${esc(p.id)}" data-d="-1" aria-label="Хасах">−</button><b>${qty(p.id)}</b><button type="button" data-fq="${esc(p.id)}" data-d="1" aria-label="Нэмэх">+</button></span>
         </div>`).join("") || `<p class="help">Одоогоор цэцэг бүртгэгдээгүй байна.</p>`}
       </div>`}
       <div class="dl">
-        <label class="dl-opt ${d.type !== "delivery" ? "on" : ""}"><input type="radio" name="dl" value="pickup" ${d.type !== "delivery" ? "checked" : ""}><span>Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}</span><b>${money(0)}</b></label>
+        <label class="dl-opt ${d.type !== "delivery" ? "on" : ""}"><input type="radio" name="dl" value="pickup" ${d.type !== "delivery" ? "checked" : ""}><span>Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}</span><b>Нэмэлт төлбөргүй</b></label>
         <label class="dl-opt ${d.type === "delivery" ? "on" : ""}"><input type="radio" name="dl" value="delivery" ${d.type === "delivery" ? "checked" : ""}><span>Хүргүүлнэ</span><b>+${money(cat.deliveryFee)}</b></label>
       </div>
       ${d.type === "delivery" ? `<div class="field"><label for="d-addr">Хүргэлтийн хаяг <em>*</em></label><textarea id="d-addr" data-addr="1" rows="2" maxlength="400" placeholder="Дүүрэг, хороо, байр, орц, тоот">${esc(d.address)}</textarea></div>` : ""}
