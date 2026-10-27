@@ -195,7 +195,7 @@ export function createEditor({ root, mode, onChange }) {
               ${MASTHEADS.map((m) => `<option ${order.masthead === m ? "selected" : ""}>${m}</option>`).join("")}
               <option value="__custom" ${MASTHEADS.includes(order.masthead) ? "" : "selected"}>Өөрөө бичих…</option>
             </select></div>
-          ${MASTHEADS.includes(order.masthead) ? "" : `<div class="field"><label for="f-mast-c">Өөрийн нэр</label><input id="f-mast-c" data-k="masthead" maxlength="24" value="${esc(order.masthead)}"></div>`}
+          ${MASTHEADS.includes(order.masthead) ? "" : `<div class="field"><label for="f-mast-c">Өөрийн нэр</label><input id="f-mast-c" data-k="masthead" maxlength="60" value="${esc(order.masthead)}"></div>`}
           ${order.template === "letter" ? `<div class="field"><label for="f-headline2">Гарчиг</label><input id="f-headline2" data-k="headline" maxlength="80" placeholder="Миний бүхэл болсон чамдаа" value="${esc(order.headline)}"></div>` : ""}
         </div>
         ${has("tofrom") ? `
@@ -203,6 +203,12 @@ export function createEditor({ root, mode, onChange }) {
           <div class="field"><label for="f-to">To (хэнд)</label><input id="f-to" data-k="to" maxlength="30" placeholder="My husband" value="${esc(order.to)}"></div>
           <div class="field"><label for="f-from">From (хэнээс)</label><input id="f-from" data-k="from" maxlength="30" placeholder="Your wife" value="${esc(order.from)}"></div>
         </div>` : ""}
+        ${has("sportlabels") ? `
+        <div class="row2">
+          <div class="field"><label for="f-l1s">Зургийн шошго</label><input id="f-l1s" data-k="l1" maxlength="18" placeholder="MY MVP" value="${esc(order.l1 || "")}"></div>
+          <div class="field"><label for="f-s1s">Том улаан дугаар</label><input id="f-s1s" data-k="s1" maxlength="6" placeholder="#44" value="${esc(order.s1 || "")}"></div>
+        </div>
+        <p class="help">Захидлын зөвхөн ТОМ ҮСГЭЭР бичсэн мөр гарчиг болж тодорно.</p>` : ""}
         ${has("labels") ? `
         <div class="field"><label>Цаасан шошгууд</label>
           <div class="wishes">
@@ -326,9 +332,9 @@ export function createEditor({ root, mode, onChange }) {
   });
 
   // ── Текстийн хэмжээ, байрлал ──
-  const TB_NAMES = { l1: "Шошго 1", l2: "Шошго 2", l3: "Шошго 3", s1: "Цэнхэр наалт", s2: "Том наалт", mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3" };
+  const TB_NAMES = { l1: "Шошго 1", l2: "Шошго 2", l3: "Шошго 3", s1: "Наалт 1", s2: "Наалт 2", mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3" };
   let selText = null, tdrag = null, selFrame = null, frameMode = "img";
-  const FR_NAMES = { rl: "Зүүн хальс", rr: "Баруун хальс", stamp: "Маркан хүрээ", f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг" };
+  const FR_NAMES = { poster: "Постер зураг", sp1: "Баруун зураг 1", sp2: "Баруун зураг 2", rl: "Зүүн хальс", rr: "Баруун хальс", stamp: "Маркан хүрээ", f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг" };
   const txOf = (key) => {
     order.tx = order.tx || {};
     const t = (order.tx[order.template] = order.tx[order.template] || {});

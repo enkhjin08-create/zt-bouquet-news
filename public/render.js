@@ -55,6 +55,7 @@ const SAMPLE = {
   ],
   letter:
     "Чамтайгаа учирсан тэр өдрөөс хойш миний амьдралын өнгө өөр болсон юм шиг санагддаг. Хамтдаа инээсэн, уйлсан, аялсан бүх л мөч маань надад хамгийн үнэтэй дурсамж болон үлдсэн.\n\nЧи миний хамгийн дотно хүн, хамгийн сайн найз минь. Ямар ч үед хажууд минь байж, намайг өөрийнхөөрөө байхад тусалдагт чинь баярлалаа.\n\nТөрсөн өдрөөр чинь чамд эрүүл энх, аз жаргал, мөрөөдөл бүхэн чинь биелэхийг хүсье. Үргэлж хамтдаа байцгаая. Хайртай шүү ♥",
+  sport: "МИНИЙ ТАМИРЧИН\nЧи онооны самбар дээрх тоог хардаг бол би түүний ард байгаа хөдөлмөр, хөлс, хэзээ ч бууж өгдөггүй зоригийг чинь хардаг. Хэн ч харахгүй байхад давтсан бэлтгэл бүр чинь өнөөдрийн ялалт болсон.\n\nЧАМААРАА БАХАРХАЖ БАЙНА\nТалбай дээр гарах бүрт чинь зүрх минь чамтай хамт гүйдэг. Чи зөвхөн гайхалтай тамирчин биш, бүр гайхалтай хүн.\n\nМИНИЙ MVP\nОнооны самбар юу ч гэж харуулсан, чи надад үргэлж хамгийн шилдэг нь. Гэрэлтэж яваарай, од минь!",
   film: "Төрсөн өдрийн мэнд хүргэе, миний гоё найз аа!\nӨнөөдөр чи дэлхий дээр ирсэн өдөр учраас чамд хамгийн сайхан бүхнийг хүсье.\n\nҮргэлж ингэж гэрэлтэж, инээмсэглэж, мөрөөдөл бүртээ хүрээрэй. Чамтай хамт байсан мөч бүр минь хамгийн үнэтэй дурсамж.\n\nЧи бол үнэхээр мундаг, үнэнч найз минь. Насан туршдаа хамтдаа байцгаая!",
   bff: "Хайрт найздаа төрсөн өдрийн баярын мэнд! Чамтай өнгөрүүлсэн мөч бүр хамгийн сайхан дурсамж болдог. Ирэх жилүүдэд чи улам хөгжилтэй, аз жаргалтай байж, мөрөөдөл бүртээ хүрээрэй. Амьдрал чинь хайр, инээд хөөрөөр дүүрэн байх болтугай. Чамд хамгийн сайн сайхныг хүсэж байна.",
   note: "Төрсөн өдрийн мэнд хүргэе, миний хайр.\nЧамтайгаа хамт хөгширч, олон жилийн дараа өнөөдрийнхөө тухай инээмсэглэн дурсаж суухыг хүсэж байна.\nЧамдаа маш их хайртай шүү. Өнөөдөр, маргааш, бас насан туршдаа.",
@@ -277,12 +278,57 @@ function filmTpl(o) {
   </section>`;
 }
 
+// ───────────── 7. Спорт (сагсан бөмбөг) ─────────────
+const bball = (cls) => `<svg class="bball ${cls}" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#e06a1f"/><circle cx="62" cy="62" r="40" fill="#b9520f" opacity=".35"/><circle cx="34" cy="30" r="14" fill="#f8b277" opacity=".55"/><g fill="none" stroke="#3a1a08" stroke-width="2.6"><path d="M2 50h96M50 2v96"/><path d="M16 16c14 12 14 56 0 68M84 16c-14 12-14 56 0 68"/></g></svg>`;
+const doodle = {
+  hoop: `<svg class="doodle hoop" viewBox="0 0 120 120" aria-hidden="true"><path d="M30 10h60v34H30z"/><path d="M48 24h24v20H48z"/><ellipse cx="60" cy="50" rx="26" ry="6"/><path d="M36 52l8 46M48 55l4 44M60 56v44M72 55l-4 44M84 52l-8 46M38 64h44M41 78h38M44 92h32"/></svg>`,
+  ball: `<svg class="doodle dball" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44"/><path d="M6 50h88M50 6v88M20 18c14 14 14 50 0 64M80 18c-14 14-14 50 0 64"/></svg>`,
+  trophy: `<svg class="doodle trophy" viewBox="0 0 100 130" aria-hidden="true"><path d="M26 10h48v26c0 18-10 30-24 30S26 54 26 36z"/><path d="M26 18H12c0 18 8 26 16 26M74 18h14c0 18-8 26-16 26"/><path d="M42 66v18h16V66M30 84h40v12H30zM24 96h52v14H24z"/><path d="M50 26l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z"/></svg>`,
+};
+function bodyLines(text) {
+  return esc(text).split("\n").map((l) => {
+    const t = l.trim();
+    if (!t) return `<span class="gap"></span>`;
+    const letters = t.replace(/[^A-Za-zА-Яа-яЁёӨөҮү]/g, "");
+    return letters.length > 2 && letters === letters.toUpperCase() ? `<b>${t}</b>` : `<span>${t}</span>`;
+  }).join("");
+}
+function sport(o) {
+  const ph = o.photos || [];
+  const body = o.message && o.message.trim() ? bodyLines(o.message) : `<span class="ghost">${bodyLines(SAMPLE.sport)}</span>`;
+  return `
+  <section class="page sp-left">
+    <div class="court"></div>
+    <div class="sp-top"><span>002</span></div>
+    ${doodle.hoop}
+    <figure class="sp-poster" data-fr="poster">${photo(ph[0], "", 0)}</figure>
+    <div class="sp-balls">${bball("b1")}${bball("b2")}${bball("b3")}</div>
+    ${doodle.ball.replace('class="doodle dball"', 'class="doodle dball l"')}
+    ${doodle.trophy}
+    <div class="sp-bottom"></div>
+  </section>
+  <section class="page sp-right">
+    <div class="court r"></div>
+    <div class="sp-top r"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="sp-mast fit" data-base="40" data-tb="mast"><span>${esc(o.masthead || "BIRTHDAY TIMES")}</span></h1>
+    <div class="sp-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    <div class="sp-body fit" data-base="10.5" data-tb="body">${body}</div>
+    <figure class="sp-pol p1" data-fr="sp1">${photo(ph[1], "", 1)}</figure>
+    <span class="sp-cap" data-tb="l1">${esc(o.l1 || "MY MVP")}</span>
+    <figure class="sp-pol p2" data-fr="sp2">${photo(ph[2], "", 2)}</figure>
+    <span class="sp-num" data-tb="s1">${esc(o.s1 || "#44")}</span>
+    ${doodle.ball}
+    <div class="sp-bottom"></div>
+  </section>`;
+}
+
 export const MASTHEADS = ["BIRTHDAY TIMES", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
 
 export const TEMPLATES = {
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
+  sport: { label: "Спорт", render: sport, photos: ["Том постер зураг (зүүн нүүр)", "Баруун зураг 1", "Баруун зураг 2"], fields: ["masthead", "message", "sportlabels"] },
   film: { label: "Кино хальс", render: filmTpl, photos: ["Зүүн хальс 1", "Зүүн хальс 2", "Баруун хальс 1", "Баруун хальс 2"], fields: ["masthead", "message", "labels", "stickers"] },
   scrap: { label: "Скрапбүүк", render: scrap, photos: ["Гол зураг (маркан хүрээ)"], fields: ["masthead", "message", "stickers"] },
   booth: { label: "Фото бүхээг", render: booth, photos: ["Хальсан зураг 1 (дээд)", "Хальсан зураг 2 (доод)", "Бүхээг 1", "Бүхээг 2", "Бүхээг 3", "Бүхээг 4"], fields: ["masthead", "tofrom", "note", "message"] },

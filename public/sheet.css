@@ -305,6 +305,46 @@
 .ransom .r5 { background: #c8102e; color: #fff; font: 700 32pt/1 "PT Mono", monospace; transform: rotate(-5deg); }
 .fm-xoxo { position: absolute; left: 116mm; bottom: 6mm; z-index: 5; color: #e0363f; font: 900 22pt/1 "ZT Shantell", sans-serif; letter-spacing: .08em; transform: rotate(-6deg); }
 
+
+/* ───── 7. Спорт ───── */
+.t-sport .page { --ink: #161616; --red: #d0202c; background: #fbfbfa; }
+.court { position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background:
+    radial-gradient(circle at 0 100%, transparent 118mm, #d9d9d9 118.4mm, #d9d9d9 120mm, transparent 120.4mm),
+    radial-gradient(circle at 105% 45%, transparent 70mm, #e2e2e2 70.4mm, #e2e2e2 72mm, transparent 72.4mm),
+    radial-gradient(circle at 50% 120%, transparent 90mm, #e6e6e6 90.4mm, #e6e6e6 92mm, transparent 92.4mm); }
+.court.r { background:
+    radial-gradient(circle at 100% 0, transparent 120mm, #dcdcdc 120.4mm, #dcdcdc 122mm, transparent 122.4mm),
+    radial-gradient(circle at -10% 70%, transparent 80mm, #e4e4e4 80.4mm, #e4e4e4 82mm, transparent 82.4mm); }
+.sp-top { position: absolute; left: 10mm; right: 10mm; top: 5mm; padding-bottom: 1.2mm; border-bottom: .3mm solid var(--ink); font: 600 7pt "Open Sans", sans-serif; display: flex; z-index: 3; }
+.sp-top.r { justify-content: flex-end; }
+.sp-bottom { position: absolute; left: 10mm; right: 10mm; bottom: 7mm; border-top: .3mm solid var(--ink); }
+.doodle { position: absolute; fill: none; stroke: #1c1c1c; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.doodle.hoop { right: 4mm; top: 6mm; width: 40mm; transform: rotate(8deg); }
+.doodle.trophy { right: 6mm; bottom: 12mm; width: 36mm; transform: rotate(-8deg); }
+.doodle.dball { right: -10mm; bottom: 24mm; width: 34mm; }
+.doodle.dball.l { left: -8mm; right: auto; bottom: 8mm; width: 42mm; }
+.sp-poster { position: absolute; left: 10mm; top: 38mm; width: 188mm; height: 172mm; background: #fff; padding: 0; box-shadow: 0 1.5mm 4mm rgba(0,0,0,.25); z-index: 2; }
+.sp-poster .ph { height: 100%; }
+.sp-balls { position: absolute; left: 62mm; top: 224mm; display: flex; gap: 6mm; z-index: 2; }
+.bball { width: 22mm; filter: drop-shadow(0 1.4mm 1.2mm rgba(0,0,0,.3)); }
+.sp-mast { position: absolute; left: 14mm; right: 14mm; top: 9mm; height: 34mm; overflow: hidden; z-index: 3; display: flex; flex-direction: column; justify-content: center; text-align: center;
+  font: 400 40pt/0.98 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .3em; text-wrap: balance; }
+.sp-dateline { position: absolute; left: 12mm; right: 12mm; top: 45mm; display: flex; justify-content: space-between; font: 400 8pt "Open Sans", sans-serif;
+  padding: 1.2mm 0; border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
+.sp-body { position: absolute; left: 12mm; top: 55mm; width: 104mm; bottom: 16mm; overflow: hidden; z-index: 3; display: flex; flex-direction: column;
+  font: 400 10.5pt/1.42 "PT Mono", "Courier New", monospace; text-align: justify; hyphens: auto; }
+.sp-body > span, .sp-body > b, .sp-body .ghost > span, .sp-body .ghost > b { display: block; }
+.sp-body b { font-weight: 700; letter-spacing: .03em; }
+.sp-body .gap { height: .6em; }
+.sp-pol { position: absolute; background: #fff; padding: 3.5mm 3.5mm 12mm; box-shadow: 0 1.5mm 3.5mm rgba(0,0,0,.28); z-index: 2; }
+.sp-pol .ph { height: 100%; }
+.sp-pol.p1 { left: 118mm; top: 58mm; width: 88mm; height: 92mm; transform: rotate(5deg); }
+.sp-pol.p2 { left: 120mm; top: 156mm; width: 82mm; height: 100mm; transform: rotate(-4deg); }
+.sp-cap { position: absolute; left: 164mm; top: 145mm; z-index: 4; color: var(--red); font: 700 12pt "PT Mono", monospace; letter-spacing: .06em; transform: rotate(5deg); }
+.sp-num { position: absolute; left: 134mm; top: 248mm; z-index: 5; color: var(--red); font: 900 44pt/1 "ZT Torid", "Rubik", sans-serif; letter-spacing: .02em;
+  -webkit-text-stroke: .5mm #fff; paint-order: stroke fill; transform: rotate(-6deg); text-shadow: 0 .6mm 1mm rgba(0,0,0,.25); }
+
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
 .t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;
@@ -354,5 +394,5 @@
   #print-host { display: block !important; }
   #print-host .ghost, #print-host .ph-empty { visibility: hidden !important; }
   #print-host .ph.sel, #print-host .tsel { outline: none; }
-  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .reel-cell:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
+  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .reel-cell:has(.ph-empty), #print-host .sp-pol:has(.ph-empty), #print-host .sp-poster:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
 }
