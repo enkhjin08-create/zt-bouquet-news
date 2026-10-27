@@ -1,4 +1,4 @@
-import { createEditor, blankOrder, toast, money, loadCatalog } from "./app.js";
+import { createEditor, blankOrder, toast, money, loadCatalog, compress } from "./app.js";
 import { TEMPLATES } from "./render.js";
 
 const $ = (s) => document.querySelector(s);
@@ -203,6 +203,7 @@ $("#mark-paid").addEventListener("click", async (e) => {
 let catDraft = null;
 const catRow = (p, i, kind) => kind === "packages" ? `
   <div class="cat-row" data-kind="packages" data-i="${i}">
+    <label class="cat-img" title="Зураг оруулах">${p.img ? `<img src="/api/cimg/${esc(p.img)}" alt="">` : "<span>+ Зураг</span>"}<input type="file" accept="image/*" data-img="${i}" hidden></label>
     <input data-f="name" value="${esc(p.name)}" placeholder="Нэр" aria-label="Нэр">
     <input data-f="desc" value="${esc(p.desc)}" placeholder="Тайлбар" aria-label="Тайлбар">
     <input data-f="price" type="number" min="0" step="1000" value="${p.price}" aria-label="Үнэ">
@@ -210,6 +211,7 @@ const catRow = (p, i, kind) => kind === "packages" ? `
     <button type="button" class="link" data-del="${i}">Хасах</button>
   </div>` : `
   <div class="cat-row fl-row" data-kind="flowers" data-i="${i}">
+    <label class="cat-img" title="Зураг оруулах">${p.img ? `<img src="/api/cimg/${esc(p.img)}" alt="">` : "<span>+ Зураг</span>"}<input type="file" accept="image/*" data-img="${i}" hidden></label>
     <input data-f="name" value="${esc(p.name)}" placeholder="Цэцгийн нэр" aria-label="Нэр">
     <input data-f="price" type="number" min="0" step="500" value="${p.price}" aria-label="Нэг ширхэгийн үнэ">
     <label><input type="checkbox" data-f="active" ${p.active ? "checked" : ""}> Идэвхтэй</label>
@@ -256,4 +258,20 @@ $("#cat").addEventListener("click", async (e) => {
     try { catDraft = await api("/api/catalog", { method: "PUT", body: JSON.stringify(catDraft) }); drawCat(); await loadCatalog(true); ed.reloadCatalog(); toast("Хадгаллаа"); }
     catch (err) { if (err.message !== "401") toast(err.message, "err"); }
   }
+});
+
+$("#cat").addEventListener("change", async (e) => {
+  const inp = e.target.closest("input[data-img]");
+  if (!inp || !inp.files?.[0]) return;
+  readCat();
+  const row = inp.closest(".cat-row");
+  const item = catDraft[row.dataset.kind][+row.dataset.i];
+  row.classList.add("busy");
+  try {
+    const src = await compress(inp.files[0], 700, 0.82);
+    const { key } = await api("/api/catalog/img", { method: "POST", body: JSON.stringify({ src }) });
+    item.img = key;
+    drawCat();
+    toast("Зураг нэмэгдлээ. Хадгалах дарна уу.");
+  } catch (err) { if (err.message !== "401") toast(err.message, "err"); row.classList.remove("busy"); }
 });

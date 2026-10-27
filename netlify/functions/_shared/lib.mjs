@@ -32,6 +32,7 @@ export const DEFAULT_CATALOG = {
 };
 const intIn = (v, lo, hi, d) => (Number.isFinite(+v) ? Math.min(hi, Math.max(lo, Math.round(+v))) : d);
 const str = (v, n) => (typeof v === "string" ? v.slice(0, n) : "");
+const imgKey = (v) => (typeof v === "string" && /^[a-z0-9]{6,32}$/.test(v) ? v : "");
 const slug = (v, i) => (typeof v === "string" && /^[a-z0-9_-]{1,24}$/.test(v) ? v : `x${Date.now().toString(36)}${i}`);
 export function cleanCatalog(c) {
   const d = DEFAULT_CATALOG;
@@ -39,8 +40,8 @@ export function cleanCatalog(c) {
     newsPrice: intIn(c?.newsPrice, 0, 10_000_000, d.newsPrice),
     deliveryFee: intIn(c?.deliveryFee, 0, 10_000_000, d.deliveryFee),
     pickupNote: str(c?.pickupNote, 80) || d.pickupNote,
-    packages: (Array.isArray(c?.packages) ? c.packages : []).slice(0, 20).map((p, i) => ({ id: slug(p?.id, i), name: str(p?.name, 60), desc: str(p?.desc, 120), price: intIn(p?.price, 0, 10_000_000, 0), active: p?.active !== false })).filter((p) => p.name),
-    flowers: (Array.isArray(c?.flowers) ? c.flowers : []).slice(0, 60).map((p, i) => ({ id: slug(p?.id, i), name: str(p?.name, 60), price: intIn(p?.price, 0, 10_000_000, 0), active: p?.active !== false })).filter((p) => p.name),
+    packages: (Array.isArray(c?.packages) ? c.packages : []).slice(0, 20).map((p, i) => ({ id: slug(p?.id, i), name: str(p?.name, 60), desc: str(p?.desc, 120), price: intIn(p?.price, 0, 10_000_000, 0), img: imgKey(p?.img), active: p?.active !== false })).filter((p) => p.name),
+    flowers: (Array.isArray(c?.flowers) ? c.flowers : []).slice(0, 60).map((p, i) => ({ id: slug(p?.id, i), name: str(p?.name, 60), price: intIn(p?.price, 0, 10_000_000, 0), img: imgKey(p?.img), active: p?.active !== false })).filter((p) => p.name),
   };
 }
 export async function getCatalog(s = store()) {

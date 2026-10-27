@@ -62,7 +62,7 @@ export const blankOrder = () => ({
 });
 
 // ── Зураг шахах: урт тал 1800px, JPEG ──
-async function compress(file, max = 1600, q = 0.82) {
+export async function compress(file, max = 1600, q = 0.82) {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise((res, rej) => {
@@ -318,13 +318,13 @@ export function createEditor({ root, mode, onChange }) {
       <div class="pk-list">${pk.map((p) => `
         <label class="pk ${f.packageId === p.id ? "on" : ""}">
           <input type="radio" name="pk" value="${esc(p.id)}" ${f.packageId === p.id ? "checked" : ""}>
-          <span class="pk-name">${esc(p.name)}</span><span class="pk-desc">${esc(p.desc)}</span><span class="pk-price">${money(p.price)}</span>
+          ${p.img ? `<img class="pk-img" src="/api/cimg/${esc(p.img)}" alt="" loading="lazy">` : ""}<span class="pk-name">${esc(p.name)}</span><span class="pk-desc">${esc(p.desc)}</span><span class="pk-price">${money(p.price)}</span>
         </label>`).join("") || `<p class="help">Одоогоор бэлэн баглаа алга.</p>`}
         <label class="pk ${!f.packageId ? "on" : ""}"><input type="radio" name="pk" value="" ${!f.packageId ? "checked" : ""}><span class="pk-name">Зөвхөн сонин</span><span class="pk-desc">Цэцэггүй, сониноо л авна</span><span class="pk-price">${money(0)}</span></label>
       </div>` : `
       <div class="fl-list">${fl.map((p) => `
-        <div class="fl ${qty(p.id) ? "on" : ""}">
-          <span class="fl-name">${esc(p.name)}</span><span class="fl-price">${money(p.price)} / ш</span>
+        <div class="fl ${qty(p.id) ? "on" : ""} ${p.img ? "has-img" : ""}">
+          ${p.img ? `<img class="fl-img" src="/api/cimg/${esc(p.img)}" alt="" loading="lazy">` : ""}<span class="fl-name">${esc(p.name)}</span><span class="fl-price">${money(p.price)} / ш</span>
           <span class="qty"><button type="button" data-fq="${esc(p.id)}" data-d="-1" aria-label="Хасах">−</button><b>${qty(p.id)}</b><button type="button" data-fq="${esc(p.id)}" data-d="1" aria-label="Нэмэх">+</button></span>
         </div>`).join("") || `<p class="help">Одоогоор цэцэг бүртгэгдээгүй байна.</p>`}
       </div>`}
