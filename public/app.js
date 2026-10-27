@@ -147,7 +147,7 @@ export function createEditor({ root, mode, onChange }) {
           <button type="button" class="link" data-tbact="reset">Анхны байрлал</button>
           <button type="button" class="link" data-tbact="close">Болсон</button>
         </div>
-        <p class="hint">A3 хэмжээ · Зураг эсвэл текст дээр дарж байрлал, хэмжээг нь өөрчилнө. Саарал үсэг бол жишээ — хэвлэхэд гарахгүй.</p>
+        <p class="hint">A3 хэмжээ · Зураг эсвэл текст дээр дарж байрлал, хэмжээг нь өөрчилнө. Загвар дээрх үг бол жишээ — өөрийн үгээ бичихэд солигдоно, бичээгүй бол хэвлэхэд гарахгүй.</p>
       </div>
     </section>
     <section class="area-form" id="form"></section>`;
