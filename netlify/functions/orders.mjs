@@ -64,6 +64,45 @@ const cleanTx = (tx) => {
   return out;
 };
 
+const TPL_LABEL = { letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
+const h = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// Шинэ захиалгын мэдэгдэл (Resend). RESEND_API_KEY байхгүй бол алгасна.
+async function notify(order, site) {
+  const key = Netlify.env.get("RESEND_API_KEY");
+  if (!key) return;
+  const to = (Netlify.env.get("NOTIFY_EMAIL") || "enkhjin08@gmail.com").split(",").map((x) => x.trim()).filter(Boolean);
+  const from = Netlify.env.get("RESEND_FROM") || "Зөвхөн түүнд <orders@zuvhuntuund.com>";
+  const c = order.contact || {};
+  const link = `${site}/admin.html#${order.id}`;
+  const rows = [
+    ["Загвар", TPL_LABEL[order.template] || order.template],
+    ["Захиалагч", c.name || "—"],
+    ["Утас", c.phone || "—"],
+    ["Авах өдөр", c.pickup || "—"],
+    ["Хэнд", order.name || order.to || "—"],
+    ["Зураг", `${(order.photos || []).filter((p) => p && p.src).length} ширхэг`],
+    ["Нэмэлт хүсэлт", c.note || "—"],
+  ];
+  const html = `<div style="font-family:Arial,sans-serif;max-width:520px;color:#2a1c1f">
+    <p style="font-size:13px;letter-spacing:.12em;color:#7a2e3d;margin:0">ЗӨВХӨН ТҮҮНД · СОНИН БАГЛАА</p>
+    <h2 style="margin:6px 0 14px">Шинэ захиалга № ${h(order.id)}</h2>
+    <table style="border-collapse:collapse;width:100%;font-size:14px">${rows.map(([k, v]) => `<tr><td style="padding:6px 10px 6px 0;color:#7d6a6c;vertical-align:top;white-space:nowrap">${h(k)}</td><td style="padding:6px 0;white-space:pre-line">${h(v)}</td></tr>`).join("")}</table>
+    <p style="margin:18px 0"><a href="${h(link)}" style="background:#7a2e3d;color:#fff;padding:11px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Админ дээр нээх</a></p>
+  </div>`;
+  const text = `Шинэ захиалга № ${order.id}\n` + rows.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\n${link}`;
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body: JSON.stringify({ from, to, subject: `Шинэ захиалга № ${order.id} · ${c.name || c.phone || ""}`.trim(), html, text }),
+    });
+    if (!res.ok) console.error("Resend:", res.status, await res.text());
+  } catch (e) {
+    console.error("Resend:", e);
+  }
+}
+
 const clean = (body) => {
   const photos = Array.isArray(body.photos) ? body.photos.slice(0, MAX_PHOTOS) : [];
   for (const p of photos) {
@@ -126,6 +165,7 @@ export default async (req, context) => {
       if (!orderId) return json({ error: "Захиалга хадгалж чадсангүй. Дахин оролдоно уу." }, 500);
       const order = await s.get(`order/${orderId}`, { type: "json" });
       await s.setJSON(`meta/${orderId}`, metaOf(order));
+      if (!isAdmin(req)) context.waitUntil(notify(order, new URL(req.url).origin));
       return json({ id: orderId }, 201);
     }
 

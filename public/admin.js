@@ -45,6 +45,8 @@ async function start() {
   if (!ed) {
     ed = createEditor({ root: $("#editor"), mode: "admin", onChange: () => { dirty = true; } });
     newOrder();
+    const want = decodeURIComponent(location.hash.slice(1));
+    if (want && orders.some((o) => o.id === want)) openOrder(want);
   }
 }
 
@@ -73,12 +75,9 @@ $("#filters").addEventListener("click", (e) => {
   drawList();
 });
 
-$("#olist").addEventListener("click", async (e) => {
-  const b = e.target.closest("button[data-id]");
-  if (!b) return;
-  if (dirty && !guard("Хадгалаагүй өөрчлөлт байна. Дахин дарвал хаягдана.", b)) return;
+async function openOrder(oid) {
   try {
-    const o = await api(`/api/orders/${encodeURIComponent(b.dataset.id)}`);
+    const o = await api(`/api/orders/${encodeURIComponent(oid)}`);
     current = { id: o.id, status: o.status, createdAt: o.createdAt, source: o.source };
     ed.load(o);
     dirty = false;
@@ -86,6 +85,12 @@ $("#olist").addEventListener("click", async (e) => {
     drawList();
     window.scrollTo({ top: 0 });
   } catch (err) { if (err.message !== "401") toast(err.message, "err"); }
+}
+$("#olist").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-id]");
+  if (!b) return;
+  if (dirty && !guard("Хадгалаагүй өөрчлөлт байна. Дахин дарвал хаягдана.", b)) return;
+  openOrder(b.dataset.id);
 });
 
 // Хоёр дарж баталгаажуулах
