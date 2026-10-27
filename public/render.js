@@ -82,9 +82,16 @@ const flower = `<svg class="flower" viewBox="0 0 20 20"><g><circle cx="10" cy="5
 function news(o) {
   const ph = o.photos || [];
   const qa = (o.qa || []).filter((x) => x.q && x.q.trim());
-  const qaHtml = qa.length
-    ? qa.map((x, i) => `<div class="qa"><p class="q">${nl(x.q)}</p><p class="a">${or(x.a, SAMPLE.answers[i % SAMPLE.answers.length])}</p></div>`).join("")
-    : `<div class="qa"><p class="a">${or(o.message, SAMPLE.message)}</p></div>`;
+  // Мэндчилгээ бичсэн бол эхэнд нь гарна; хариулаагүй асуулт жишээ (ghost) болж хэвлэгдэхгүй
+  const hasMsg = !!(o.message && o.message.trim());
+  const answered = qa.filter((x) => x.a && x.a.trim());
+  const qaItem = (x, i) => x.a && x.a.trim()
+    ? `<div class="qa"><p class="q">${nl(x.q)}</p><p class="a">${nl(x.a)}</p></div>`
+    : `<div class="qa"><p class="q"><span class="ghost">${nl(x.q)}</span></p><p class="a"><span class="ghost">${nl(SAMPLE.answers[i % SAMPLE.answers.length])}</span></p></div>`;
+  const msgHtml = hasMsg ? `<div class="qa"><p class="a">${nl(o.message)}</p></div>` : "";
+  const qaHtml = hasMsg || answered.length
+    ? msgHtml + (answered.length ? answered.map(qaItem).join("") : "")
+    : qa.length ? qa.map(qaItem).join("") : `<div class="qa"><p class="a">${or("", SAMPLE.message)}</p></div>`;
   const cap = (i) => or(ph[i]?.caption, SAMPLE.captions[i - 1]);
   const top = `<div class="n-top"><span>${esc(o.edition || "SPECIAL EDITION")}</span><span>${dateEn(o.date) || "&nbsp;"}</span></div>`;
   return `
