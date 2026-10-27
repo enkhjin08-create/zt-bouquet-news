@@ -118,8 +118,10 @@ export default async (req, context) => {
       let orderId = "";
       for (let i = 0; i < 5; i++) {
         const candidate = newId();
-        const res = await s.setJSON(`order/${candidate}`, { ...body, id: candidate, status: "new", source: isAdmin(req) ? "admin" : "customer", createdAt: now, updatedAt: now }, { onlyIfNew: true });
-        if (res.modified) { orderId = candidate; break; }
+        if (await s.getMetadata(`order/${candidate}`)) continue;
+        await s.setJSON(`order/${candidate}`, { ...body, id: candidate, status: "new", source: isAdmin(req) ? "admin" : "customer", createdAt: now, updatedAt: now });
+        orderId = candidate;
+        break;
       }
       if (!orderId) return json({ error: "Захиалга хадгалж чадсангүй. Дахин оролдоно уу." }, 500);
       const order = await s.get(`order/${orderId}`, { type: "json" });
@@ -130,7 +132,17 @@ export default async (req, context) => {
     if (!isAdmin(req)) return json({ error: "Нууц үг буруу байна." }, 401);
 
     if (req.method === "GET" && !id) {
-      const { blobs } = await s.list({ prefix: "meta/" });
+      // Жагсаалтад ороогүй (meta-гүй) захиалгыг сэргээнэ
+      const [{ blobs: orderBlobs }, { blobs }] = await Promise.all([s.list({ prefix: "order/" }), s.list({ prefix: "meta/" })]);
+      const known = new Set(blobs.map((b) => b.key.slice(5)));
+      for (const b of orderBlobs) {
+        const oid = b.key.slice(6);
+        if (known.has(oid)) continue;
+        const o = await s.get(b.key, { type: "json" });
+        if (!o) continue;
+        await s.setJSON(`meta/${oid}`, metaOf({ ...o, id: oid }));
+        blobs.push({ key: `meta/${oid}` });
+      }
       const metas = await Promise.all(blobs.map((b) => s.get(b.key, { type: "json" })));
       const list = metas.filter(Boolean).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
       return json({ orders: list });
