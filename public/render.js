@@ -55,6 +55,7 @@ const SAMPLE = {
   ],
   letter:
     "Чамтайгаа учирсан тэр өдрөөс хойш миний амьдралын өнгө өөр болсон юм шиг санагддаг. Хамтдаа инээсэн, уйлсан, аялсан бүх л мөч маань надад хамгийн үнэтэй дурсамж болон үлдсэн.\n\nЧи миний хамгийн дотно хүн, хамгийн сайн найз минь. Ямар ч үед хажууд минь байж, намайг өөрийнхөөрөө байхад тусалдагт чинь баярлалаа.\n\nТөрсөн өдрөөр чинь чамд эрүүл энх, аз жаргал, мөрөөдөл бүхэн чинь биелэхийг хүсье. Үргэлж хамтдаа байцгаая. Хайртай шүү ♥",
+  film: "Төрсөн өдрийн мэнд хүргэе, миний гоё найз аа!\nӨнөөдөр чи дэлхий дээр ирсэн өдөр учраас чамд хамгийн сайхан бүхнийг хүсье.\n\nҮргэлж ингэж гэрэлтэж, инээмсэглэж, мөрөөдөл бүртээ хүрээрэй. Чамтай хамт байсан мөч бүр минь хамгийн үнэтэй дурсамж.\n\nЧи бол үнэхээр мундаг, үнэнч найз минь. Насан туршдаа хамтдаа байцгаая!",
   bff: "Хайрт найздаа төрсөн өдрийн баярын мэнд! Чамтай өнгөрүүлсэн мөч бүр хамгийн сайхан дурсамж болдог. Ирэх жилүүдэд чи улам хөгжилтэй, аз жаргалтай байж, мөрөөдөл бүртээ хүрээрэй. Амьдрал чинь хайр, инээд хөөрөөр дүүрэн байх болтугай. Чамд хамгийн сайн сайхныг хүсэж байна.",
   note: "Төрсөн өдрийн мэнд хүргэе, миний хайр.\nЧамтайгаа хамт хөгширч, олон жилийн дараа өнөөдрийнхөө тухай инээмсэглэн дурсаж суухыг хүсэж байна.\nЧамдаа маш их хайртай шүү. Өнөөдөр, маргааш, бас насан туршдаа.",
   captions: ["Анх хамтдаа аялсан өдөр", "Төрсөн өдрийн бялуу", "Гэр бүлээрээ"],
@@ -240,12 +241,49 @@ function scrap(o) {
   </section>`;
 }
 
+// ───────────── 6. Кино хальс ─────────────
+const kiss = (cls) => `<svg class="kiss ${cls}" viewBox="0 0 120 70" aria-hidden="true"><path d="M4 30c14-10 28-22 40-20 7 1 12 6 16 6s9-5 16-6c12-2 26 10 40 20-14 4-22 26-56 30C26 56 18 34 4 30z"/><path class="ln" d="M10 31c16 2 32 6 50 6s34-4 50-6"/></svg>`;
+const cherries = `<svg class="cherry" viewBox="0 0 120 130" aria-hidden="true"><path class="st" d="M62 6c-4 30-22 52-36 74M62 6c6 30 18 50 40 66"/><path class="lf" d="M62 8c16-10 34-6 40 4-16 6-30 4-40-4z"/><circle cx="28" cy="96" r="24"/><circle cx="96" cy="86" r="22"/><circle class="hl" cx="20" cy="88" r="5"/><circle class="hl" cx="89" cy="79" r="4"/></svg>`;
+const disco = (cls) => `<div class="disco ${cls}" aria-hidden="true"></div>`;
+const reel = (ph, idx, cls) => `<div class="reel ${cls}" data-fr="${cls}">${idx.map((i) => `<div class="reel-cell">${photo(ph[i], "", i)}</div>`).join("")}</div>`;
+function ransom(word) {
+  const st = ["r1", "r2", "r3", "r4", "r5"];
+  return [...(word || "BFF")].map((ch, i) => (ch === " " ? `<i class="sp"></i>` : `<b class="${st[i % st.length]}">${esc(ch)}</b>`)).join("");
+}
+function filmTpl(o) {
+  const ph = o.photos || [];
+  return `
+  <section class="page fm-left">
+    <div class="fm-top"><span>002</span></div>
+    ${cherries}
+    ${disco("d1")}${disco("d2")}
+    ${reel(ph, [0, 1], "rl")}
+    <span class="tape-label t1" data-tb="l1">${esc(o.l1 || "cutiepie")}</span>
+    ${kiss("k1")}
+    <div class="fm-bottom"></div>
+  </section>
+  <section class="page fm-right">
+    <div class="fm-top r"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="fm-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
+    <div class="fm-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    <div class="fm-msg fit" data-base="15" data-tb="msg"><p>${or(o.message, SAMPLE.film)}</p></div>
+    <div class="ransom" data-tb="s2">${ransom(o.s2 || "BFF")}</div>
+    <span class="tape-label t2" data-tb="l2">${esc(o.l2 || "best friends")}</span>
+    <span class="tape-label t3" data-tb="l3">${esc(o.l3 || "forever")}</span>
+    ${reel(ph, [2, 3], "rr")}
+    ${kiss("k2")}
+    <span class="fm-xoxo" data-tb="s1">${esc(o.s1 || "XOXO")}</span>
+    <div class="fm-bottom"></div>
+  </section>`;
+}
+
 export const MASTHEADS = ["BIRTHDAY TIMES", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
 
 export const TEMPLATES = {
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
+  film: { label: "Кино хальс", render: filmTpl, photos: ["Зүүн хальс 1", "Зүүн хальс 2", "Баруун хальс 1", "Баруун хальс 2"], fields: ["masthead", "message", "labels", "stickers"] },
   scrap: { label: "Скрапбүүк", render: scrap, photos: ["Гол зураг (маркан хүрээ)"], fields: ["masthead", "message", "stickers"] },
   booth: { label: "Фото бүхээг", render: booth, photos: ["Хальсан зураг 1 (дээд)", "Хальсан зураг 2 (доод)", "Бүхээг 1", "Бүхээг 2", "Бүхээг 3", "Бүхээг 4"], fields: ["masthead", "tofrom", "note", "message"] },
 };

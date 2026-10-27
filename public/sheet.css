@@ -246,6 +246,64 @@
 .sc-x { position: absolute; color: #e3a98b; font: 700 20pt/1 "Open Sans", sans-serif; z-index: 3; }
 .sc-x.x1 { right: 20mm; top: 54mm; transform: rotate(15deg); } .sc-x.x2 { left: 70mm; top: 206mm; transform: rotate(-10deg); }
 
+
+/* ───── 6. Кино хальс ───── */
+.t-film .page { --ink: #1b1918; --red: #d42a35;
+  background:
+    radial-gradient(circle, #e0363f 0 .9mm, transparent 1mm) 3mm 5mm / 31mm 27mm,
+    radial-gradient(circle, #e0363f 0 .7mm, transparent .8mm) 17mm 19mm / 37mm 33mm,
+    radial-gradient(circle, #f06a72 0 .6mm, transparent .7mm) 9mm 12mm / 23mm 41mm,
+    linear-gradient(118deg, rgba(0,0,0,.025) 0 4%, transparent 9% 20%, rgba(0,0,0,.02) 24% 27%, transparent 31% 46%, rgba(0,0,0,.025) 50% 52%, transparent 57% 69%, rgba(0,0,0,.02) 73% 76%, transparent 80%),
+    linear-gradient(32deg, transparent 0 16%, rgba(255,255,255,.55) 20% 23%, transparent 27% 43%, rgba(0,0,0,.02) 47% 50%, transparent 54% 65%, rgba(255,255,255,.45) 68% 70%, transparent 74%),
+    linear-gradient(74deg, transparent 0 30%, rgba(0,0,0,.02) 34% 36%, transparent 40% 80%, rgba(0,0,0,.018) 84% 86%, transparent 90%),
+    #f3f1ee; }
+.fm-top { position: absolute; left: 10mm; right: 10mm; top: 5mm; padding-bottom: 1.2mm; border-bottom: .3mm solid var(--ink); font: 600 7pt "Open Sans", sans-serif; display: flex; z-index: 3; }
+.fm-top.r { justify-content: flex-end; }
+.fm-bottom { position: absolute; left: 10mm; right: 10mm; bottom: 7mm; border-top: .3mm solid var(--ink); }
+.reel { position: absolute; display: grid; gap: 5mm; padding: 6mm 14mm; background:
+  repeating-linear-gradient(#fff 0 3.2mm, transparent 3.2mm 7.4mm) 4.4mm 2mm / 5.2mm 100% no-repeat,
+  repeating-linear-gradient(#fff 0 3.2mm, transparent 3.2mm 7.4mm) calc(100% - 4.4mm) 2mm / 5.2mm 100% no-repeat, #121110;
+  box-shadow: 0 1.5mm 4mm rgba(0,0,0,.3); }
+.reel-cell { min-height: 0; background: #fff; padding: .6mm; }
+.reel-cell .ph { height: 100%; }
+.reel.rl { left: 40mm; top: 22mm; width: 118mm; height: 262mm; grid-template-rows: 1fr 1fr; transform: rotate(8deg); }
+.reel.rr { left: 110mm; top: 102mm; width: 88mm; height: 190mm; grid-template-rows: 1fr 1fr; transform: rotate(5deg); padding: 5mm 12mm; }
+.tape-label { position: absolute; z-index: 5; padding: 1.6mm 6mm; white-space: nowrap; color: #1b1918;
+  background: linear-gradient(90deg, rgba(0,0,0,.06), transparent 8%, transparent 92%, rgba(0,0,0,.06)), #d9c6a5;
+  font: 700 15pt/1 "PT Mono", "Courier New", monospace; letter-spacing: .04em; box-shadow: 0 .5mm 1mm rgba(0,0,0,.2);
+  clip-path: polygon(0 6%, 4% 0, 100% 4%, 97% 50%, 100% 96%, 3% 100%, 1% 50%); }
+.tape-label.t1 { left: 70mm; top: 30mm; transform: rotate(-3deg); }
+.tape-label.t2 { left: 128mm; top: 74mm; transform: rotate(-2deg); }
+.tape-label.t3 { left: 134mm; top: 86mm; transform: rotate(-4deg); }
+.cherry { position: absolute; left: 14mm; top: 22mm; width: 34mm; transform: rotate(-8deg); }
+.cherry circle { fill: #c8101c; } .cherry .hl { fill: rgba(255,255,255,.8); }
+.cherry .st { fill: none; stroke: #5a3b1c; stroke-width: 3.5; stroke-linecap: round; } .cherry .lf { fill: #3f7a2a; }
+.disco { position: absolute; width: 46mm; height: 46mm; border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.95) 0 6%, transparent 18%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.35) 0 .25mm, transparent .25mm 3mm), repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0 .25mm, transparent .25mm 3mm),
+    radial-gradient(circle at 40% 38%, #f4f4f4, #9a9a9a 55%, #3a3a3a 100%);
+  box-shadow: inset -3mm -3mm 6mm rgba(0,0,0,.35), 0 1mm 2.5mm rgba(0,0,0,.3); }
+.disco.d1 { left: 2mm; top: 112mm; } .disco.d2 { left: 6mm; top: 158mm; width: 40mm; height: 40mm; }
+.kiss { position: absolute; width: 24mm; fill: #c8102e; opacity: .92; z-index: 4; }
+.kiss .ln { fill: none; stroke: #8a0a1e; stroke-width: 2.5; }
+.kiss.k1 { left: 130mm; top: 152mm; transform: rotate(-18deg); } .kiss.k2 { left: 178mm; top: 196mm; transform: rotate(12deg); }
+.fm-mast { position: absolute; left: 14mm; right: 14mm; top: 11mm; text-align: center; z-index: 3;
+  font: 400 64pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.fm-dateline { position: absolute; left: 12mm; right: 12mm; top: 36mm; display: flex; justify-content: space-between; font: 400 8pt "Open Sans", sans-serif;
+  padding: 1.2mm 0; border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
+.fm-msg { position: absolute; left: 12mm; top: 46mm; width: 98mm; bottom: 16mm; overflow: hidden; z-index: 3; text-align: center;
+  display: flex; flex-direction: column; justify-content: safe center; font: 400 15pt/1.5 "ZT Annabelle", "Bad Script", cursive; }
+.fm-msg p { white-space: pre-line; }
+.ransom { position: absolute; left: 132mm; top: 48mm; z-index: 5; display: flex; gap: 1mm; transform: rotate(-3deg); }
+.ransom b, .ransom .sp { display: inline-grid; place-items: center; min-width: 15mm; height: 20mm; padding: 0 1.5mm; box-shadow: 0 .5mm 1mm rgba(0,0,0,.25); font-weight: 900; }
+.ransom .sp { min-width: 4mm; box-shadow: none; }
+.ransom .r1 { background: #1b1918; color: #fff; font: 900 34pt/1 "ZT Torid", "Rubik", sans-serif; transform: rotate(-4deg); }
+.ransom .r2 { background: #f6c1cc; color: #1b1918; font: 700 36pt/1 "Old Standard TT", serif; transform: rotate(5deg); }
+.ransom .r3 { background: #fff; color: #c8102e; font: 900 32pt/1 "ZT Shantell", sans-serif; transform: rotate(-2deg); border: .4mm solid #1b1918; }
+.ransom .r4 { background: #d9c6a5; color: #1b1918; font: 400 38pt/1 "Santa Catarina", serif; transform: rotate(3deg); }
+.ransom .r5 { background: #c8102e; color: #fff; font: 700 32pt/1 "PT Mono", monospace; transform: rotate(-5deg); }
+.fm-xoxo { position: absolute; left: 116mm; bottom: 6mm; z-index: 5; color: #e0363f; font: 900 22pt/1 "ZT Shantell", sans-serif; letter-spacing: .08em; transform: rotate(-6deg); }
+
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
 .t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;
@@ -295,5 +353,5 @@
   #print-host { display: block !important; }
   #print-host .ghost, #print-host .ph-empty { visibility: hidden !important; }
   #print-host .ph.sel, #print-host .tsel { outline: none; }
-  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
+  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .reel-cell:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
 }

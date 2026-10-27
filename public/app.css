@@ -153,3 +153,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .seg button[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); }
 .pick-scrap .swatch i:first-child { background: #e7dcc8 linear-gradient(160deg, #c9a37e, #b88f69) 40% 35% / 60% 45% no-repeat; }
 .pick-scrap .swatch i { background: #fbfaf7 linear-gradient(#e7e1d8, #e7e1d8) 50% 55% / 75% 45% no-repeat; }
+.pick-film .swatch i { background: #f3f1ee radial-gradient(circle, #e0363f 0 1px, transparent 1.5px) 0 0 / 9px 9px; }
+.pick-film .swatch i:first-child { background: #f3f1ee linear-gradient(#121110, #121110) 50% 50% / 45% 90% no-repeat; }

@@ -64,7 +64,7 @@ const cleanTx = (tx) => {
   return out;
 };
 
-const TPL_LABEL = { scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
+const TPL_LABEL = { film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
 const h = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 // Шинэ захиалгын мэдэгдэл (Resend). RESEND_API_KEY байхгүй бол алгасна.
@@ -112,7 +112,7 @@ const clean = (body) => {
   }
   const str = (v, n = 4000) => (typeof v === "string" ? v.slice(0, n) : "");
   return {
-    template: ["letter", "news", "polaroid", "booth", "scrap"].includes(body.template) ? body.template : "news",
+    template: ["letter", "news", "polaroid", "booth", "scrap", "film"].includes(body.template) ? body.template : "news",
     name: str(body.name, 80),
     date: str(body.date, 20),
     masthead: str(body.masthead, 60),
@@ -125,6 +125,9 @@ const clean = (body) => {
     note: str(body.note, 600),
     s1: str(body.s1, 20),
     s2: str(body.s2, 20),
+    l1: str(body.l1, 30),
+    l2: str(body.l2, 30),
+    l3: str(body.l3, 30),
     tx: cleanTx(body.tx),
     qa: (Array.isArray(body.qa) ? body.qa : []).slice(0, 8).map((x) => ({ q: str(x?.q, 300), a: str(x?.a, 800) })),
     wishes: (Array.isArray(body.wishes) ? body.wishes : []).slice(0, 8).map((w) => str(w, 60)),
