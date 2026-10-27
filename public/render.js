@@ -92,7 +92,8 @@ function news(o) {
   const qaHtml = hasMsg || answered.length
     ? msgHtml + (answered.length ? answered.map(qaItem).join("") : "")
     : qa.length ? qa.map(qaItem).join("") : `<div class="qa"><p class="a">${or("", SAMPLE.message)}</p></div>`;
-  const cap = (i) => or(ph[i]?.caption, SAMPLE.captions[i - 1]);
+  // Зураг оруулсан ч тайлбаргүй бол жишээ тайлбар гаргахгүй
+  const cap = (i) => (ph[i]?.src && !(ph[i]?.caption || "").trim() ? "" : or(ph[i]?.caption, SAMPLE.captions[i - 1]));
   const top = `<div class="n-top"><span>${esc(o.edition || "SPECIAL EDITION")}</span><span>${dateEn(o.date) || "&nbsp;"}</span></div>`;
   return `
   <section class="page n-left">
@@ -190,7 +191,7 @@ function letter(o) {
     <div class="l-num">002</div>
     <div class="booth" data-fr="strip">${strip}<p class="booth-cap">${esc(dateMn(o.date))}</p></div>
     <figure class="l-print" data-fr="print">${photo(ph[0], "", 0)}</figure>
-    <p class="l-cap fit" data-base="11" data-tb="cap"><span>${or(ph[1]?.caption || ph[0]?.caption, "Хамтдаа өнгөрүүлсэн хамгийн гоё өдрүүд маань")}</span></p>
+    <p class="l-cap fit" data-base="11" data-tb="cap"><span>${(ph[1]?.caption || ph[0]?.caption || "").trim() || !(ph[0]?.src || ph[1]?.src) ? or(ph[1]?.caption || ph[0]?.caption, "Хамтдаа өнгөрүүлсэн хамгийн гоё өдрүүд маань") : ""}</span></p>
   </section>
   <section class="page l-right">
     <div class="l-num r">№ ${esc(o.id || "0247")}</div>
