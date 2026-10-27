@@ -23,6 +23,37 @@ export const loadCatalog = (fresh = false) => {
   return catalogPromise;
 };
 export const money = (n) => `${Math.round(n || 0).toLocaleString("en-US")}₮`;
+export const deliveryFeeOf = (cat, km) =>
+  cat.shopLat && cat.shopLng && km > 0 ? Math.ceil((cat.deliveryBase + cat.deliveryPerKm * Math.ceil(km)) / 500) * 500 : cat.deliveryFee;
+// Leaflet газрын зургийг хэрэгтэй үед л ачаална
+let leafletP = null;
+export function loadLeaflet() {
+  if (window.L) return Promise.resolve(window.L);
+  return (leafletP ||= new Promise((res, rej) => {
+    const css = document.createElement("link"); css.rel = "stylesheet"; css.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"; document.head.appendChild(css);
+    const js = document.createElement("script"); js.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"; js.onload = () => res(window.L); js.onerror = rej; document.head.appendChild(js);
+  }));
+}
+export const UB = [47.9185, 106.9177];
+export function pinMap(el, { lat, lng, zoom = 12, onPick }) {
+  return loadLeaflet().then((L) => {
+    const has = lat && lng;
+    const map = L.map(el, { scrollWheelZoom: false }).setView(has ? [lat, lng] : UB, has ? 15 : zoom);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
+    const icon = L.divIcon({ className: "pin", html: "<span></span>", iconSize: [28, 28], iconAnchor: [14, 28] });
+    let mk = has ? L.marker([lat, lng], { icon, draggable: true }).addTo(map) : null;
+    const set = (ll, pan) => {
+      if (!mk) { mk = L.marker(ll, { icon, draggable: true }).addTo(map); mk.on("dragend", () => onPick(mk.getLatLng())); }
+      else mk.setLatLng(ll);
+      if (pan) map.setView(ll, Math.max(map.getZoom(), 15));
+      onPick(L.latLng(ll));
+    };
+    if (mk) mk.on("dragend", () => onPick(mk.getLatLng()));
+    map.on("click", (e) => set(e.latlng));
+    setTimeout(() => map.invalidateSize(), 50);
+    return { map, set };
+  });
+}
 export function priceOf(order, cat) {
   if (!cat) return { lines: [], total: 0 };
   const cheap = CHEAP_TEMPLATES.includes(order.template);
@@ -37,7 +68,10 @@ export function priceOf(order, cat) {
     const p = cat.packages.find((x) => x.id === f.packageId);
     if (p) lines.push({ label: p.name, amount: p.price });
   }
-  if (order.delivery?.type === "delivery") lines.push({ label: "Хүргэлт", amount: cat.deliveryFee });
+  if (order.delivery?.type === "delivery") {
+    const km = order.delivery.km;
+    lines.push({ label: km > 0 && cat.shopLat ? `Хүргэлт (≈${km} км)` : cat.shopLat ? "Хүргэлт (байршил сонгоогүй)" : "Хүргэлт", amount: cat.shopLat && !(km > 0) ? 0 : deliveryFeeOf(cat, km), pending: !!cat.shopLat && !(km > 0) });
+  }
   return { lines, total: lines.reduce((a, l) => a + l.amount, 0) };
 }
 
@@ -292,6 +326,8 @@ export function createEditor({ root, mode, onChange }) {
       <h2 class="step"><b>${slots.length ? 4 : 3}</b>Цэцгээ сонгоно уу</h2>
       <p class="help">Сонины үнэ дээр сонгосон цэцэг, хүргэлтийн үнэ нэмэгдэнэ.</p>
       <div class="flowers" id="flowers">${flowersHtml()}</div>
+      <div class="dl-box" id="dl-box"></div>
+      <div class="sum" id="sum">${sumHtml()}</div>
 
       <h2 class="step"><b>${slots.length ? 5 : 4}</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
       <div class="fields">
@@ -303,6 +339,7 @@ export function createEditor({ root, mode, onChange }) {
         <div class="field"><label for="c-note">Нэмэлт хүсэлт (цэцгийн өнгө, хүргэлт г.м)</label><textarea id="c-note" data-c="note" rows="3" maxlength="800">${esc(order.contact.note)}</textarea></div>
       </div>`;
     updateCount();
+    dlMap?.map.remove(); dlMap = null; dlType = null; refreshDelivery();
   }
 
   function flowersHtml() {
@@ -332,16 +369,53 @@ export function createEditor({ root, mode, onChange }) {
       </div>`}
       <div class="dl">
         <label class="dl-opt ${d.type !== "delivery" ? "on" : ""}"><input type="radio" name="dl" value="pickup" ${d.type !== "delivery" ? "checked" : ""}><span>Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}</span><b>Нэмэлт төлбөргүй</b></label>
-        <label class="dl-opt ${d.type === "delivery" ? "on" : ""}"><input type="radio" name="dl" value="delivery" ${d.type === "delivery" ? "checked" : ""}><span>Хүргүүлнэ</span><b>+${money(cat.deliveryFee)}</b></label>
-      </div>
-      ${d.type === "delivery" ? `<div class="field"><label for="d-addr">Хүргэлтийн хаяг <em>*</em></label><textarea id="d-addr" data-addr="1" rows="2" maxlength="400" placeholder="Дүүрэг, хороо, байр, орц, тоот">${esc(d.address)}</textarea></div>` : ""}
-      <div class="sum" id="sum">${sumHtml()}</div>`;
+        <label class="dl-opt ${d.type === "delivery" ? "on" : ""}"><input type="radio" name="dl" value="delivery" ${d.type === "delivery" ? "checked" : ""}><span>Хүргүүлнэ</span><b>${cat.shopLat ? (d.km > 0 ? "+" + money(deliveryFeeOf(cat, d.km)) : "Зайнаас хамаарна") : "+" + money(cat.deliveryFee)}</b></label>
+      </div>`;
+  }
+  function dlBoxHtml() {
+    const d = order.delivery;
+    if (!cat || d.type !== "delivery") return "";
+    return `<div class="field"><label for="d-addr">Хүргэлтийн хаяг <em>*</em></label><textarea id="d-addr" data-addr="1" rows="2" maxlength="400" placeholder="Дүүрэг, хороо, байр, орц, тоот">${esc(d.address)}</textarea></div>
+      ${cat.shopLat ? `<div class="field"><label>Байршлаа газрын зураг дээр тэмдэглэнэ үү <em>*</em></label>
+        <div class="dl-map" id="dl-map"></div>
+        <div class="dl-tools"><button type="button" class="ghost-btn" id="dl-geo">📍 Миний байршил</button><span class="dl-q" id="dl-q">${d.km > 0 ? quoteText() : "Газрын зураг дээр дарж хүргэх цэгээ сонгоно уу."}</span></div>
+        <p class="help">Хүргэлтийг UBCab-аар хүргэнэ. Үнэ нь манай салбараас таны хаяг хүртэлх замын зайгаар ойролцоогоор бодогдоно.</p></div>` : ""}`;
+  }
+  const quoteText = () => `≈ ${order.delivery.km} км · хүргэлт <b>${money(deliveryFeeOf(cat, order.delivery.km))}</b>`;
+  let dlMap = null, dlType = null, quoteSeq = 0;
+  function refreshDelivery() {
+    const box = $("#dl-box", form); if (!box) return;
+    const want = cat ? order.delivery.type : null;
+    if (want !== dlType || !box.firstChild && want === "delivery") {
+      dlType = want; dlMap?.map.remove(); dlMap = null;
+      box.innerHTML = dlBoxHtml();
+      const el = $("#dl-map", box);
+      if (el) pinMap(el, { lat: order.delivery.lat, lng: order.delivery.lng, onPick: pick }).then((m) => { dlMap = m; }).catch(() => { el.innerHTML = `<p class="help">Газрын зураг ачаалж чадсангүй.</p>`; });
+    }
+    const s = $("#sum", form); if (s) s.innerHTML = sumHtml();
+  }
+  async function pick(ll) {
+    const d = order.delivery, my = ++quoteSeq;
+    d.lat = Math.round(ll.lat * 1e6) / 1e6; d.lng = Math.round(ll.lng * 1e6) / 1e6; delete d.km;
+    const q = $("#dl-q", form); if (q) q.textContent = "Зайг тооцож байна…";
+    try {
+      const r = await fetch(`/api/quote?lat=${d.lat}&lng=${d.lng}`);
+      const j = await r.json();
+      if (my !== quoteSeq) return;
+      if (!r.ok) throw new Error(j.error || "Тооцоолж чадсангүй.");
+      d.km = j.km;
+      if (q) q.innerHTML = quoteText();
+    } catch (err) { if (q) q.textContent = err.message; }
+    const fl = $("#flowers", form); if (fl) fl.innerHTML = flowersHtml();
+    const s = $("#sum", form); if (s) s.innerHTML = sumHtml();
+    onChange?.(order);
   }
   function sumHtml() {
+    if (!cat) return "";
     const p = priceOf(order, cat);
-    return `${p.lines.map((l) => `<div class="sum-row"><span>${esc(l.label)}</span><span>${money(l.amount)}</span></div>`).join("")}<div class="sum-row total"><span>Нийт</span><span>${money(p.total)}</span></div>`;
+    return `${p.lines.map((l) => `<div class="sum-row"><span>${esc(l.label)}</span><span>${l.pending ? "—" : money(l.amount)}</span></div>`).join("")}<div class="sum-row total"><span>Нийт</span><span>${money(p.total)}</span></div>`;
   }
-  const refreshFlowers = (user = true) => { const el = $("#flowers", form); if (el) el.innerHTML = flowersHtml(); if (user) onChange?.(order); };
+  const refreshFlowers = (user = true) => { const el = $("#flowers", form); if (el) el.innerHTML = flowersHtml(); refreshDelivery(); if (user) onChange?.(order); };
   let cat = null;
   loadCatalog().then((c) => { cat = c; refreshFlowers(false); });
 
@@ -414,6 +488,13 @@ export function createEditor({ root, mode, onChange }) {
       it.qty = Math.max(0, Math.min(200, it.qty + +t.dataset.d));
       order.flowers.items = order.flowers.items.filter((x) => x.qty > 0);
       refreshFlowers(); return;
+    }
+    if (t.id === "dl-geo") {
+      const q = $("#dl-q", form);
+      if (!navigator.geolocation) { if (q) q.textContent = "Таны төхөөрөмж байршил өгөхгүй байна."; return; }
+      if (q) q.textContent = "Байршлыг тодорхойлж байна…";
+      navigator.geolocation.getCurrentPosition((p) => dlMap?.set([p.coords.latitude, p.coords.longitude], true), () => { if (q) q.textContent = "Байршил авч чадсангүй — газрын зураг дээр дарж сонгоно уу."; }, { enableHighAccuracy: true, timeout: 10000 });
+      return;
     }
     if (t.id === "add-q") { order.qa.push({ q: "", a: "" }); buildForm(); render(); }
     if (t.dataset.delq) { order.qa.splice(+t.dataset.delq, 1); buildForm(); render(); }
@@ -590,7 +671,7 @@ export function createEditor({ root, mode, onChange }) {
   }
 
   load(order);
-  return { get: () => order, load, printSheet, toast: alertBox, price: () => priceOf(order, cat), reloadCatalog: async () => { cat = await loadCatalog(true); refreshFlowers(false); } };
+  return { get: () => order, load, printSheet, toast: alertBox, price: () => priceOf(order, cat), needsPin: () => !!(cat?.shopLat && order.delivery.type === "delivery" && !(order.delivery.km > 0)), reloadCatalog: async () => { cat = await loadCatalog(true); refreshFlowers(false); } };
 }
 
 export function toast(msg, kind = "ok") {

@@ -1,4 +1,4 @@
-import { store, json, isAdmin, getCatalog, cleanFlowers, cleanDelivery, priceOf, notify, qpayReady } from "./_shared/lib.mjs";
+import { store, json, isAdmin, getCatalog, cleanFlowers, cleanDelivery, priceOf, notify, qpayReady, withDeliveryKm } from "./_shared/lib.mjs";
 
 // Захиалгын API
 //   POST /api/orders (нийтэд), GET/PUT/DELETE /api/orders[/:id] (админ, x-admin-pass)
@@ -113,8 +113,10 @@ export default async (req, context) => {
       if (!body.contact.phone) return json({ error: "Утасны дугаараа оруулна уу." }, 400);
 
       const cat = await getCatalog(s);
-      body.price = priceOf(body, cat);
       if (body.delivery.type === "delivery" && !body.delivery.address.trim()) return json({ error: "Хүргэлтийн хаягаа бичнэ үү." }, 400);
+      if (body.delivery.type === "delivery" && cat.shopLat && !body.delivery.lat && !isAdmin(req)) return json({ error: "Хүргэлтийн байршлаа газрын зураг дээр тэмдэглэнэ үү." }, 400);
+      await withDeliveryKm(body, cat);
+      body.price = priceOf(body, cat);
       const now = new Date().toISOString();
       let orderId = "";
       for (let i = 0; i < 5; i++) {
@@ -167,7 +169,7 @@ export default async (req, context) => {
       const cat = await getCatalog(s);
       const payment = parsed.markPaid === true ? { ...(prev.payment || {}), status: "paid", manual: true, paidAt: new Date().toISOString() } : prev.payment || { status: "unpaid" };
       const order = { ...prev, ...body, status, id, payment, updatedAt: new Date().toISOString() };
-      if (payment.status !== "paid") order.price = priceOf(order, cat);
+      if (payment.status !== "paid") { await withDeliveryKm(order, cat); order.price = priceOf(order, cat); }
       await s.setJSON(`order/${id}`, order);
       await s.setJSON(`meta/${id}`, metaOf(order));
       return json({ ok: true, order: metaOf(order) });

@@ -16,7 +16,11 @@ export const money = (n) => `${Math.round(n || 0).toLocaleString("en-US")}₮`;
 export const DEFAULT_CATALOG = {
   newsPrice: 20000,
   simplePrice: 15000,
-  deliveryFee: 10000,
+  deliveryFee: 15000, // дэлгүүрийн байршил тохируулаагүй үед мөрдөх тогтмол үнэ
+  deliveryBase: 13150, // UBCab: дуудлага 4,900 + систем 250 + даатгал 1,000 + орж авах 1,000 + оруулж өгөх 1,000 + ачаа 5,000
+  deliveryPerKm: 2000,
+  shopLat: 0,
+  shopLng: 0,
   pickupNote: "Орчлон салбар",
   bankName: "Хаан банк",
   bankAccount: "490005005304653256",
@@ -35,6 +39,7 @@ export const DEFAULT_CATALOG = {
   ],
 };
 const intIn = (v, lo, hi, d) => (Number.isFinite(+v) ? Math.min(hi, Math.max(lo, Math.round(+v))) : d);
+const geo = (v, lim) => (Number.isFinite(+v) && v !== "" && v !== null && Math.abs(+v) <= lim ? Math.round(+v * 1e6) / 1e6 : 0);
 const str = (v, n) => (typeof v === "string" ? v.slice(0, n) : "");
 const imgKey = (v) => (typeof v === "string" && /^[a-z0-9]{6,32}$/.test(v) ? v : "");
 const slug = (v, i) => (typeof v === "string" && /^[a-z0-9_-]{1,24}$/.test(v) ? v : `x${Date.now().toString(36)}${i}`);
@@ -44,6 +49,9 @@ export function cleanCatalog(c) {
     newsPrice: intIn(c?.newsPrice, 0, 10_000_000, d.newsPrice),
     simplePrice: intIn(c?.simplePrice, 0, 10_000_000, d.simplePrice),
     deliveryFee: intIn(c?.deliveryFee, 0, 10_000_000, d.deliveryFee),
+    deliveryBase: intIn(c?.deliveryBase, 0, 10_000_000, d.deliveryBase),
+    deliveryPerKm: intIn(c?.deliveryPerKm, 0, 1_000_000, d.deliveryPerKm),
+    shopLat: geo(c?.shopLat, 90), shopLng: geo(c?.shopLng, 180),
     pickupNote: str(c?.pickupNote, 80) || d.pickupNote,
     bankName: typeof c?.bankName === "string" ? str(c.bankName, 60) : d.bankName,
     bankAccount: typeof c?.bankAccount === "string" ? str(c.bankAccount, 40) : d.bankAccount,
@@ -67,7 +75,34 @@ export function cleanFlowers(f) {
   };
 }
 export function cleanDelivery(d) {
-  return { type: d?.type === "delivery" ? "delivery" : "pickup", address: str(d?.address, 400) };
+  const lat = geo(d?.lat, 90), lng = geo(d?.lng, 180);
+  return { type: d?.type === "delivery" ? "delivery" : "pickup", address: str(d?.address, 400), ...(lat && lng ? { lat, lng } : {}) };
+}
+
+// ── Хүргэлтийн үнэ: UBCab-ийн суурь төлбөр + км тутам ──
+export const deliveryFeeOf = (cat, km) =>
+  cat.shopLat && cat.shopLng && km > 0 ? Math.ceil((cat.deliveryBase + cat.deliveryPerKm * Math.ceil(km)) / 500) * 500 : cat.deliveryFee;
+const haversineKm = (a, b, c, d) => {
+  const r = (x) => (x * Math.PI) / 180, dLat = r(c - a), dLng = r(d - b);
+  return 6371 * 2 * Math.asin(Math.sqrt(Math.sin(dLat / 2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(dLng / 2) ** 2));
+};
+// Замын зай (км): OSRM, болохгүй бол шулуун зай × 1.35
+export async function routeKm(cat, lat, lng) {
+  if (!(cat.shopLat && cat.shopLng && lat && lng)) return 0;
+  try {
+    const u = `https://router.project-osrm.org/route/v1/driving/${cat.shopLng},${cat.shopLat};${lng},${lat}?overview=false`;
+    const r = await fetch(u, { signal: AbortSignal.timeout(4000) });
+    const j = await r.json();
+    const m = j?.routes?.[0]?.distance;
+    if (Number.isFinite(m) && m > 0) return Math.round(m / 100) / 10;
+  } catch {}
+  return Math.round(haversineKm(cat.shopLat, cat.shopLng, lat, lng) * 1.35 * 10) / 10;
+}
+export async function withDeliveryKm(order, cat) {
+  const d = order.delivery;
+  if (d?.type === "delivery" && d.lat && d.lng) d.km = await routeKm(cat, d.lat, d.lng);
+  else if (d) delete d.km;
+  return order;
 }
 export const CHEAP_TEMPLATES = ["tulip", "spring"];
 export function priceOf(order, cat) {
@@ -83,7 +118,10 @@ export function priceOf(order, cat) {
     const p = cat.packages.find((x) => x.id === f.packageId);
     if (p) lines.push({ label: p.name, amount: p.price });
   }
-  if (order.delivery?.type === "delivery") lines.push({ label: "Хүргэлт", amount: cat.deliveryFee });
+  if (order.delivery?.type === "delivery") {
+    const km = order.delivery.km;
+    lines.push({ label: km > 0 && cat.shopLat ? `Хүргэлт (≈${km} км)` : "Хүргэлт", amount: deliveryFeeOf(cat, km) });
+  }
   return { lines, total: lines.reduce((a, l) => a + l.amount, 0) };
 }
 
@@ -106,7 +144,7 @@ export async function notify(order, site) {
     ["Хэнд", order.name || order.to || "—"],
     ["Зураг", `${(order.photos || []).filter((p) => p && p.src).length} ширхэг`],
     ["Нэмэлт хүсэлт", c.note || "—"],
-    ...(order.price ? [["Цэцэг", order.price.lines.slice(1).map((l) => `${l.label}: ${money(l.amount)}`).join("\n") || "—"], ["Хүргэлт", order.delivery?.type === "delivery" ? order.delivery.address || "Хүргэлт" : "Очиж авна"], ["Нийт", money(order.price.total)], ["Төлбөр", order.payment?.status === "paid" ? (order.payment.manual ? "Төлсөн ✓" : "QPay-ээр төлсөн ✓") : order.payment?.method === "bank" ? "Дансаар шилжүүлнэ — дансаа шалгаарай" : "Төлөөгүй"]] : []),
+    ...(order.price ? [["Цэцэг", order.price.lines.slice(1).map((l) => `${l.label}: ${money(l.amount)}`).join("\n") || "—"], ["Хүргэлт", order.delivery?.type === "delivery" ? `${order.delivery.address || "Хүргэлт"}${order.delivery.lat ? `\nБайршил: https://maps.google.com/?q=${order.delivery.lat},${order.delivery.lng}` : ""}` : "Очиж авна"], ["Нийт", money(order.price.total)], ["Төлбөр", order.payment?.status === "paid" ? (order.payment.manual ? "Төлсөн ✓" : "QPay-ээр төлсөн ✓") : order.payment?.method === "bank" ? "Дансаар шилжүүлнэ — дансаа шалгаарай" : "Төлөөгүй"]] : []),
   ];
   // Энгийн, захидал маягийн HTML — Promotions таб руу орох магадлалыг багасгана
   const html = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#222">

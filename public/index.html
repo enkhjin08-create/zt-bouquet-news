@@ -137,6 +137,7 @@ btn.addEventListener("click", async () => {
   const o = ed.get();
   if ((TEMPLATES[o.template]?.photos.length || 0) > 0 && !o.photos.some((p) => p.src)) { toast("Дор хаяж нэг зураг оруулна уу.", "err"); return; }
   if (o.delivery?.type === "delivery" && !o.delivery.address.trim()) { toast("Хүргэлтийн хаягаа бичнэ үү.", "err"); document.getElementById("d-addr")?.focus(); return; }
+  if (ed.needsPin?.()) { toast("Хүргэлтийн байршлаа газрын зураг дээр тэмдэглэнэ үү.", "err"); document.getElementById("dl-map")?.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
   if (!o.contact.phone.trim()) { toast("Утасны дугаараа оруулна уу.", "err"); document.getElementById("c-phone")?.focus(); return; }
   btn.disabled = true; btn.textContent = "Илгээж байна…";
   try {

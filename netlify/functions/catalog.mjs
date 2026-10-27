@@ -1,4 +1,4 @@
-import { store, json, isAdmin, getCatalog, cleanCatalog, qpayReady } from "./_shared/lib.mjs";
+import { store, json, isAdmin, getCatalog, cleanCatalog, qpayReady, routeKm, deliveryFeeOf } from "./_shared/lib.mjs";
 
 // GET /api/catalog — үнэ, цэцгийн жагсаалт (нийтэд)
 // PUT /api/catalog — админ хадгална
@@ -26,6 +26,15 @@ export default async (req, context) => {
       await s.set(`cimg/${key}`, bin, { metadata: { type: m[1] } });
       return json({ key });
     }
+    // Хүргэлтийн үнийн тооцоо: GET /api/quote?lat=..&lng=..
+    if (url.pathname === "/api/quote") {
+      const cat = await getCatalog(s);
+      const lat = +url.searchParams.get("lat"), lng = +url.searchParams.get("lng");
+      if (!(Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && lat && lng)) return json({ error: "Байршил буруу байна." }, 400);
+      const km = await routeKm(cat, lat, lng);
+      if (km > 80) return json({ error: "Энэ хаяг хүргэлтийн бүсээс хэт хол байна." }, 400);
+      return json({ km, fee: deliveryFeeOf(cat, km), configured: !!(cat.shopLat && cat.shopLng) });
+    }
     if (req.method === "GET") return json({ ...(await getCatalog(s)), qpay: qpayReady() });
     if (req.method === "PUT") {
       if (!isAdmin(req)) return json({ error: "Нууц үг буруу байна." }, 401);
@@ -40,4 +49,4 @@ export default async (req, context) => {
   }
 };
 
-export const config = { path: ["/api/catalog", "/api/catalog/img", "/api/cimg/:key"] };
+export const config = { path: ["/api/catalog", "/api/catalog/img", "/api/cimg/:key", "/api/quote"] };

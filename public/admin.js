@@ -1,4 +1,4 @@
-import { createEditor, blankOrder, toast, money, loadCatalog, compress } from "./app.js";
+import { createEditor, blankOrder, toast, money, loadCatalog, compress, pinMap } from "./app.js";
 import { TEMPLATES } from "./render.js";
 
 const $ = (s) => document.querySelector(s);
@@ -225,8 +225,17 @@ function drawCat() {
     <div class="row2">
       <div class="field"><label for="cat-news">Сонины үнэ</label><input id="cat-news" type="number" min="0" step="1000" value="${c.newsPrice}"></div>
       <div class="field"><label for="cat-simple">Энгийн мэндчилгээний үнэ</label><input id="cat-simple" type="number" min="0" step="1000" value="${c.simplePrice ?? 15000}"></div>
-      <div class="field"><label for="cat-del">Хүргэлтийн төлбөр</label><input id="cat-del" type="number" min="0" step="1000" value="${c.deliveryFee}"></div>
     </div>
+    <h3>Хүргэлт (UBCab)</h3>
+    <p class="help">Хүргэлтийн үнэ = суурь төлбөр + км тутмын үнэ × замын зай (500₮-өөр дээш тоймлоно). Суурь: дуудлага 4,900 + систем 250 + даатгал 1,000 + орж авах 1,000 + оруулж өгөх 1,000 + ачаа 5,000.</p>
+    <div class="row2">
+      <div class="field"><label for="cat-dbase">Суурь төлбөр</label><input id="cat-dbase" type="number" min="0" step="50" value="${c.deliveryBase ?? 13150}"></div>
+      <div class="field"><label for="cat-dkm">1 км-ийн үнэ</label><input id="cat-dkm" type="number" min="0" step="100" value="${c.deliveryPerKm ?? 2000}"></div>
+      <div class="field"><label for="cat-del">Байршил тогтоогоогүй үеийн тогтмол үнэ</label><input id="cat-del" type="number" min="0" step="1000" value="${c.deliveryFee}"></div>
+    </div>
+    <div class="field"><label>Салбарын байршил (хүргэлт эндээс гарна)</label>
+      <div class="dl-map" id="cat-map"></div>
+      <p class="help" id="cat-shop">${c.shopLat ? `Тэмдэглэсэн: ${c.shopLat}, ${c.shopLng}` : "⚠️ Байршил тэмдэглээгүй — газрын зураг дээр салбараа дарж тэмдэглээд Хадгалах дарна уу. Тэр хүртэл тогтмол үнээр бодогдоно."}</p></div>
     <div class="field"><label for="cat-pick">Очиж авах газар</label><input id="cat-pick" maxlength="80" value="${esc(c.pickupNote)}"></div>
     <div class="row2">
       <div class="field"><label for="cat-bank">Банк</label><input id="cat-bank" maxlength="60" value="${esc(c.bankName || "")}"></div>
@@ -239,10 +248,16 @@ function drawCat() {
     <h3>Ширхэгээр сонгох цэцэг</h3>
     <div class="cat-list" data-list="flowers">${c.flowers.map((p, i) => catRow(p, i, "flowers")).join("")}</div>
     <button type="button" class="ghost-btn" data-add="flowers">+ Цэцэг нэмэх</button>`;
+  catMap?.map.remove(); catMap = null;
+  pinMap($("#cat-map"), { lat: c.shopLat, lng: c.shopLng, onPick: (ll) => {
+    catDraft.shopLat = Math.round(ll.lat * 1e6) / 1e6; catDraft.shopLng = Math.round(ll.lng * 1e6) / 1e6;
+    $("#cat-shop").textContent = `Тэмдэглэсэн: ${catDraft.shopLat}, ${catDraft.shopLng} — Хадгалах дарна уу`;
+  } }).then((m) => { catMap = m; }).catch(() => {});
 }
+let catMap = null;
 function readCat() {
   const c = catDraft;
-  c.newsPrice = +$("#cat-news").value || 0; c.simplePrice = +$("#cat-simple").value || 0; c.deliveryFee = +$("#cat-del").value || 0; c.pickupNote = $("#cat-pick").value; c.bankName = $("#cat-bank").value; c.bankAccount = $("#cat-acc").value; c.bankHolder = $("#cat-holder").value;
+  c.newsPrice = +$("#cat-news").value || 0; c.simplePrice = +$("#cat-simple").value || 0; c.deliveryFee = +$("#cat-del").value || 0; c.deliveryBase = +$("#cat-dbase").value || 0; c.deliveryPerKm = +$("#cat-dkm").value || 0; c.pickupNote = $("#cat-pick").value; c.bankName = $("#cat-bank").value; c.bankAccount = $("#cat-acc").value; c.bankHolder = $("#cat-holder").value;
   document.querySelectorAll("#cat .cat-row").forEach((row) => {
     const it = c[row.dataset.kind][+row.dataset.i];
     row.querySelectorAll("[data-f]").forEach((inp) => { it[inp.dataset.f] = inp.type === "checkbox" ? inp.checked : inp.type === "number" ? +inp.value || 0 : inp.value; });
