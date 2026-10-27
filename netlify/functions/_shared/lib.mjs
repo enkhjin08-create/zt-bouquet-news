@@ -17,7 +17,7 @@ export const DEFAULT_CATALOG = {
   newsPrice: 20000,
   simplePrice: 15000,
   deliveryFee: 15000, // дэлгүүрийн байршил тохируулаагүй үед мөрдөх тогтмол үнэ
-  deliveryBase: 13150, // UBCab: дуудлага 4,900 + систем 250 + даатгал 1,000 + орж авах 1,000 + оруулж өгөх 1,000 + ачаа 5,000
+  deliveryBase: 8150, // UBCab: дуудлага 4,900 + систем 250 + даатгал 1,000 + орж авах 1,000 + оруулж өгөх 1,000
   deliveryPerKm: 2000,
   shopLat: 0,
   shopLng: 0,
@@ -49,7 +49,8 @@ export function cleanCatalog(c) {
     newsPrice: intIn(c?.newsPrice, 0, 10_000_000, d.newsPrice),
     simplePrice: intIn(c?.simplePrice, 0, 10_000_000, d.simplePrice),
     deliveryFee: intIn(c?.deliveryFee, 0, 10_000_000, d.deliveryFee),
-    deliveryBase: intIn(c?.deliveryBase, 0, 10_000_000, d.deliveryBase),
+    // 13,150 (ачааны 5,000-тай хуучин анхны утга) хадгалагдсан бол шинэ 8,150 руу шилжүүлнэ
+    deliveryBase: +c?.deliveryBase === 13150 ? d.deliveryBase : intIn(c?.deliveryBase, 0, 10_000_000, d.deliveryBase),
     deliveryPerKm: intIn(c?.deliveryPerKm, 0, 1_000_000, d.deliveryPerKm),
     shopLat: geo(c?.shopLat, 90), shopLng: geo(c?.shopLng, 180),
     pickupNote: str(c?.pickupNote, 80) || d.pickupNote,
@@ -76,7 +77,8 @@ export function cleanFlowers(f) {
 }
 export function cleanDelivery(d) {
   const lat = geo(d?.lat, 90), lng = geo(d?.lng, 180);
-  return { type: d?.type === "delivery" ? "delivery" : "pickup", address: str(d?.address, 400), ...(lat && lng ? { lat, lng } : {}) };
+  const type = d?.type === "delivery" ? "delivery" : "pickup";
+  return { type, address: str(d?.address, 400), ...(type === "delivery" ? { payer: d?.payer === "recipient" ? "recipient" : "sender" } : {}), ...(lat && lng ? { lat, lng } : {}) };
 }
 
 // ── Хүргэлтийн үнэ: UBCab-ийн суурь төлбөр + км тутам ──
@@ -118,9 +120,10 @@ export function priceOf(order, cat) {
     const p = cat.packages.find((x) => x.id === f.packageId);
     if (p) lines.push({ label: p.name, amount: p.price });
   }
-  if (order.delivery?.type === "delivery") {
+  // UBCab-ийн төлбөрийг хүргэлтийн үед өөрөө төлөх бол нийт дүнд оруулахгүй
+  if (order.delivery?.type === "delivery" && order.delivery.payer !== "recipient") {
     const km = order.delivery.km;
-    lines.push({ label: km > 0 && cat.shopLat ? `Хүргэлт (≈${km} км)` : "Хүргэлт", amount: deliveryFeeOf(cat, km) });
+    lines.push({ label: km > 0 && cat.shopLat ? `UBCab хүргэлт (≈${km} км)` : "UBCab хүргэлт", amount: deliveryFeeOf(cat, km) });
   }
   return { lines, total: lines.reduce((a, l) => a + l.amount, 0) };
 }
@@ -144,7 +147,7 @@ export async function notify(order, site) {
     ["Хэнд", order.name || order.to || "—"],
     ["Зураг", `${(order.photos || []).filter((p) => p && p.src).length} ширхэг`],
     ["Нэмэлт хүсэлт", c.note || "—"],
-    ...(order.price ? [["Цэцэг", order.price.lines.slice(1).map((l) => `${l.label}: ${money(l.amount)}`).join("\n") || "—"], ["Хүргэлт", order.delivery?.type === "delivery" ? `${order.delivery.address || "Хүргэлт"}${order.delivery.lat ? `\nБайршил: https://maps.google.com/?q=${order.delivery.lat},${order.delivery.lng}` : ""}` : "Очиж авна"], ["Нийт", money(order.price.total)], ["Төлбөр", order.payment?.status === "paid" ? (order.payment.manual ? "Төлсөн ✓" : "QPay-ээр төлсөн ✓") : order.payment?.method === "bank" ? "Дансаар шилжүүлнэ — дансаа шалгаарай" : "Төлөөгүй"]] : []),
+    ...(order.price ? [["Цэцэг", order.price.lines.slice(1).map((l) => `${l.label}: ${money(l.amount)}`).join("\n") || "—"], ["Хүргэлт", order.delivery?.type === "delivery" ? `${order.delivery.address || "Хүргэлт"}${order.delivery.payer === "recipient" ? "\nUBCab-ийн төлбөрийг хүргэлтийн үед ӨӨРӨӨ төлнө" : "\nUBCab-ийн төлбөр дүнд орсон"}${order.delivery.lat ? `\nБайршил: https://maps.google.com/?q=${order.delivery.lat},${order.delivery.lng}` : ""}` : "Очиж авна"], ["Нийт", money(order.price.total)], ["Төлбөр", order.payment?.status === "paid" ? (order.payment.manual ? "Төлсөн ✓" : "QPay-ээр төлсөн ✓") : order.payment?.method === "bank" ? "Дансаар шилжүүлнэ — дансаа шалгаарай" : "Төлөөгүй"]] : []),
   ];
   // Энгийн, захидал маягийн HTML — Promotions таб руу орох магадлалыг багасгана
   const html = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#222">

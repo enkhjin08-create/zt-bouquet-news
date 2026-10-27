@@ -34,7 +34,7 @@ const metaOf = (order) => ({
   total: order.price?.total || 0,
   paid: order.payment?.status === "paid",
   payMethod: order.payment?.method || "qpay",
-  delivery: order.delivery?.type || "pickup",
+  delivery: order.delivery?.type === "delivery" && order.delivery.payer === "recipient" ? "cod" : order.delivery?.type || "pickup",
 });
 
 const num = (v, lo, hi, d) => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
@@ -114,7 +114,7 @@ export default async (req, context) => {
 
       const cat = await getCatalog(s);
       if (body.delivery.type === "delivery" && !body.delivery.address.trim()) return json({ error: "Хүргэлтийн хаягаа бичнэ үү." }, 400);
-      if (body.delivery.type === "delivery" && cat.shopLat && !body.delivery.lat && !isAdmin(req)) return json({ error: "Хүргэлтийн байршлаа газрын зураг дээр тэмдэглэнэ үү." }, 400);
+      if (body.delivery.type === "delivery" && body.delivery.payer !== "recipient" && cat.shopLat && !body.delivery.lat && !isAdmin(req)) return json({ error: "Хүргэлтийн байршлаа газрын зураг дээр тэмдэглэнэ үү." }, 400);
       await withDeliveryKm(body, cat);
       body.price = priceOf(body, cat);
       const now = new Date().toISOString();

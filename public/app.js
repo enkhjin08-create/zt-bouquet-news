@@ -68,9 +68,9 @@ export function priceOf(order, cat) {
     const p = cat.packages.find((x) => x.id === f.packageId);
     if (p) lines.push({ label: p.name, amount: p.price });
   }
-  if (order.delivery?.type === "delivery") {
+  if (order.delivery?.type === "delivery" && order.delivery.payer !== "recipient") {
     const km = order.delivery.km;
-    lines.push({ label: km > 0 && cat.shopLat ? `Хүргэлт (≈${km} км)` : cat.shopLat ? "Хүргэлт (байршил сонгоогүй)" : "Хүргэлт", amount: cat.shopLat && !(km > 0) ? 0 : deliveryFeeOf(cat, km), pending: !!cat.shopLat && !(km > 0) });
+    lines.push({ label: km > 0 && cat.shopLat ? `UBCab хүргэлт (≈${km} км)` : cat.shopLat ? "UBCab хүргэлт (байршил сонгоогүй)" : "UBCab хүргэлт", amount: cat.shopLat && !(km > 0) ? 0 : deliveryFeeOf(cat, km), pending: !!cat.shopLat && !(km > 0) });
   }
   return { lines, total: lines.reduce((a, l) => a + l.amount, 0) };
 }
@@ -368,20 +368,27 @@ export function createEditor({ root, mode, onChange }) {
         </div>`).join("") || `<p class="help">Одоогоор цэцэг бүртгэгдээгүй байна.</p>`}
       </div>`}
       <div class="dl">
-        <label class="dl-opt ${d.type !== "delivery" ? "on" : ""}"><input type="radio" name="dl" value="pickup" ${d.type !== "delivery" ? "checked" : ""}><span>Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}</span><b>Нэмэлт төлбөргүй</b></label>
-        <label class="dl-opt ${d.type === "delivery" ? "on" : ""}"><input type="radio" name="dl" value="delivery" ${d.type === "delivery" ? "checked" : ""}><span>Хүргүүлнэ</span><b>${cat.shopLat ? (d.km > 0 ? "+" + money(deliveryFeeOf(cat, d.km)) : "Зайнаас хамаарна") : "+" + money(cat.deliveryFee)}</b></label>
+        ${(() => { const v = d.type !== "delivery" ? "pickup" : d.payer === "recipient" ? "cod" : "delivery";
+          const fee = cat.shopLat ? (d.km > 0 ? money(deliveryFeeOf(cat, d.km)) : "") : money(cat.deliveryFee);
+          const opt = (val, title, sub, price) => `<label class="dl-opt ${v === val ? "on" : ""}"><input type="radio" name="dl" value="${val}" ${v === val ? "checked" : ""}><span>${title}${sub ? `<small>${sub}</small>` : ""}</span><b>${price}</b></label>`;
+          return opt("pickup", `Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}`, "", "Нэмэлт төлбөргүй")
+            + opt("delivery", "Хүргүүлнэ · UBCab-ийн мөнгийг одоо төлнө", "UBCab-ийн хүргэлтийн төлбөр захиалгын дүнд нэмэгдэнэ", fee ? "+" + fee : "Зайнаас хамаарна")
+            + opt("cod", "Хүргүүлнэ · UBCab-д хүргэлтийн үед өөрөө төлнө", "Хүлээн авахдаа жолоочид бэлнээр / дансаар төлнө", fee ? "≈" + fee : "Жолоочид төлнө"); })()}
       </div>`;
   }
   function dlBoxHtml() {
     const d = order.delivery;
     if (!cat || d.type !== "delivery") return "";
     return `<div class="field"><label for="d-addr">Хүргэлтийн хаяг <em>*</em></label><textarea id="d-addr" data-addr="1" rows="2" maxlength="400" placeholder="Дүүрэг, хороо, байр, орц, тоот">${esc(d.address)}</textarea></div>
-      ${cat.shopLat ? `<div class="field"><label>Байршлаа газрын зураг дээр тэмдэглэнэ үү <em>*</em></label>
+      ${cat.shopLat ? `<div class="field"><label>Байршлаа газрын зураг дээр тэмдэглэнэ үү ${d.payer === "recipient" ? "" : "<em>*</em>"}</label>
         <div class="dl-map" id="dl-map"></div>
         <div class="dl-tools"><button type="button" class="ghost-btn" id="dl-geo">📍 Миний байршил</button><span class="dl-q" id="dl-q">${d.km > 0 ? quoteText() : "Газрын зураг дээр дарж хүргэх цэгээ сонгоно уу."}</span></div>
-        <p class="help">Хүргэлтийг UBCab-аар хүргэнэ. Үнэ нь манай салбараас таны хаяг хүртэлх замын зайгаар ойролцоогоор бодогдоно.</p></div>` : ""}`;
+        </div>` : ""}
+      <div class="dl-note">🚕 Хүргэлтийг <b>UBCab</b> хийнэ. ${d.payer === "recipient"
+        ? "Та UBCab-ийн хүргэлтийн мөнгийг <b>хүргэлтийн үед жолоочид өөрөө</b> төлнө. Энэ мөнгө манай захиалгын дүнд ороогүй."
+        : "Захиалгын дүнд орсон хүргэлтийн мөнгө нь <b>UBCab-д төлөх хүргэлтийн төлбөр</b> юм. Манай салбараас таны хаяг хүртэлх замын зайгаар ойролцоогоор бодсон."}</div>`;
   }
-  const quoteText = () => `≈ ${order.delivery.km} км · хүргэлт <b>${money(deliveryFeeOf(cat, order.delivery.km))}</b>`;
+  const quoteText = () => `≈ ${order.delivery.km} км · UBCab ${order.delivery.payer === "recipient" ? "ойролцоогоор" : ""} <b>${money(deliveryFeeOf(cat, order.delivery.km))}</b>`;
   let dlMap = null, dlType = null, quoteSeq = 0;
   function refreshDelivery() {
     const box = $("#dl-box", form); if (!box) return;
@@ -413,7 +420,7 @@ export function createEditor({ root, mode, onChange }) {
   function sumHtml() {
     if (!cat) return "";
     const p = priceOf(order, cat);
-    return `${p.lines.map((l) => `<div class="sum-row"><span>${esc(l.label)}</span><span>${l.pending ? "—" : money(l.amount)}</span></div>`).join("")}<div class="sum-row total"><span>Нийт</span><span>${money(p.total)}</span></div>`;
+    return `${p.lines.map((l) => `<div class="sum-row"><span>${esc(l.label)}</span><span>${l.pending ? "—" : money(l.amount)}</span></div>`).join("")}<div class="sum-row total"><span>Нийт</span><span>${money(p.total)}</span></div>${order.delivery.type === "delivery" && order.delivery.payer === "recipient" ? `<div class="sum-row cod"><span>+ UBCab-д хүргэлтийн үед өөрөө төлнө</span><span>${cat.shopLat ? (order.delivery.km > 0 ? "≈" + money(deliveryFeeOf(cat, order.delivery.km)) : "—") : "≈" + money(cat.deliveryFee)}</span></div>` : ""}`;
   }
   const refreshFlowers = (user = true) => { const el = $("#flowers", form); if (el) el.innerHTML = flowersHtml(); refreshDelivery(); if (user) onChange?.(order); };
   let cat = null;
@@ -428,7 +435,11 @@ export function createEditor({ root, mode, onChange }) {
   root.addEventListener("change", async (e) => {
     const t = e.target;
     if (t.name === "pk") { order.flowers.packageId = t.value; refreshFlowers(); return; }
-    if (t.name === "dl") { order.delivery.type = t.value; buildForm(); onChange?.(order); return; }
+    if (t.name === "dl") {
+      order.delivery.type = t.value === "pickup" ? "pickup" : "delivery";
+      order.delivery.payer = t.value === "cod" ? "recipient" : "sender";
+      buildForm(); onChange?.(order); return;
+    }
     if (t.name === "tpl") {
       // Сонины нэрийг хэрэглэгч өөрчлөөгүй бол шинэ загварын анхны нэрийг тавина
       const defOf = (k) => TEMPLATES[k]?.mast || "BIRTHDAY TIMES";
@@ -671,7 +682,7 @@ export function createEditor({ root, mode, onChange }) {
   }
 
   load(order);
-  return { get: () => order, load, printSheet, toast: alertBox, price: () => priceOf(order, cat), needsPin: () => !!(cat?.shopLat && order.delivery.type === "delivery" && !(order.delivery.km > 0)), reloadCatalog: async () => { cat = await loadCatalog(true); refreshFlowers(false); } };
+  return { get: () => order, load, printSheet, toast: alertBox, price: () => priceOf(order, cat), needsPin: () => !!(cat?.shopLat && order.delivery.type === "delivery" && order.delivery.payer !== "recipient" && !(order.delivery.km > 0)), reloadCatalog: async () => { cat = await loadCatalog(true); refreshFlowers(false); } };
 }
 
 export function toast(msg, kind = "ok") {

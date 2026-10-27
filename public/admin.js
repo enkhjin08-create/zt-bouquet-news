@@ -62,7 +62,7 @@ function drawList() {
     ? list.map((o) => `
       <li><button type="button" data-id="${esc(o.id)}" aria-current="${current?.id === o.id}">
         <span class="r1"><span>№ ${esc(o.id)} · ${esc(o.contact?.name || o.name || "Нэргүй")}</span><span class="pill ${esc(o.status)}">${STATUS[o.status] || o.status}</span></span>
-        ${o.total ? `<span class="r2"><span class="pill ${o.paid ? "paid" : o.payMethod === "bank" ? "bank" : "unpaid"}">${o.paid ? "Төлсөн" : o.payMethod === "bank" ? "Данс · шалгах" : "Төлөөгүй"}</span> ${money(o.total)}${o.delivery === "delivery" ? " · хүргэлт" : ""}</span>` : ""}
+        ${o.total ? `<span class="r2"><span class="pill ${o.paid ? "paid" : o.payMethod === "bank" ? "bank" : "unpaid"}">${o.paid ? "Төлсөн" : o.payMethod === "bank" ? "Данс · шалгах" : "Төлөөгүй"}</span> ${money(o.total)}${o.delivery === "delivery" ? " · хүргэлт" : o.delivery === "cod" ? " · хүргэлт (UBCab-д өөрөө төлнө)" : ""}</span>` : ""}
         <span class="r2">${esc(TEMPLATES[o.template]?.label || "")} · ${esc(o.contact?.phone || "")}${o.contact?.pickup ? ` · авах ${esc(o.contact.pickup)}` : ""}</span>
       </button></li>`).join("")
     : `<li class="empty">${filter === "all" ? "Одоогоор захиалга алга. Захиалагчид нүүр хуудасны холбоосоор бөглөнө." : "Энэ төлөвтэй захиалга алга."}</li>`;
@@ -227,9 +227,9 @@ function drawCat() {
       <div class="field"><label for="cat-simple">Энгийн мэндчилгээний үнэ</label><input id="cat-simple" type="number" min="0" step="1000" value="${c.simplePrice ?? 15000}"></div>
     </div>
     <h3>Хүргэлт (UBCab)</h3>
-    <p class="help">Хүргэлтийн үнэ = суурь төлбөр + км тутмын үнэ × замын зай (500₮-өөр дээш тоймлоно). Суурь: дуудлага 4,900 + систем 250 + даатгал 1,000 + орж авах 1,000 + оруулж өгөх 1,000 + ачаа 5,000.</p>
+    <p class="help">Хүргэлтийн үнэ = суурь төлбөр + км тутмын үнэ × замын зай (500₮-өөр дээш тоймлоно). Суурь: дуудлага 4,900 + систем 250 + даатгал 1,000 + орж авах 1,000 + оруулж өгөх 1,000 = 8,150₮ (ачааны төлбөргүй).</p>
     <div class="row2">
-      <div class="field"><label for="cat-dbase">Суурь төлбөр</label><input id="cat-dbase" type="number" min="0" step="50" value="${c.deliveryBase ?? 13150}"></div>
+      <div class="field"><label for="cat-dbase">Суурь төлбөр</label><input id="cat-dbase" type="number" min="0" step="50" value="${c.deliveryBase ?? 8150}"></div>
       <div class="field"><label for="cat-dkm">1 км-ийн үнэ</label><input id="cat-dkm" type="number" min="0" step="100" value="${c.deliveryPerKm ?? 2000}"></div>
       <div class="field"><label for="cat-del">Байршил тогтоогоогүй үеийн тогтмол үнэ</label><input id="cat-del" type="number" min="0" step="1000" value="${c.deliveryFee}"></div>
     </div>
