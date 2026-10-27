@@ -1,3 +1,7 @@
+@font-face { font-family: "ZT Annabelle"; src: url("fonts/Annabelle.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "ZT Artemis"; src: url("fonts/Artemis.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "ZT Shantell"; src: url("fonts/ShantellBold.woff2") format("woff2"); font-weight: 700 900; font-display: block; }
+@font-face { font-family: "ZT Torid"; src: url("fonts/ToridBold.woff2") format("woff2"); font-weight: 700 900; font-display: block; }
 @font-face { font-family: "Santa Catarina"; src: url("fonts/SantaCatarina.woff2") format("woff2"); font-display: block; }
 /* ── Хэвлэх хуудас: A3 хэвтээ, 420 × 297 мм ── */
 .sheet {
@@ -54,7 +58,7 @@
 .n-mast { position: absolute; left: 10mm; right: 14mm; top: 24mm; text-align: center;
   font: 700 36pt/1 "Old Standard TT", "Times New Roman", serif; letter-spacing: .32em; padding-left: .32em; white-space: nowrap; }
 .n-rule { position: absolute; left: 10mm; right: 14mm; top: 44mm; height: 2.4mm; border-top: 1.1mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
-.n-its { position: absolute; left: 10mm; right: 14mm; top: 49mm; text-align: center; font: 400 38pt/1.1 "Bad Script", cursive; }
+.n-its { position: absolute; left: 10mm; right: 14mm; top: 49mm; text-align: center; font: 400 38pt/1.1 "ZT Annabelle", "Bad Script", cursive; }
 .n-bday { position: absolute; left: 10mm; right: 14mm; top: 67mm; text-align: center; font: 700 60pt/1 "Oswald", Impact, sans-serif; letter-spacing: -.01em; }
 .n-body { position: absolute; left: 8mm; right: 14mm; top: 93mm; bottom: 16mm; display: grid; grid-template-columns: 93mm 1fr; gap: 4mm; }
 .n-main { border: .5mm solid var(--ink); min-height: 0; }
@@ -79,7 +83,7 @@
 .p-bottom { position: absolute; left: 12mm; right: 12mm; bottom: 9mm; border-top: .3mm solid var(--ink); }
 .pol { position: absolute; background: #fff; padding: 4.5mm 4.5mm 13mm; box-shadow: 0 1.2mm 3mm rgba(80,20,50,.25); }
 .pol .ph { height: 100%; }
-.pol figcaption { position: absolute; left: 0; right: 0; bottom: 2.5mm; text-align: center; font: 400 19pt "Bad Script", cursive; color: var(--ink); }
+.pol figcaption { position: absolute; left: 0; right: 0; bottom: 2.5mm; text-align: center; font: 400 19pt "ZT Annabelle", "Bad Script", cursive; color: var(--ink); }
 .pol .tape { position: absolute; width: 30mm; height: 9mm; background: rgba(214,90,150,.55); top: -3.5mm; left: 50%; transform: translateX(-50%) rotate(-6deg); }
 .pol.p1 { left: 14mm; top: 20mm; width: 92mm; height: 84mm; transform: rotate(-3deg); }
 .pol.p2 { left: 98mm; top: 106mm; width: 96mm; height: 92mm; transform: rotate(5deg); }
@@ -87,7 +91,7 @@
 .pol.p3 { left: 10mm; top: 160mm; width: 110mm; height: 100mm; transform: rotate(-4deg); z-index: 2; }
 .pol.p3 .tape { left: 15%; transform: translateX(-50%) rotate(-40deg); }
 .p-wish { position: absolute; left: 116mm; top: 20mm; width: 84mm; list-style: none; display: flex; flex-direction: column; gap: 2.4mm;
-  font: 400 19pt/1.2 "Bad Script", cursive; color: var(--ink); }
+  font: 400 19pt/1.2 "ZT Annabelle", "Bad Script", cursive; color: var(--ink); }
 .p-wish li { display: flex; gap: 2.5mm; align-items: center; }
 .p-wish .flower { width: 6mm; height: 6mm; flex: none; fill: #e98ab4; }
 .p-wish .flower .c { fill: #f7d26a; }
@@ -96,7 +100,7 @@
 .p-dateline { position: absolute; left: 12mm; right: 12mm; top: 43mm; display: flex; justify-content: space-between;
   font: 600 8.5pt "Open Sans", sans-serif; padding: 1.4mm 0; border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
 .p-msg { position: absolute; left: 20mm; right: 20mm; top: 56mm; height: 52mm; overflow: hidden; text-align: center;
-  font: 400 22pt/1.35 "Bad Script", cursive; color: var(--ink); display: flex; flex-direction: column; justify-content: safe center; }
+  font: 400 22pt/1.35 "ZT Annabelle", "Bad Script", cursive; color: var(--ink); display: flex; flex-direction: column; justify-content: safe center; }
 .pol.pmain { left: 24mm; top: 116mm; width: 162mm; height: 160mm; transform: rotate(2deg); }
 .pol.pmain figcaption { font-size: 20pt; bottom: 2.5mm; }
 
@@ -127,7 +131,7 @@
 .z-photo { min-height: 0; }
 .z-msg { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: safe center; text-align: center;
   font: italic 400 13pt/1.45 "Old Standard TT", "Times New Roman", serif; }
-.z-name { font: 400 26pt/1.1 "Bad Script", cursive; font-style: normal; margin-bottom: .5em; }
+.z-name { font: 400 26pt/1.1 "ZT Annabelle", "Bad Script", cursive; font-style: normal; margin-bottom: .5em; }
 .z-bottom { position: absolute; left: 14mm; right: 14mm; bottom: 12mm; border-top: .3mm solid var(--ink); }
 
 
@@ -167,7 +171,7 @@
 .b-tofrom { position: absolute; left: 20mm; top: 50mm; width: 92mm; z-index: 3; display: grid; gap: 3mm; }
 .b-tofrom p { display: flex; align-items: baseline; gap: 4mm; border-bottom: .25mm solid #b9b3aa; padding-bottom: .8mm; }
 .tf-l { width: 13mm; flex: none; font: 600 7pt "Open Sans", sans-serif; letter-spacing: .14em; color: #8b857c; }
-.tf-v { font: 400 21pt/1 "Bad Script", cursive; color: var(--ink); }
+.tf-v { font: 400 21pt/1 "ZT Annabelle", "Bad Script", cursive; color: var(--ink); }
 .b-stamps { position: absolute; right: 18mm; top: 46mm; display: flex; gap: 3mm; z-index: 3; }
 .b-body { position: absolute; left: 20mm; right: 20mm; top: 82mm; bottom: 14mm; overflow: hidden; z-index: 3;
   font: 400 12pt/1.55 "Open Sans", sans-serif; }
@@ -209,7 +213,7 @@
 .sc-card { position: absolute; left: 50mm; top: 122mm; width: 96mm; height: 92mm; padding: 7mm 7mm 6mm; background: #faf7d9; transform: rotate(-4deg); z-index: 5;
   box-shadow: 0 1.5mm 3.5mm rgba(0,0,0,.25); }
 .sc-msg { height: 100%; overflow: hidden; display: flex; flex-direction: column; justify-content: safe center;
-  font: 400 17pt/1.35 "Bad Script", cursive; color: var(--ink); text-align: left; }
+  font: 400 17pt/1.35 "ZT Artemis", "Bad Script", cursive; color: var(--ink); text-align: left; }
 .sc-heart { color: #d4202c; font-family: "Noto Sans Symbols 2", sans-serif; }
 
 .t-scrap .sc-right { background: #fbfaf7; }
@@ -232,9 +236,9 @@
 .sc-stamp-in { height: 100%; padding: 4mm; background: #fff; }
 .sc-stamp-in .ph { height: 100%; }
 .sc-xoxo { position: absolute; left: 8mm; top: 60mm; z-index: 4; padding: 4mm 9mm; background: #7fa3d9; border: 1.4mm solid #fff; border-radius: 48% 52% 45% 55% / 60% 50% 50% 40%;
-  transform: rotate(-4deg); box-shadow: 0 .8mm 1.6mm rgba(0,0,0,.25); font: 900 30pt/1 "Rubik", "Arial Black", sans-serif; color: #e2343d; letter-spacing: .04em; }
+  transform: rotate(-4deg); box-shadow: 0 .8mm 1.6mm rgba(0,0,0,.25); font: 900 30pt/1 "ZT Shantell", "Rubik", "Arial Black", sans-serif; color: #e2343d; letter-spacing: .04em; }
 .sc-xoxo span { -webkit-text-stroke: 1.2mm #fff; paint-order: stroke fill; }
-.sc-bff { position: absolute; right: 8mm; top: 206mm; z-index: 4; transform: rotate(-3deg); font: 900 92pt/1 "Rubik", "Arial Black", sans-serif; letter-spacing: -.02em; }
+.sc-bff { position: absolute; right: 8mm; top: 206mm; z-index: 4; transform: rotate(-3deg); font: 900 92pt/1 "ZT Torid", "Rubik", "Arial Black", sans-serif; letter-spacing: -.02em; }
 .sc-bff span { position: relative; display: inline-block; color: transparent;
   background: radial-gradient(circle at 30% 30%, #f4a7b5 0 18%, transparent 20%) 0 0 / 4mm 4mm, radial-gradient(circle at 70% 70%, #7fa3d9 0 16%, transparent 18%) 0 0 / 4mm 4mm, #f28a3c;
   -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: .6mm #c4282f;
