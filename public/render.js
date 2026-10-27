@@ -55,6 +55,7 @@ const SAMPLE = {
   ],
   letter:
     "Чамтайгаа учирсан тэр өдрөөс хойш миний амьдралын өнгө өөр болсон юм шиг санагддаг. Хамтдаа инээсэн, уйлсан, аялсан бүх л мөч маань надад хамгийн үнэтэй дурсамж болон үлдсэн.\n\nЧи миний хамгийн дотно хүн, хамгийн сайн найз минь. Ямар ч үед хажууд минь байж, намайг өөрийнхөөрөө байхад тусалдагт чинь баярлалаа.\n\nТөрсөн өдрөөр чинь чамд эрүүл энх, аз жаргал, мөрөөдөл бүхэн чинь биелэхийг хүсье. Үргэлж хамтдаа байцгаая. Хайртай шүү ♥",
+  missed: "Энэ мөчийг би 5 сар хүлээсэн.\n\nХайр минь, бид эцэст нь уулзаж байна. Яг одоо чиний хажууд ичингүйрээд зогсож байгаа байх даа. Чамайг маш их санасан. Өдөр бүр чамтай уулзаж, чамайг харж, хажууд чинь байхыг хүсдэг байсан.\n\nМиний хамгийн том бэлэг нь чи. Хайртай шүү.",
   sport: "МИНИЙ ТАМИРЧИН\nЧи онооны самбар дээрх тоог хардаг бол би түүний ард байгаа хөдөлмөр, хөлс, хэзээ ч бууж өгдөггүй зоригийг чинь хардаг. Хэн ч харахгүй байхад давтсан бэлтгэл бүр чинь өнөөдрийн ялалт болсон.\n\nЧАМААРАА БАХАРХАЖ БАЙНА\nТалбай дээр гарах бүрт чинь зүрх минь чамтай хамт гүйдэг. Чи зөвхөн гайхалтай тамирчин биш, бүр гайхалтай хүн.\n\nМИНИЙ MVP\nОнооны самбар юу ч гэж харуулсан, чи надад үргэлж хамгийн шилдэг нь. Гэрэлтэж яваарай, од минь!",
   film: "Төрсөн өдрийн мэнд хүргэе, миний гоё найз аа!\nӨнөөдөр чи дэлхий дээр ирсэн өдөр учраас чамд хамгийн сайхан бүхнийг хүсье.\n\nҮргэлж ингэж гэрэлтэж, инээмсэглэж, мөрөөдөл бүртээ хүрээрэй. Чамтай хамт байсан мөч бүр минь хамгийн үнэтэй дурсамж.\n\nЧи бол үнэхээр мундаг, үнэнч найз минь. Насан туршдаа хамтдаа байцгаая!",
   bff: "Хайрт найздаа төрсөн өдрийн баярын мэнд! Чамтай өнгөрүүлсэн мөч бүр хамгийн сайхан дурсамж болдог. Ирэх жилүүдэд чи улам хөгжилтэй, аз жаргалтай байж, мөрөөдөл бүртээ хүрээрэй. Амьдрал чинь хайр, инээд хөөрөөр дүүрэн байх болтугай. Чамд хамгийн сайн сайхныг хүсэж байна.",
@@ -322,12 +323,40 @@ function sport(o) {
   </section>`;
 }
 
-export const MASTHEADS = ["BIRTHDAY TIMES", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
+// ───────────── 8. Хальсан захидал ─────────────
+const negEdge = (side) => `<div class="neg-edge ${side}" aria-hidden="true"><span>FILM 135</span><span>7</span><span class="k">▮▯▮ ▯▮▯</span><span>100</span><span class="k">▯▮▮ ▮▯▮</span><span>6A</span><span>FILM 135</span></div>`;
+const heartMail = `<svg class="heartmail" viewBox="0 0 120 70" aria-hidden="true"><path d="M4 22h34M2 32h36M6 42h30"/><path d="M68 62C50 48 44 36 48 24c3-10 16-12 22-2 6-10 20-8 22 2 3 12-4 24-24 38z"/><path d="M58 30c2-4 6-5 9-3"/></svg>`;
+function missed(o) {
+  const ph = o.photos || [];
+  return `
+  <section class="page ms-left">
+    <div class="crease"></div>
+    <div class="ms-top"><span>002</span></div>
+    <div class="negative" data-fr="neg">
+      ${negEdge("l")}
+      <div class="neg-frames"><div class="neg-cell a">${photo(ph[0], "", 0)}</div><div class="neg-cell b">${photo(ph[1], "", 1)}</div></div>
+      ${negEdge("r")}
+    </div>
+    <div class="ms-bottom"></div>
+  </section>
+  <section class="page ms-right">
+    <div class="crease r"></div>
+    <div class="ms-top r"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="ms-mast fitw" data-tb="mast">${esc(o.masthead || "MISSED YOU")}</h1>
+    <div class="ms-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    <div class="ms-msg fit" data-base="21" data-tb="msg"><p>${or(o.message, SAMPLE.missed)}</p></div>
+    ${heartMail}
+    <div class="ms-bottom"></div>
+  </section>`;
+}
+
+export const MASTHEADS = ["BIRTHDAY TIMES", "MISSED YOU", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
 
 export const TEMPLATES = {
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
+  missed: { label: "Хальсан захидал", render: missed, photos: ["Хальсны дээд зураг", "Хальсны доод том зураг"], fields: ["masthead", "message"] },
   sport: { label: "Спорт", render: sport, photos: ["Том постер зураг (зүүн нүүр)", "Баруун зураг 1", "Баруун зураг 2"], fields: ["masthead", "message", "sportlabels"] },
   film: { label: "Кино хальс", render: filmTpl, photos: ["Зүүн хальс 1", "Зүүн хальс 2", "Баруун хальс 1", "Баруун хальс 2"], fields: ["masthead", "message", "labels", "stickers"] },
   scrap: { label: "Скрапбүүк", render: scrap, photos: ["Гол зураг (маркан хүрээ)"], fields: ["masthead", "message", "stickers"] },

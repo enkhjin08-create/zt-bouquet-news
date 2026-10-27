@@ -334,7 +334,7 @@ export function createEditor({ root, mode, onChange }) {
   // ── Текстийн хэмжээ, байрлал ──
   const TB_NAMES = { l1: "Шошго 1", l2: "Шошго 2", l3: "Шошго 3", s1: "Наалт 1", s2: "Наалт 2", mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3" };
   let selText = null, tdrag = null, selFrame = null, frameMode = "img";
-  const FR_NAMES = { poster: "Постер зураг", sp1: "Баруун зураг 1", sp2: "Баруун зураг 2", rl: "Зүүн хальс", rr: "Баруун хальс", stamp: "Маркан хүрээ", f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг" };
+  const FR_NAMES = { neg: "Хальс", poster: "Постер зураг", sp1: "Баруун зураг 1", sp2: "Баруун зураг 2", rl: "Зүүн хальс", rr: "Баруун хальс", stamp: "Маркан хүрээ", f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг" };
   const txOf = (key) => {
     order.tx = order.tx || {};
     const t = (order.tx[order.template] = order.tx[order.template] || {});

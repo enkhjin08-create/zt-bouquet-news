@@ -65,7 +65,7 @@ const cleanTx = (tx) => {
   return out;
 };
 
-const TPL_LABEL = { sport: "Спорт", film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
+const TPL_LABEL = { missed: "Хальсан захидал", sport: "Спорт", film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
 const h = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 // Шинэ захиалгын мэдэгдэл (Resend). RESEND_API_KEY байхгүй бол алгасна.
@@ -113,7 +113,7 @@ const clean = (body) => {
   }
   const str = (v, n = 4000) => (typeof v === "string" ? v.slice(0, n) : "");
   return {
-    template: ["letter", "news", "polaroid", "booth", "scrap", "film", "sport"].includes(body.template) ? body.template : "news",
+    template: ["letter", "news", "polaroid", "booth", "scrap", "film", "sport", "missed"].includes(body.template) ? body.template : "news",
     name: str(body.name, 80),
     date: str(body.date, 20),
     masthead: str(body.masthead, 60),

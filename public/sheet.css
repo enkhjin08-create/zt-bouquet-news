@@ -345,6 +345,40 @@
 .sp-num { position: absolute; left: 134mm; top: 248mm; z-index: 5; color: var(--red); font: 900 44pt/1 "ZT Torid", "Rubik", sans-serif; letter-spacing: .02em;
   -webkit-text-stroke: .5mm #fff; paint-order: stroke fill; transform: rotate(-6deg); text-shadow: 0 .6mm 1mm rgba(0,0,0,.25); }
 
+
+/* ───── 8. Хальсан захидал ───── */
+.t-missed .page { --ink: #1b1a19; background:
+  linear-gradient(103deg, transparent 0 22%, rgba(0,0,0,.035) 22.3%, transparent 23% 61%, rgba(255,255,255,.45) 61.2%, transparent 62%),
+  linear-gradient(12deg, transparent 0 38%, rgba(0,0,0,.03) 38.3%, transparent 39% 77%, rgba(0,0,0,.025) 77.2%, transparent 78%),
+  linear-gradient(170deg, transparent 0 55%, rgba(255,255,255,.6) 55.2%, transparent 56%),
+  radial-gradient(60% 50% at 30% 30%, rgba(255,255,255,.6), transparent 70%), radial-gradient(70% 60% at 80% 80%, rgba(0,0,0,.04), transparent 70%), #f1f0ec; }
+.crease { position: absolute; inset: 0; pointer-events: none; background:
+  linear-gradient(64deg, transparent 0 47%, rgba(0,0,0,.03) 47.2%, rgba(255,255,255,.5) 47.6%, transparent 48.2%),
+  linear-gradient(141deg, transparent 0 70%, rgba(0,0,0,.025) 70.2%, rgba(255,255,255,.5) 70.6%, transparent 71.2%); }
+.crease.r { background: linear-gradient(28deg, transparent 0 35%, rgba(0,0,0,.03) 35.2%, rgba(255,255,255,.5) 35.6%, transparent 36.2%), linear-gradient(118deg, transparent 0 66%, rgba(0,0,0,.025) 66.2%, rgba(255,255,255,.5) 66.6%, transparent 67.2%); }
+.ms-top { position: absolute; left: 10mm; right: 10mm; top: 5mm; padding-bottom: 1.2mm; border-bottom: .3mm solid var(--ink); font: 600 7pt "Open Sans", sans-serif; display: flex; z-index: 3; }
+.ms-top.r { justify-content: flex-end; }
+.ms-bottom { position: absolute; left: 10mm; right: 10mm; bottom: 9mm; border-top: .3mm solid var(--ink); }
+.negative { position: absolute; left: 24mm; top: 46mm; width: 150mm; height: 200mm; background: #0f0e0d; transform: rotate(-12deg); z-index: 2;
+  display: grid; grid-template-columns: 17mm 1fr 17mm; box-shadow: 0 2mm 5mm rgba(0,0,0,.35); }
+.neg-edge { position: relative; display: flex; flex-direction: column; justify-content: space-around; align-items: center; padding: 6mm 0;
+  background: repeating-linear-gradient(transparent 0 2.2mm, #2a2826 2.2mm 6.2mm, transparent 6.2mm 8.4mm) 4.5mm 0 / 4mm 100% no-repeat; }
+.neg-edge.r { background-position: calc(100% - 4.5mm) 0; }
+.neg-edge span { writing-mode: vertical-rl; color: #f08a1c; font: 700 8pt "Open Sans", sans-serif; letter-spacing: .12em; transform: translateX(4mm); }
+.neg-edge.r span { transform: translateX(-4mm) rotate(180deg); }
+.neg-edge .k { font-size: 10pt; letter-spacing: 0; }
+.neg-frames { display: grid; grid-template-rows: 38% 1fr; gap: 6mm; padding: 6mm 0; }
+.neg-cell { min-height: 0; background: #1d1b19; }
+.neg-cell .ph { height: 100%; }
+.ms-mast { position: absolute; left: 14mm; right: 14mm; top: 10mm; text-align: center; z-index: 3;
+  font: 400 70pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.ms-dateline { position: absolute; left: 0; right: 14mm; top: 38mm; display: flex; justify-content: space-between; padding: 1.2mm 0 1.2mm 4mm;
+  border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); font: 400 8pt "Open Sans", sans-serif; }
+.ms-msg { position: absolute; left: 30mm; right: 30mm; top: 62mm; bottom: 70mm; overflow: hidden; z-index: 3; text-align: center;
+  display: flex; flex-direction: column; justify-content: safe center; font: 400 21pt/1.55 "ZT Annabelle", "Bad Script", cursive; }
+.ms-msg p { white-space: pre-line; }
+.heartmail { position: absolute; right: 26mm; bottom: 40mm; width: 34mm; fill: none; stroke: #1b1a19; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transform: rotate(-6deg); }
+
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
 .t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;
@@ -394,5 +428,5 @@
   #print-host { display: block !important; }
   #print-host .ghost, #print-host .ph-empty { visibility: hidden !important; }
   #print-host .ph.sel, #print-host .tsel { outline: none; }
-  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .reel-cell:has(.ph-empty), #print-host .sp-pol:has(.ph-empty), #print-host .sp-poster:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
+  #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .reel-cell:has(.ph-empty), #print-host .sp-pol:has(.ph-empty), #print-host .sp-poster:has(.ph-empty), #print-host .neg-cell:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
 }
