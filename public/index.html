@@ -44,6 +44,7 @@
 </main>
 <script type="module">
 import { createEditor, toast, money, loadCatalog } from "./app.js";
+import { TEMPLATES } from "./render.js";
 const ed = createEditor({ root: document.getElementById("editor"), mode: "customer", onChange: updateBtn });
 const btn = document.getElementById("submit");
 const main = document.getElementById("main");
@@ -134,7 +135,7 @@ async function payScreen(id, phone, inv) {
 
 btn.addEventListener("click", async () => {
   const o = ed.get();
-  if (!o.photos.some((p) => p.src)) { toast("Дор хаяж нэг зураг оруулна уу.", "err"); return; }
+  if ((TEMPLATES[o.template]?.photos.length || 0) > 0 && !o.photos.some((p) => p.src)) { toast("Дор хаяж нэг зураг оруулна уу.", "err"); return; }
   if (o.delivery?.type === "delivery" && !o.delivery.address.trim()) { toast("Хүргэлтийн хаягаа бичнэ үү.", "err"); document.getElementById("d-addr")?.focus(); return; }
   if (!o.contact.phone.trim()) { toast("Утасны дугаараа оруулна уу.", "err"); document.getElementById("c-phone")?.focus(); return; }
   btn.disabled = true; btn.textContent = "Илгээж байна…";

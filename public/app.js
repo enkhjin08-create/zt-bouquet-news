@@ -1,4 +1,4 @@
-import { TEMPLATES, SIGNS, MASTHEADS, renderSheet, fitAll } from "./render.js";
+import { TEMPLATES, SIGNS, MASTHEADS, CHEAP_TEMPLATES, renderSheet, fitAll } from "./render.js";
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -25,7 +25,8 @@ export const loadCatalog = (fresh = false) => {
 export const money = (n) => `${Math.round(n || 0).toLocaleString("en-US")}₮`;
 export function priceOf(order, cat) {
   if (!cat) return { lines: [], total: 0 };
-  const lines = [{ label: "Сонин (A3 хэвлэл)", amount: cat.newsPrice }];
+  const cheap = CHEAP_TEMPLATES.includes(order.template);
+  const lines = [cheap ? { label: "Сонин (энгийн мэндчилгээ)", amount: cat.simplePrice ?? 15000 } : { label: "Сонин (A3 хэвлэл)", amount: cat.newsPrice }];
   const f = order.flowers || {};
   if (f.mode === "custom") {
     for (const it of f.items || []) {
@@ -120,7 +121,7 @@ export function createEditor({ root, mode, onChange }) {
           <label class="pick pick-${k}">
             <input type="radio" name="tpl" value="${k}" id="tpl-${k}">
             <span class="swatch" aria-hidden="true"><i></i><i></i></span>
-            <span class="pick-name">${t.label}</span>
+            <span class="pick-name">${t.label}</span>${t.cheap ? `<span class="pick-badge">Хямд</span>` : ""}
           </label>`).join("")}
       </div>
     </section>
@@ -189,7 +190,7 @@ export function createEditor({ root, mode, onChange }) {
     const t = TEMPLATES[order.template];
     const slots = t.photos;
     form.innerHTML = `
-      <h2 class="step"><b>2</b>Зургаа оруулна уу</h2>
+      ${slots.length ? `<h2 class="step"><b>2</b>Зургаа оруулна уу</h2>` : ""}
       <div class="photos">
         ${slots.map((label, i) => {
           const p = order.photos[i];
@@ -209,7 +210,7 @@ export function createEditor({ root, mode, onChange }) {
         }).join("")}
       </div>
 
-      <h2 class="step"><b>3</b>Үгээ бичнэ үү</h2>
+      <h2 class="step"><b>${slots.length ? 3 : 2}</b>Үгээ бичнэ үү</h2>
       <div class="fields">
         <div class="row2">
           ${has("name") ? `<div class="field"><label for="f-name">Хэнд зориулах вэ?</label><input id="f-name" data-k="name" maxlength="40" placeholder="Жишээ: Хонгорзул" value="${esc(order.name)}"></div>` : ""}
@@ -288,10 +289,10 @@ export function createEditor({ root, mode, onChange }) {
         </details>` : ""}
       </div>
 
-      <h2 class="step"><b>4</b>Цэцгээ сонгоно уу</h2>
+      <h2 class="step"><b>${slots.length ? 4 : 3}</b>Цэцгээ сонгоно уу</h2>
       <div class="flowers" id="flowers">${flowersHtml()}</div>
 
-      <h2 class="step"><b>5</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
+      <h2 class="step"><b>${slots.length ? 5 : 4}</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
       <div class="fields">
         <div class="row2">
           <div class="field"><label for="c-name">Таны нэр</label><input id="c-name" data-c="name" maxlength="60" value="${esc(order.contact.name)}"></div>

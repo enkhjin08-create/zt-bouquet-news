@@ -224,6 +224,7 @@ function drawCat() {
       <button class="btn" type="button" id="cat-save">Хадгалах</button><button class="btn secondary" type="button" id="cat-close">Хаах</button></div>
     <div class="row2">
       <div class="field"><label for="cat-news">Сонины үнэ</label><input id="cat-news" type="number" min="0" step="1000" value="${c.newsPrice}"></div>
+      <div class="field"><label for="cat-simple">Энгийн мэндчилгээний үнэ</label><input id="cat-simple" type="number" min="0" step="1000" value="${c.simplePrice ?? 15000}"></div>
       <div class="field"><label for="cat-del">Хүргэлтийн төлбөр</label><input id="cat-del" type="number" min="0" step="1000" value="${c.deliveryFee}"></div>
     </div>
     <div class="field"><label for="cat-pick">Очиж авах газар</label><input id="cat-pick" maxlength="80" value="${esc(c.pickupNote)}"></div>
@@ -241,7 +242,7 @@ function drawCat() {
 }
 function readCat() {
   const c = catDraft;
-  c.newsPrice = +$("#cat-news").value || 0; c.deliveryFee = +$("#cat-del").value || 0; c.pickupNote = $("#cat-pick").value; c.bankName = $("#cat-bank").value; c.bankAccount = $("#cat-acc").value; c.bankHolder = $("#cat-holder").value;
+  c.newsPrice = +$("#cat-news").value || 0; c.simplePrice = +$("#cat-simple").value || 0; c.deliveryFee = +$("#cat-del").value || 0; c.pickupNote = $("#cat-pick").value; c.bankName = $("#cat-bank").value; c.bankAccount = $("#cat-acc").value; c.bankHolder = $("#cat-holder").value;
   document.querySelectorAll("#cat .cat-row").forEach((row) => {
     const it = c[row.dataset.kind][+row.dataset.i];
     row.querySelectorAll("[data-f]").forEach((inp) => { it[inp.dataset.f] = inp.type === "checkbox" ? inp.checked : inp.type === "number" ? +inp.value || 0 : inp.value; });

@@ -412,6 +412,22 @@
 .pt-ransom .ransom:nth-child(2) { transform: rotate(1.5deg); }
 .pt-ransom .ransom b { min-width: 11mm; height: 17mm; }
 
+
+/* ───── 10. Энгийн мэндчилгээ ───── */
+.t-tulip .page { --ink: #2b2226; background: #f6e9ec; }
+.tu-bg { position: absolute; inset: 0; background: url("bg/tulip.jpg") center / cover no-repeat; }
+.tu-bg.flip { transform: scaleX(-1); }
+.tu-top { position: absolute; left: 12mm; right: 12mm; top: 5mm; padding-bottom: 1.2mm; border-bottom: .3mm solid var(--ink); font: 600 7pt "Old Standard TT", serif; display: flex; z-index: 3; }
+.tu-top.r { justify-content: flex-end; }
+.tu-bottom { position: absolute; left: 12mm; right: 12mm; bottom: 8mm; border-top: .3mm solid var(--ink); z-index: 3; }
+.tu-mast { position: absolute; left: 14mm; right: 14mm; top: 11mm; text-align: center; z-index: 3;
+  font: 400 72pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.tu-dateline { position: absolute; left: 14mm; right: 14mm; top: 38mm; display: flex; justify-content: space-between; z-index: 3; font: 400 8pt "Open Sans", sans-serif;
+  padding: 1.2mm 0; border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
+.tu-msg { position: absolute; left: 22mm; right: 22mm; top: 66mm; bottom: 78mm; overflow: hidden; z-index: 3; text-align: center;
+  display: flex; flex-direction: column; justify-content: safe center; font: 400 48pt/1.45 "ZT Annabelle", "Bad Script", cursive; }
+.tu-msg p { white-space: pre-line; }
+
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
 .t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;

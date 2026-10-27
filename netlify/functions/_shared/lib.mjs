@@ -15,6 +15,7 @@ export const money = (n) => `${Math.round(n || 0).toLocaleString("en-US")}₮`;
 // ── Үнэ, цэцгийн жагсаалт (админ засна) ──
 export const DEFAULT_CATALOG = {
   newsPrice: 20000,
+  simplePrice: 15000,
   deliveryFee: 10000,
   pickupNote: "Орчлон салбар",
   bankName: "Хаан банк",
@@ -41,6 +42,7 @@ export function cleanCatalog(c) {
   const d = DEFAULT_CATALOG;
   return {
     newsPrice: intIn(c?.newsPrice, 0, 10_000_000, d.newsPrice),
+    simplePrice: intIn(c?.simplePrice, 0, 10_000_000, d.simplePrice),
     deliveryFee: intIn(c?.deliveryFee, 0, 10_000_000, d.deliveryFee),
     pickupNote: str(c?.pickupNote, 80) || d.pickupNote,
     bankName: typeof c?.bankName === "string" ? str(c.bankName, 60) : d.bankName,
@@ -67,8 +69,10 @@ export function cleanFlowers(f) {
 export function cleanDelivery(d) {
   return { type: d?.type === "delivery" ? "delivery" : "pickup", address: str(d?.address, 400) };
 }
+export const CHEAP_TEMPLATES = ["tulip"];
 export function priceOf(order, cat) {
-  const lines = [{ label: "Сонин (A3 хэвлэл)", amount: cat.newsPrice }];
+  const cheap = CHEAP_TEMPLATES.includes(order.template);
+  const lines = [cheap ? { label: "Сонин (энгийн мэндчилгээ)", amount: cat.simplePrice ?? 15000 } : { label: "Сонин (A3 хэвлэл)", amount: cat.newsPrice }];
   const f = order.flowers || {};
   if (f.mode === "custom") {
     for (const it of f.items || []) {
@@ -83,7 +87,7 @@ export function priceOf(order, cat) {
   return { lines, total: lines.reduce((a, l) => a + l.amount, 0) };
 }
 
-const TPL_LABEL = { party: "Улаан үдэшлэг", missed: "Хальсан захидал", sport: "Спорт", film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
+const TPL_LABEL = { tulip: "Энгийн мэндчилгээ", party: "Улаан үдэшлэг", missed: "Хальсан захидал", sport: "Спорт", film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
 const h = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 // Шинэ захиалгын мэдэгдэл (Resend). RESEND_API_KEY байхгүй бол алгасна.

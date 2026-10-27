@@ -395,9 +395,29 @@ function party(o) {
   </section>`;
 }
 
-export const MASTHEADS = ["BIRTHDAY TIMES", "MISSED YOU", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
+// ───────────── 10. Энгийн мэндчилгээ (зөвхөн үг, хямд) ─────────────
+function tulip(o) {
+  return `
+  <section class="page tu-left">
+    <div class="tu-bg"></div>
+    <div class="tu-top"><span>002</span></div>
+    <div class="tu-bottom"></div>
+  </section>
+  <section class="page tu-right">
+    <div class="tu-bg flip"></div>
+    <div class="tu-top r"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="tu-mast fitw" data-tb="mast">${esc(o.masthead || "ХҮНДЭТ БАГШДАА")}</h1>
+    <div class="tu-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    <div class="tu-msg fit" data-base="48" data-tb="msg"><p>${or(o.message, "Багш нарын\nбаярын мэнд хүргэе!")}</p></div>
+    <div class="tu-bottom"></div>
+  </section>`;
+}
 
+export const MASTHEADS = ["BIRTHDAY TIMES", "ХҮНДЭТ БАГШДАА", "MISSED YOU", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
+
+export const CHEAP_TEMPLATES = ["tulip"];
 export const TEMPLATES = {
+  tulip: { label: "Энгийн мэндчилгээ", cheap: true, render: tulip, photos: [], fields: ["masthead", "message"] },
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
