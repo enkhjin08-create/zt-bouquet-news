@@ -413,11 +413,48 @@ function tulip(o) {
   </section>`;
 }
 
-export const MASTHEADS = ["BIRTHDAY TIMES", "ХҮНДЭТ БАГШДАА", "MISSED YOU", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
+// ───────────── 11. Хаврын мэдээ (зөвхөн үг, хямд) ─────────────
+function scallopRect(x, y, w, h, per = 12, bump = 5) {
+  // Гараар зурсан мэт буржгар хүрээ (мм)
+  const pts = [];
+  const edge = (x1, y1, x2, y2) => {
+    const len = Math.hypot(x2 - x1, y2 - y1), n = Math.max(2, Math.round(len / per)), d = len / n;
+    const ux = (x2 - x1) / len, uy = (y2 - y1) / len, ox = uy, oy = -ux; // гадагш чиглэл
+    for (let i = 0; i < n; i++) for (let k = 0; k < 14; k++) {
+      const t = k / 14, a = d * (i + t) - d * 0.27 * Math.sin(2 * Math.PI * t), b = bump * (1 - Math.cos(2 * Math.PI * t)) / 2;
+      pts.push(`${(x1 + ux * a + ox * b).toFixed(2)},${(y1 + uy * a + oy * b).toFixed(2)}`);
+    }
+  };
+  edge(x, y, x + w, y); edge(x + w, y, x + w, y + h); edge(x + w, y + h, x, y + h); edge(x, y + h, x, y);
+  return `<svg class="sp-frame" viewBox="0 0 210 297" preserveAspectRatio="none" aria-hidden="true"><polygon points="${pts.join(" ")}"/></svg>`;
+}
+const HEART_D = "M16 28.6S0 18.7 0 8.6C0 3.6 3.8 0 8.3 0c3.4 0 6.2 2 7.7 4.9C17.5 2 20.3 0 23.7 0 28.2 0 32 3.6 32 8.6c0 10.1-16 20-16 20z";
+const twoHearts = (cls) => `<svg class="sp-hearts ${cls}" viewBox="-1 -1 50 42" aria-hidden="true"><path fill="#c8102e" transform="rotate(-8 16 14)" d="${HEART_D}"/><path fill="#c8102e" stroke="#fff" stroke-width="2.6" transform="translate(19 14) scale(.82) rotate(6 16 14)" d="${HEART_D}"/></svg>`;
+function spring(o) {
+  return `
+  <section class="page sp-left">
+    <div class="sp-top"><span>002</span></div>
+    ${scallopRect(20, 30, 172, 244)}
+    <div class="sp-hl" data-fr="hl">${twoHearts("big")}</div>
+    <div class="sp-bottom"></div>
+  </section>
+  <section class="page sp-right">
+    <div class="sp-top r"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="sp-mast fitw" data-tb="mast">${esc(o.masthead || "ХАВРЫН МЭДЭЭ")}</h1>
+    <div class="sp-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    ${scallopRect(26, 60, 160, 214)}
+    <div class="sp-hs" data-fr="hs">${twoHearts("small")}</div>
+    <div class="sp-msg fit" data-base="34" data-tb="msg"><p>${or(o.message, "Сэтгэлийн\nбулаг минь\nчамруу\nүерлэлээ\nхайрт минь...")}</p></div>
+    <div class="sp-bottom"></div>
+  </section>`;
+}
 
-export const CHEAP_TEMPLATES = ["tulip"];
+export const MASTHEADS = ["BIRTHDAY TIMES", "ХҮНДЭТ БАГШДАА", "MISSED YOU", "ВАЛЕНТИНЫ МЭДЭЭ", "ХАВРЫН МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
+
+export const CHEAP_TEMPLATES = ["tulip", "spring"];
 export const TEMPLATES = {
-  tulip: { label: "Энгийн мэндчилгээ", cheap: true, render: tulip, photos: [], fields: ["masthead", "message"] },
+  tulip: { label: "Энгийн мэндчилгээ", cheap: true, mast: "ХҮНДЭТ БАГШДАА", render: tulip, photos: [], fields: ["masthead", "message"] },
+  spring: { label: "Хаврын мэдээ", cheap: true, mast: "ХАВРЫН МЭДЭЭ", render: spring, photos: [], fields: ["masthead", "message"] },
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },

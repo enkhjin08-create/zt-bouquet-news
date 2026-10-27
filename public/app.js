@@ -355,6 +355,9 @@ export function createEditor({ root, mode, onChange }) {
     if (t.name === "pk") { order.flowers.packageId = t.value; refreshFlowers(); return; }
     if (t.name === "dl") { order.delivery.type = t.value; buildForm(); onChange?.(order); return; }
     if (t.name === "tpl") {
+      // Сонины нэрийг хэрэглэгч өөрчлөөгүй бол шинэ загварын анхны нэрийг тавина
+      const defOf = (k) => TEMPLATES[k]?.mast || "BIRTHDAY TIMES";
+      if (!order.masthead || order.masthead === defOf(order.template)) order.masthead = defOf(t.value);
       order.template = t.value;
       selected = -1;
       selectText(null); selectFrame(null);
