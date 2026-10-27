@@ -150,6 +150,7 @@ export function createEditor({ root, mode, onChange }) {
     });
   };
   document.fonts?.ready.then(() => fitAll(sheet));
+  document.fonts?.addEventListener?.("loadingdone", () => fitAll(sheet));
 
   // ── Талбарын маягт ──
   const has = (f) => TEMPLATES[order.template].fields.includes(f);
