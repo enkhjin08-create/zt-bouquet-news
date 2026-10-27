@@ -59,6 +59,7 @@ const cleanTx = (tx) => {
     for (const [k, v] of Object.entries(blocks).slice(0, 20)) {
       if (!/^[a-z0-9_]{1,16}$/.test(k) || !v || typeof v !== "object") continue;
       out[tpl][k] = { dx: num(v.dx, -400, 400, 0), dy: num(v.dy, -300, 300, 0), s: num(v.s, 0.3, 3, 1), r: num(v.r, -180, 180, 0) };
+      if (typeof v.c === "string" && /^#[0-9a-f]{6}$/i.test(v.c)) out[tpl][k].c = v.c;
     }
   }
   return out;

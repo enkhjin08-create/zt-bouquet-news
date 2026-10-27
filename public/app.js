@@ -110,6 +110,11 @@ export function createEditor({ root, mode, onChange }) {
           <button type="button" class="tb-btn" data-tbact="dec" aria-label="Жижигрүүлэх" id="tb-dec">A−</button>
           <span class="tb-val" id="tb-val">100%</span>
           <button type="button" class="tb-btn" data-tbact="inc" aria-label="Томруулах" id="tb-inc">A+</button>
+          <span class="tb-colors" id="tb-colors">
+            ${["#1d1b19", "#ffffff", "#c8102e", "#e0457b", "#7a2e3d", "#b8860b", "#2f5d8a", "#3f7a2a"].map((c) => `<button type="button" class="sw" data-color="${c}" style="--c:${c}" aria-label="Өнгө ${c}"></button>`).join("")}
+            <label class="sw sw-pick" aria-label="Өөр өнгө"><input type="color" id="tb-color" value="#1d1b19"></label>
+            <button type="button" class="link" data-color="">Анхны өнгө</button>
+          </span>
           <button type="button" class="tb-btn" data-tbact="rl" aria-label="Зүүн тийш эргүүлэх" id="tb-rl" hidden>↺</button>
           <button type="button" class="tb-btn" data-tbact="rr" aria-label="Баруун тийш эргүүлэх" id="tb-rr" hidden>↻</button>
           <button type="button" class="link" data-tbact="reset">Анхны байрлал</button>
@@ -341,6 +346,8 @@ export function createEditor({ root, mode, onChange }) {
     const showSize = !isFr || frameMode === "frame";
     root.querySelector("#tb-name").textContent = isFr ? FR_NAMES[selFrame] || "Зураг" : TB_NAMES[selText] || "Текст";
     root.querySelector("#tb-mode").hidden = !isFr;
+    root.querySelector("#tb-colors").hidden = isFr;
+    root.querySelectorAll("#tb-colors [data-color]").forEach((b) => b.setAttribute("aria-pressed", String((v.c || "") === b.dataset.color)));
     root.querySelectorAll("#tb-mode [data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === frameMode)));
     ["#tb-dec", "#tb-inc", "#tb-val"].forEach((q) => (root.querySelector(q).hidden = !showSize));
     ["#tb-rl", "#tb-rr"].forEach((q) => (root.querySelector(q).hidden = !(isFr && frameMode === "frame")));
@@ -366,6 +373,8 @@ export function createEditor({ root, mode, onChange }) {
     updateTextBar();
   }
   root.addEventListener("click", (e) => {
+    const cb = e.target.closest("[data-color]");
+    if (cb && selText) { const v = txOf(selText); v.c = cb.dataset.color || ""; if (!v.c) delete v.c; updateTextBar(); render(); return; }
     const m = e.target.closest("[data-mode]");
     if (m) { frameMode = m.dataset.mode; markSel(); updateTextBar(); return; }
     const b = e.target.closest("[data-tbact]");
@@ -379,6 +388,12 @@ export function createEditor({ root, mode, onChange }) {
     if (b.dataset.tbact === "rl") v.r = Math.max(-180, (v.r || 0) - 2);
     if (b.dataset.tbact === "rr") v.r = Math.min(180, (v.r || 0) + 2);
     if (b.dataset.tbact === "reset") { v.dx = 0; v.dy = 0; v.s = 1; v.r = 0; }
+    updateTextBar();
+    render();
+  });
+  root.addEventListener("input", (e) => {
+    if (e.target.id !== "tb-color" || !selText) return;
+    txOf(selText).c = e.target.value;
     updateTextBar();
     render();
   });

@@ -25,6 +25,7 @@
   background: repeating-linear-gradient(135deg, #d6d1c8 0 3mm, #cfcac0 3mm 6mm); }
 .ph-empty span { font: 600 11pt "Open Sans", sans-serif; color: #7c776e; letter-spacing: .08em; text-transform: uppercase; }
 [data-tb] { cursor: move; touch-action: none; }
+.tc, .tc * { color: var(--tc) !important; -webkit-text-fill-color: var(--tc); }
 .tsel { outline: .5mm dashed #e0457b; outline-offset: 1mm; }
 .ph.sel { outline: 1.2mm solid #e0457b; outline-offset: -1.2mm; }
 

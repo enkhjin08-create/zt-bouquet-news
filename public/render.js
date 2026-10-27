@@ -305,6 +305,7 @@ export function renderSheet(el, order) {
     if (!v) return;
     if (v.dx || v.dy) n.style.translate = `${v.dx || 0}mm ${v.dy || 0}mm`;
     if (v.s && v.s !== 1) n.dataset.s = v.s;
+    if (v.c) { n.style.setProperty("--tc", v.c); n.classList.add("tc"); }
   });
   fitAll(el);
 }
