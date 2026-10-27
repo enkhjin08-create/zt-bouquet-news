@@ -71,7 +71,7 @@ const h = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<":
 async function notify(order, site) {
   const key = Netlify.env.get("RESEND_API_KEY");
   if (!key) return;
-  const to = (Netlify.env.get("NOTIFY_EMAIL") || "infozuvhuntuund@gmail.com").split(",").map((x) => x.trim()).filter(Boolean);
+  const to = (Netlify.env.get("NOTIFY_EMAIL") || "info.zuvhuntuund@gmail.com").split(",").map((x) => x.trim()).filter(Boolean);
   const from = Netlify.env.get("RESEND_FROM") || "Зөвхөн түүнд <orders@zuvhuntuund.com>";
   const c = order.contact || {};
   const link = `${site}/admin.html#${order.id}`;
