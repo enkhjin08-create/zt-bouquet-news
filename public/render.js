@@ -55,6 +55,7 @@ const SAMPLE = {
   ],
   letter:
     "Чамтайгаа учирсан тэр өдрөөс хойш миний амьдралын өнгө өөр болсон юм шиг санагддаг. Хамтдаа инээсэн, уйлсан, аялсан бүх л мөч маань надад хамгийн үнэтэй дурсамж болон үлдсэн.\n\nЧи миний хамгийн дотно хүн, хамгийн сайн найз минь. Ямар ч үед хажууд минь байж, намайг өөрийнхөөрөө байхад тусалдагт чинь баярлалаа.\n\nТөрсөн өдрөөр чинь чамд эрүүл энх, аз жаргал, мөрөөдөл бүхэн чинь биелэхийг хүсье. Үргэлж хамтдаа байцгаая. Хайртай шүү ♥",
+  party: "Хөөрхөн найздаа хорвоод мэндэлсэн өдрийн мэнд! Амьдрал чинь аз жаргал, зайрмагаар дүүрэн байг ♥",
   missed: "Энэ мөчийг би 5 сар хүлээсэн.\n\nХайр минь, бид эцэст нь уулзаж байна. Яг одоо чиний хажууд ичингүйрээд зогсож байгаа байх даа. Чамайг маш их санасан. Өдөр бүр чамтай уулзаж, чамайг харж, хажууд чинь байхыг хүсдэг байсан.\n\nМиний хамгийн том бэлэг нь чи. Хайртай шүү.",
   sport: "МИНИЙ ТАМИРЧИН\nЧи онооны самбар дээрх тоог хардаг бол би түүний ард байгаа хөдөлмөр, хөлс, хэзээ ч бууж өгдөггүй зоригийг чинь хардаг. Хэн ч харахгүй байхад давтсан бэлтгэл бүр чинь өнөөдрийн ялалт болсон.\n\nЧАМААРАА БАХАРХАЖ БАЙНА\nТалбай дээр гарах бүрт чинь зүрх минь чамтай хамт гүйдэг. Чи зөвхөн гайхалтай тамирчин биш, бүр гайхалтай хүн.\n\nМИНИЙ MVP\nОнооны самбар юу ч гэж харуулсан, чи надад үргэлж хамгийн шилдэг нь. Гэрэлтэж яваарай, од минь!",
   film: "Төрсөн өдрийн мэнд хүргэе, миний гоё найз аа!\nӨнөөдөр чи дэлхий дээр ирсэн өдөр учраас чамд хамгийн сайхан бүхнийг хүсье.\n\nҮргэлж ингэж гэрэлтэж, инээмсэглэж, мөрөөдөл бүртээ хүрээрэй. Чамтай хамт байсан мөч бүр минь хамгийн үнэтэй дурсамж.\n\nЧи бол үнэхээр мундаг, үнэнч найз минь. Насан туршдаа хамтдаа байцгаая!",
@@ -350,12 +351,57 @@ function missed(o) {
   </section>`;
 }
 
+// ───────────── 9. Улаан үдэшлэг ─────────────
+function wavyRect(x, y, w, h, amp = 3, per = 15) {
+  // Долгионтой тэгш өнцөгт (мм), SVG path
+  const pts = [];
+  const edge = (x1, y1, x2, y2, nx, ny) => {
+    const len = Math.hypot(x2 - x1, y2 - y1), n = Math.max(2, Math.round(len / per * 16));
+    for (let i = 0; i < n; i++) {
+      const t = i / n, s = Math.sin((t * len / per) * Math.PI * 2) * amp;
+      pts.push(`${(x1 + (x2 - x1) * t + nx * s).toFixed(2)},${(y1 + (y2 - y1) * t + ny * s).toFixed(2)}`);
+    }
+  };
+  edge(x, y, x + w, y, 0, 1); edge(x + w, y, x + w, y + h, 1, 0); edge(x + w, y + h, x, y + h, 0, 1); edge(x, y + h, x, y, 1, 0);
+  return `<svg class="wavy-frame" viewBox="0 0 210 297" preserveAspectRatio="none" aria-hidden="true"><polygon points="${pts.join(" ")}"/></svg>`;
+}
+const starSvg = (cls, fill) => `<svg class="pstar ${cls}" viewBox="0 0 100 95" aria-hidden="true"><path fill="${fill}" stroke="#fff" stroke-width="4" stroke-linejoin="round" d="M50 4l13 29 32 3-24 21 7 32-28-17-28 17 7-32L5 36l32-3z"/></svg>`;
+const wine = (cls) => `<svg class="wine ${cls}" viewBox="0 0 60 130" aria-hidden="true"><path d="M8 6h44c2 30-6 52-22 54C14 58 6 36 8 6z" fill="#d9d9d9" stroke="#fff" stroke-width="3"/><path d="M10 26h40c-1 20-8 30-20 31-12-1-19-11-20-31z" fill="#7d7d7d"/><path d="M30 60v52M14 120c8-6 24-6 32 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M30 60v52M14 120c8-6 24-6 32 0" stroke="#bdbdbd" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="44" cy="6" r="5" fill="#111"/></svg>`;
+const shades = (cls) => `<svg class="shades ${cls}" viewBox="0 0 120 50" aria-hidden="true"><path d="M8 12c10-10 24-8 26 4 2-12 16-14 26-4 4 16-8 30-26 36C16 42 4 28 8 12z" fill="#111" stroke="#fff" stroke-width="3"/><path d="M60 12c10-10 24-8 26 4 2-12 16-14 26-4 4 16-8 30-26 36-18-6-30-20-26-36z" fill="#111" stroke="#fff" stroke-width="3"/><path d="M50 20h22" stroke="#fff" stroke-width="3"/></svg>`;
+function party(o) {
+  const ph = o.photos || [];
+  const words = (o.s1 || "happy Birthday").split(/\s+/).slice(0, 3);
+  return `
+  <section class="page pt-left">
+    ${wavyRect(14, 16, 182, 266)}
+    ${disco("pd")}
+    ${wine("w1")}
+    ${starSvg("s1", "#c9c9c9")}${starSvg("s2", "#d42a35")}${starSvg("s3", "#c9c9c9")}${starSvg("s4", "#1b1918")}${starSvg("s5", "#d42a35")}${starSvg("s6", "#bdbdbd")}
+    <div class="pt-msg fit" data-base="15" data-tb="msg"><p>${or(o.message, SAMPLE.party)}</p></div>
+    <figure class="pt-pol a" data-fr="pa"><i class="pt-tape"></i>${photo(ph[0], "", 0)}</figure>
+    ${shades("g1")}
+    <div class="pt-bottom"></div>
+  </section>
+  <section class="page pt-right">
+    ${wavyRect(14, 16, 182, 266)}
+    <div class="pt-top"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="pt-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
+    <div class="pt-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    <div class="pt-ransom" data-tb="s1">${words.map((w) => `<div class="ransom">${ransom(w)}</div>`).join("")}</div>
+    ${starSvg("s7", "#d42a35")}${starSvg("s8", "#bdbdbd")}${starSvg("s9", "#c9c9c9")}${starSvg("s10", "#1b1918")}${starSvg("s11", "#d42a35")}${starSvg("s12", "#c9c9c9")}
+    <figure class="pt-pol b" data-fr="pb"><i class="pt-tape"></i>${photo(ph[1], "", 1)}<figcaption data-tb="l1">${esc(o.l1 || "Love you!")}</figcaption></figure>
+    ${shades("g2")}${wine("w2")}
+    <div class="pt-bottom"></div>
+  </section>`;
+}
+
 export const MASTHEADS = ["BIRTHDAY TIMES", "MISSED YOU", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
 
 export const TEMPLATES = {
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
+  party: { label: "Улаан үдэшлэг", render: party, photos: ["Зүүн polaroid", "Баруун polaroid"], fields: ["masthead", "message", "partylabels"] },
   missed: { label: "Хальсан захидал", render: missed, photos: ["Хальсны дээд зураг", "Хальсны доод том зураг"], fields: ["masthead", "message"] },
   sport: { label: "Спорт", render: sport, photos: ["Том постер зураг (зүүн нүүр)", "Баруун зураг 1", "Баруун зураг 2"], fields: ["masthead", "message", "sportlabels"] },
   film: { label: "Кино хальс", render: filmTpl, photos: ["Зүүн хальс 1", "Зүүн хальс 2", "Баруун хальс 1", "Баруун хальс 2"], fields: ["masthead", "message", "labels", "stickers"] },

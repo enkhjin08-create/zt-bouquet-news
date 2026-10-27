@@ -164,3 +164,4 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .pick-sport .swatch i { background: #fbfbfa repeating-linear-gradient(#fbfbfa 0 4px, #8a8a8a 4px 5px) 25% 70% / 42% 60% no-repeat, linear-gradient(#fff, #fff) 85% 50% / 30% 70% no-repeat; }
 .pick-missed .swatch i:first-child { background: #f1f0ec linear-gradient(#0f0e0d, #0f0e0d) 45% 50% / 48% 80% no-repeat; }
 .pick-missed .swatch i { background: #f1f0ec repeating-linear-gradient(#f1f0ec 0 4px, #8a8a8a 4px 5px) 50% 60% / 60% 45% no-repeat; }
+.pick-party .swatch i { background: #a61b11 linear-gradient(#f3efe6, #f3efe6) 50% 70% / 70% 50% no-repeat; outline: 2px dashed #fff; outline-offset: -5px; }
