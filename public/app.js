@@ -16,6 +16,30 @@ const today = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
+// ── Цэцэг, үнэ ──
+let catalogPromise = null;
+export const loadCatalog = (fresh = false) => {
+  if (!catalogPromise || fresh) catalogPromise = fetch("/api/catalog", { cache: "no-store" }).then((r) => r.json()).catch(() => null);
+  return catalogPromise;
+};
+export const money = (n) => `${Math.round(n || 0).toLocaleString("en-US")}₮`;
+export function priceOf(order, cat) {
+  if (!cat) return { lines: [], total: 0 };
+  const lines = [{ label: "Сонин (A3 хэвлэл)", amount: cat.newsPrice }];
+  const f = order.flowers || {};
+  if (f.mode === "custom") {
+    for (const it of f.items || []) {
+      const fl = cat.flowers.find((x) => x.id === it.id);
+      if (fl && it.qty > 0) lines.push({ label: `${fl.name} × ${it.qty}`, amount: fl.price * it.qty });
+    }
+  } else {
+    const p = cat.packages.find((x) => x.id === f.packageId);
+    if (p) lines.push({ label: p.name, amount: p.price });
+  }
+  if (order.delivery?.type === "delivery") lines.push({ label: "Хүргэлт", amount: cat.deliveryFee });
+  return { lines, total: lines.reduce((a, l) => a + l.amount, 0) };
+}
+
 export const blankOrder = () => ({
   template: "news",
   name: "",
@@ -33,6 +57,8 @@ export const blankOrder = () => ({
   note: "",
   tx: {},
   contact: { name: "", phone: "", pickup: "", note: "" },
+  flowers: { mode: "package", packageId: "", items: [] },
+  delivery: { type: "pickup", address: "" },
 });
 
 // ── Зураг шахах: урт тал 1800px, JPEG ──
@@ -262,17 +288,60 @@ export function createEditor({ root, mode, onChange }) {
         </details>` : ""}
       </div>
 
-      <h2 class="step"><b>4</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
+      <h2 class="step"><b>4</b>Цэцгээ сонгоно уу</h2>
+      <div class="flowers" id="flowers">${flowersHtml()}</div>
+
+      <h2 class="step"><b>5</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
       <div class="fields">
         <div class="row2">
           <div class="field"><label for="c-name">Таны нэр</label><input id="c-name" data-c="name" maxlength="60" value="${esc(order.contact.name)}"></div>
           <div class="field"><label for="c-phone">Утас <em>*</em></label><input id="c-phone" data-c="phone" inputmode="tel" maxlength="20" placeholder="9911 2233" value="${esc(order.contact.phone)}"></div>
         </div>
-        <div class="field"><label for="c-pickup">Хэзээ авах вэ?</label><input id="c-pickup" type="date" data-c="pickup" value="${esc(order.contact.pickup)}"></div>
+        <div class="field"><label for="c-pickup">${order.delivery.type === "delivery" ? "Хүргүүлэх өдөр" : "Авах өдөр"}</label><input id="c-pickup" type="date" data-c="pickup" value="${esc(order.contact.pickup)}"></div>
         <div class="field"><label for="c-note">Нэмэлт хүсэлт (цэцгийн өнгө, хүргэлт г.м)</label><textarea id="c-note" data-c="note" rows="3" maxlength="800">${esc(order.contact.note)}</textarea></div>
       </div>`;
     updateCount();
   }
+
+  function flowersHtml() {
+    if (!cat) return `<p class="help">Цэцгийн жагсаалт ачаалж байна…</p>`;
+    const f = order.flowers, d = order.delivery;
+    const pk = cat.packages.filter((p) => p.active);
+    const fl = cat.flowers.filter((p) => p.active);
+    const qty = (id) => f.items.find((x) => x.id === id)?.qty || 0;
+    return `
+      <div class="seg wide" role="tablist">
+        <button type="button" data-fmode="package" aria-pressed="${f.mode !== "custom"}">Бэлэн баглаа</button>
+        <button type="button" data-fmode="custom" aria-pressed="${f.mode === "custom"}">Өөрөө бүрдүүлэх</button>
+      </div>
+      ${f.mode !== "custom" ? `
+      <div class="pk-list">${pk.map((p) => `
+        <label class="pk ${f.packageId === p.id ? "on" : ""}">
+          <input type="radio" name="pk" value="${esc(p.id)}" ${f.packageId === p.id ? "checked" : ""}>
+          <span class="pk-name">${esc(p.name)}</span><span class="pk-desc">${esc(p.desc)}</span><span class="pk-price">${money(p.price)}</span>
+        </label>`).join("") || `<p class="help">Одоогоор бэлэн баглаа алга.</p>`}
+        <label class="pk ${!f.packageId ? "on" : ""}"><input type="radio" name="pk" value="" ${!f.packageId ? "checked" : ""}><span class="pk-name">Зөвхөн сонин</span><span class="pk-desc">Цэцэггүй, сониноо л авна</span><span class="pk-price">${money(0)}</span></label>
+      </div>` : `
+      <div class="fl-list">${fl.map((p) => `
+        <div class="fl ${qty(p.id) ? "on" : ""}">
+          <span class="fl-name">${esc(p.name)}</span><span class="fl-price">${money(p.price)} / ш</span>
+          <span class="qty"><button type="button" data-fq="${esc(p.id)}" data-d="-1" aria-label="Хасах">−</button><b>${qty(p.id)}</b><button type="button" data-fq="${esc(p.id)}" data-d="1" aria-label="Нэмэх">+</button></span>
+        </div>`).join("") || `<p class="help">Одоогоор цэцэг бүртгэгдээгүй байна.</p>`}
+      </div>`}
+      <div class="dl">
+        <label class="dl-opt ${d.type !== "delivery" ? "on" : ""}"><input type="radio" name="dl" value="pickup" ${d.type !== "delivery" ? "checked" : ""}><span>Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}</span><b>${money(0)}</b></label>
+        <label class="dl-opt ${d.type === "delivery" ? "on" : ""}"><input type="radio" name="dl" value="delivery" ${d.type === "delivery" ? "checked" : ""}><span>Хүргүүлнэ</span><b>+${money(cat.deliveryFee)}</b></label>
+      </div>
+      ${d.type === "delivery" ? `<div class="field"><label for="d-addr">Хүргэлтийн хаяг <em>*</em></label><textarea id="d-addr" data-addr="1" rows="2" maxlength="400" placeholder="Дүүрэг, хороо, байр, орц, тоот">${esc(d.address)}</textarea></div>` : ""}
+      <div class="sum" id="sum">${sumHtml()}</div>`;
+  }
+  function sumHtml() {
+    const p = priceOf(order, cat);
+    return `${p.lines.map((l) => `<div class="sum-row"><span>${esc(l.label)}</span><span>${money(l.amount)}</span></div>`).join("")}<div class="sum-row total"><span>Нийт</span><span>${money(p.total)}</span></div>`;
+  }
+  const refreshFlowers = (user = true) => { const el = $("#flowers", form); if (el) el.innerHTML = flowersHtml(); if (user) onChange?.(order); };
+  let cat = null;
+  loadCatalog().then((c) => { cat = c; refreshFlowers(false); });
 
   const updateCount = () => {
     const el = $("#cnt-message", form);
@@ -282,6 +351,8 @@ export function createEditor({ root, mode, onChange }) {
   // ── Үйлдлүүд ──
   root.addEventListener("change", async (e) => {
     const t = e.target;
+    if (t.name === "pk") { order.flowers.packageId = t.value; refreshFlowers(); return; }
+    if (t.name === "dl") { order.delivery.type = t.value; buildForm(); onChange?.(order); return; }
     if (t.name === "tpl") {
       order.template = t.value;
       selected = -1;
@@ -316,6 +387,7 @@ export function createEditor({ root, mode, onChange }) {
       if (t.value === "__custom") $("#f-mast-c", form)?.focus();
       return;
     }
+    if (d.addr) { order.delivery.address = t.value; onChange?.(order); return; }
     if (d.k) order[d.k] = t.value;
     else if (d.c) order.contact[d.c] = t.value;
     else if (d.cap) order.photos[+d.cap].caption = t.value;
@@ -331,6 +403,13 @@ export function createEditor({ root, mode, onChange }) {
   root.addEventListener("click", (e) => {
     const t = e.target.closest("button");
     if (!t) return;
+    if (t.dataset.fmode) { order.flowers.mode = t.dataset.fmode; refreshFlowers(); return; }
+    if (t.dataset.fq) {
+      const it = order.flowers.items.find((x) => x.id === t.dataset.fq) || (order.flowers.items.push({ id: t.dataset.fq, qty: 0 }), order.flowers.items.at(-1));
+      it.qty = Math.max(0, Math.min(200, it.qty + +t.dataset.d));
+      order.flowers.items = order.flowers.items.filter((x) => x.qty > 0);
+      refreshFlowers(); return;
+    }
     if (t.id === "add-q") { order.qa.push({ q: "", a: "" }); buildForm(); render(); }
     if (t.dataset.delq) { order.qa.splice(+t.dataset.delq, 1); buildForm(); render(); }
     if (t.dataset.remove) { order.photos[+t.dataset.remove] = { src: "", caption: order.photos[+t.dataset.remove].caption, x: 50, y: 50, z: 1 }; buildForm(); render(); }
@@ -483,6 +562,8 @@ export function createEditor({ root, mode, onChange }) {
     order.wishes = [0, 1, 2, 3, 4].map((i) => o.wishes?.[i] || "");
     if (!Array.isArray(o.qa)) order.qa = b.qa;
     order.tx = o.tx && typeof o.tx === "object" ? o.tx : {};
+    order.flowers = { ...b.flowers, ...(o.flowers || {}), items: Array.isArray(o.flowers?.items) ? o.flowers.items.map((x) => ({ ...x })) : [] };
+    order.delivery = { ...b.delivery, ...(o.delivery || {}) };
     selText = null; selFrame = null; updateTextBar();
     selected = -1;
     const radio = $(`#tpl-${order.template}`, root);
@@ -504,7 +585,7 @@ export function createEditor({ root, mode, onChange }) {
   }
 
   load(order);
-  return { get: () => order, load, printSheet, toast: alertBox };
+  return { get: () => order, load, printSheet, toast: alertBox, price: () => priceOf(order, cat), reloadCatalog: async () => { cat = await loadCatalog(true); refreshFlowers(false); } };
 }
 
 export function toast(msg, kind = "ok") {

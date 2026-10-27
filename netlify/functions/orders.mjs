@@ -1,24 +1,12 @@
-import { getStore } from "@netlify/blobs";
+import { store, json, isAdmin, getCatalog, cleanFlowers, cleanDelivery, priceOf, notify, qpayReady } from "./_shared/lib.mjs";
 
 // Захиалгын API
-//   POST   /api/orders        — захиалагч шинэ захиалга илгээнэ (нийтэд нээлттэй)
-//   GET    /api/orders        — админ: жагсаалт
-//   GET    /api/orders/:id    — админ: бүтэн захиалга
-//   PUT    /api/orders/:id    — админ: засах / төлөв солих
-//   DELETE /api/orders/:id    — админ: устгах
-// Админ нь "x-admin-pass" толгойгоор ADMIN_PASS орчны хувьсагчтай тулгагдана.
+//   POST /api/orders (нийтэд), GET/PUT/DELETE /api/orders[/:id] (админ, x-admin-pass)
 
 const MAX_BODY = 5_900_000;
 const MAX_PHOTOS = 6;
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-const store = () => getStore({ name: "bouquet-orders", consistency: "strong" });
-
-const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), {
-    status,
-    headers: { "content-type": "application/json; charset=utf-8" },
-  });
 
 const newId = () => {
   let s = "";
@@ -27,10 +15,6 @@ const newId = () => {
   return s;
 };
 
-const isAdmin = (req) => {
-  const pass = Netlify.env.get("ADMIN_PASS");
-  return Boolean(pass) && req.headers.get("x-admin-pass") === pass;
-};
 
 const metaOf = (order) => ({
   id: order.id,
@@ -47,6 +31,9 @@ const metaOf = (order) => ({
     pickup: order.contact?.pickup || "",
   },
   photoCount: (order.photos || []).filter((p) => p && p.src).length,
+  total: order.price?.total || 0,
+  paid: order.payment?.status === "paid",
+  delivery: order.delivery?.type || "pickup",
 });
 
 const num = (v, lo, hi, d) => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
@@ -64,45 +51,6 @@ const cleanTx = (tx) => {
   }
   return out;
 };
-
-const TPL_LABEL = { party: "Улаан үдэшлэг", missed: "Хальсан захидал", sport: "Спорт", film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
-const h = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-// Шинэ захиалгын мэдэгдэл (Resend). RESEND_API_KEY байхгүй бол алгасна.
-async function notify(order, site) {
-  const key = Netlify.env.get("RESEND_API_KEY");
-  if (!key) return;
-  const to = (Netlify.env.get("NOTIFY_EMAIL") || "info.zuvhuntuund@gmail.com").split(",").map((x) => x.trim()).filter(Boolean);
-  const from = Netlify.env.get("RESEND_FROM") || "Зөвхөн түүнд <orders@zuvhuntuund.com>";
-  const c = order.contact || {};
-  const link = `${site}/admin.html#${order.id}`;
-  const rows = [
-    ["Загвар", TPL_LABEL[order.template] || order.template],
-    ["Захиалагч", c.name || "—"],
-    ["Утас", c.phone || "—"],
-    ["Авах өдөр", c.pickup || "—"],
-    ["Хэнд", order.name || order.to || "—"],
-    ["Зураг", `${(order.photos || []).filter((p) => p && p.src).length} ширхэг`],
-    ["Нэмэлт хүсэлт", c.note || "—"],
-  ];
-  const html = `<div style="font-family:Arial,sans-serif;max-width:520px;color:#2a1c1f">
-    <p style="font-size:13px;letter-spacing:.12em;color:#7a2e3d;margin:0">ЗӨВХӨН ТҮҮНД · СОНИН БАГЛАА</p>
-    <h2 style="margin:6px 0 14px">Шинэ захиалга № ${h(order.id)}</h2>
-    <table style="border-collapse:collapse;width:100%;font-size:14px">${rows.map(([k, v]) => `<tr><td style="padding:6px 10px 6px 0;color:#7d6a6c;vertical-align:top;white-space:nowrap">${h(k)}</td><td style="padding:6px 0;white-space:pre-line">${h(v)}</td></tr>`).join("")}</table>
-    <p style="margin:18px 0"><a href="${h(link)}" style="background:#7a2e3d;color:#fff;padding:11px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Админ дээр нээх</a></p>
-  </div>`;
-  const text = `Шинэ захиалга № ${order.id}\n` + rows.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\n${link}`;
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify({ from, to, subject: `Шинэ захиалга № ${order.id} · ${c.name || c.phone || ""}`.trim(), html, text }),
-    });
-    if (!res.ok) console.error("Resend:", res.status, await res.text());
-  } catch (e) {
-    console.error("Resend:", e);
-  }
-}
 
 const clean = (body) => {
   const photos = Array.isArray(body.photos) ? body.photos.slice(0, MAX_PHOTOS) : [];
@@ -139,6 +87,8 @@ const clean = (body) => {
       y: Number.isFinite(p?.y) ? p.y : 50,
       z: Number.isFinite(p?.z) ? Math.min(3, Math.max(1, p.z)) : 1,
     })),
+    flowers: cleanFlowers(body.flowers),
+    delivery: cleanDelivery(body.delivery),
     contact: {
       name: str(body.contact?.name, 80),
       phone: str(body.contact?.phone, 40),
@@ -159,20 +109,24 @@ export default async (req, context) => {
       const body = clean(JSON.parse(raw));
       if (!body.contact.phone) return json({ error: "Утасны дугаараа оруулна уу." }, 400);
 
+      const cat = await getCatalog(s);
+      body.price = priceOf(body, cat);
+      if (body.delivery.type === "delivery" && !body.delivery.address.trim()) return json({ error: "Хүргэлтийн хаягаа бичнэ үү." }, 400);
       const now = new Date().toISOString();
       let orderId = "";
       for (let i = 0; i < 5; i++) {
         const candidate = newId();
         if (await s.getMetadata(`order/${candidate}`)) continue;
-        await s.setJSON(`order/${candidate}`, { ...body, id: candidate, status: "new", source: isAdmin(req) ? "admin" : "customer", createdAt: now, updatedAt: now });
+        await s.setJSON(`order/${candidate}`, { ...body, id: candidate, status: "new", source: isAdmin(req) ? "admin" : "customer", payment: { status: "unpaid" }, createdAt: now, updatedAt: now });
         orderId = candidate;
         break;
       }
       if (!orderId) return json({ error: "Захиалга хадгалж чадсангүй. Дахин оролдоно уу." }, 500);
       const order = await s.get(`order/${orderId}`, { type: "json" });
       await s.setJSON(`meta/${orderId}`, metaOf(order));
-      if (!isAdmin(req)) context.waitUntil(notify(order, new URL(req.url).origin));
-      return json({ id: orderId }, 201);
+      // QPay тохируулаагүй бол шууд мэдэгдэнэ; тохируулсан бол төлөгдсөний дараа pay.mjs мэдэгдэнэ
+      if (!isAdmin(req) && !qpayReady()) context.waitUntil(notify(order, new URL(req.url).origin));
+      return json({ id: orderId, price: order.price, qpay: qpayReady() }, 201);
     }
 
     if (!isAdmin(req)) return json({ error: "Нууц үг буруу байна." }, 401);
@@ -207,7 +161,10 @@ export default async (req, context) => {
       const parsed = JSON.parse(raw);
       const body = clean(parsed);
       const status = ["new", "printed", "done"].includes(parsed.status) ? parsed.status : prev.status;
-      const order = { ...prev, ...body, status, id, updatedAt: new Date().toISOString() };
+      const cat = await getCatalog(s);
+      const payment = parsed.markPaid === true ? { ...(prev.payment || {}), status: "paid", manual: true, paidAt: new Date().toISOString() } : prev.payment || { status: "unpaid" };
+      const order = { ...prev, ...body, status, id, payment, updatedAt: new Date().toISOString() };
+      if (payment.status !== "paid") order.price = priceOf(order, cat);
       await s.setJSON(`order/${id}`, order);
       await s.setJSON(`meta/${id}`, metaOf(order));
       return json({ ok: true, order: metaOf(order) });

@@ -1,4 +1,4 @@
-import { createEditor, blankOrder, toast } from "./app.js";
+import { createEditor, blankOrder, toast, money, loadCatalog } from "./app.js";
 import { TEMPLATES } from "./render.js";
 
 const $ = (s) => document.querySelector(s);
@@ -61,7 +61,8 @@ function drawList() {
   $("#olist").innerHTML = list.length
     ? list.map((o) => `
       <li><button type="button" data-id="${esc(o.id)}" aria-current="${current?.id === o.id}">
-        <span class="r1"><span>№ ${esc(o.id)} · ${esc(o.name || "Нэргүй")}</span><span class="pill ${esc(o.status)}">${STATUS[o.status] || o.status}</span></span>
+        <span class="r1"><span>№ ${esc(o.id)} · ${esc(o.contact?.name || o.name || "Нэргүй")}</span><span class="pill ${esc(o.status)}">${STATUS[o.status] || o.status}</span></span>
+        ${o.total ? `<span class="r2"><span class="pill ${o.paid ? "paid" : "unpaid"}">${o.paid ? "Төлсөн" : "Төлөөгүй"}</span> ${money(o.total)}${o.delivery === "delivery" ? " · хүргэлт" : ""}</span>` : ""}
         <span class="r2">${esc(TEMPLATES[o.template]?.label || "")} · ${esc(o.contact?.phone || "")}${o.contact?.pickup ? ` · авах ${esc(o.contact.pickup)}` : ""}</span>
       </button></li>`).join("")
     : `<li class="empty">${filter === "all" ? "Одоогоор захиалга алга. Захиалагчид нүүр хуудасны холбоосоор бөглөнө." : "Энэ төлөвтэй захиалга алга."}</li>`;
@@ -78,7 +79,8 @@ $("#filters").addEventListener("click", (e) => {
 async function openOrder(oid) {
   try {
     const o = await api(`/api/orders/${encodeURIComponent(oid)}`);
-    current = { id: o.id, status: o.status, createdAt: o.createdAt, source: o.source };
+    current = { id: o.id, status: o.status, createdAt: o.createdAt, source: o.source, payment: o.payment, price: o.price };
+    showEditor();
     ed.load(o);
     dirty = false;
     setMeta();
@@ -103,7 +105,9 @@ function guard(msg, el) {
   return false;
 }
 
+function showEditor() { $("#cat").hidden = true; $("#editor").hidden = false; document.querySelector(".toolbar").hidden = false; }
 function newOrder() {
+  showEditor();
   current = null;
   ed.load({ ...blankOrder() });
   dirty = false;
@@ -116,6 +120,15 @@ $("#new").addEventListener("click", (e) => {
 });
 
 function setMeta() {
+  const bar = $("#pay-bar");
+  bar.hidden = !current;
+  if (current) {
+    const p = current.price || ed.price();
+    $("#pay-total").textContent = money(p.total);
+    const paid = current.payment?.status === "paid";
+    $("#pay-info").textContent = paid ? `Төлсөн${current.payment.manual ? " (гараар тэмдэглэсэн)" : " · QPay"}${current.payment.paidAt ? " · " + new Date(current.payment.paidAt).toLocaleString("mn-MN") : ""}` : "Төлөөгүй";
+    $("#mark-paid").hidden = paid;
+  }
   $("#cur-id").textContent = current ? `№ ${current.id}` : "Шинэ захиалга";
   $("#cur-info").textContent = current
     ? `${current.source === "admin" ? "Дотроос үүсгэсэн" : "Захиалагч бөглөсөн"} · ${new Date(current.createdAt).toLocaleString("mn-MN")}`
@@ -174,3 +187,73 @@ $("#del").addEventListener("click", async (e) => {
 
 window.addEventListener("beforeunload", (e) => { if (dirty) e.preventDefault(); });
 start();
+
+$("#mark-paid").addEventListener("click", async (e) => {
+  if (!current) return;
+  if (!guard("Төлбөрийг төлсөн гэж тэмдэглэх үү? Дахин дарна уу.", e.currentTarget)) return;
+  try {
+    await api(`/api/orders/${current.id}`, { method: "PUT", body: JSON.stringify({ ...ed.get(), status: $("#status").value, markPaid: true }) });
+    const o = await api(`/api/orders/${current.id}`);
+    current.payment = o.payment; current.price = o.price;
+    dirty = false; setMeta(); await refresh(); toast("Төлсөн гэж тэмдэглэлээ");
+  } catch (err) { if (err.message !== "401") toast(err.message, "err"); }
+});
+
+// ── Үнэ, цэцгийн жагсаалт ──
+let catDraft = null;
+const catRow = (p, i, kind) => kind === "packages" ? `
+  <div class="cat-row" data-kind="packages" data-i="${i}">
+    <input data-f="name" value="${esc(p.name)}" placeholder="Нэр" aria-label="Нэр">
+    <input data-f="desc" value="${esc(p.desc)}" placeholder="Тайлбар" aria-label="Тайлбар">
+    <input data-f="price" type="number" min="0" step="1000" value="${p.price}" aria-label="Үнэ">
+    <label><input type="checkbox" data-f="active" ${p.active ? "checked" : ""}> Идэвхтэй</label>
+    <button type="button" class="link" data-del="${i}">Хасах</button>
+  </div>` : `
+  <div class="cat-row fl-row" data-kind="flowers" data-i="${i}">
+    <input data-f="name" value="${esc(p.name)}" placeholder="Цэцгийн нэр" aria-label="Нэр">
+    <input data-f="price" type="number" min="0" step="500" value="${p.price}" aria-label="Нэг ширхэгийн үнэ">
+    <label><input type="checkbox" data-f="active" ${p.active ? "checked" : ""}> Идэвхтэй</label>
+    <button type="button" class="link" data-del="${i}">Хасах</button>
+  </div>`;
+function drawCat() {
+  const c = catDraft;
+  $("#cat").innerHTML = `
+    <div class="toolbar"><div class="meta"><b>Үнэ, цэцгийн жагсаалт</b><span>Захиалагчийн хуудсанд шууд харагдана</span></div>
+      <button class="btn" type="button" id="cat-save">Хадгалах</button><button class="btn secondary" type="button" id="cat-close">Хаах</button></div>
+    <div class="row2">
+      <div class="field"><label for="cat-news">Сонины үнэ</label><input id="cat-news" type="number" min="0" step="1000" value="${c.newsPrice}"></div>
+      <div class="field"><label for="cat-del">Хүргэлтийн төлбөр</label><input id="cat-del" type="number" min="0" step="1000" value="${c.deliveryFee}"></div>
+    </div>
+    <div class="field"><label for="cat-pick">Очиж авах газар</label><input id="cat-pick" maxlength="80" value="${esc(c.pickupNote)}"></div>
+    <h3>Бэлэн баглаа</h3>
+    <div class="cat-list" data-list="packages">${c.packages.map((p, i) => catRow(p, i, "packages")).join("")}</div>
+    <button type="button" class="ghost-btn" data-add="packages">+ Баглаа нэмэх</button>
+    <h3>Ширхэгээр сонгох цэцэг</h3>
+    <div class="cat-list" data-list="flowers">${c.flowers.map((p, i) => catRow(p, i, "flowers")).join("")}</div>
+    <button type="button" class="ghost-btn" data-add="flowers">+ Цэцэг нэмэх</button>`;
+}
+function readCat() {
+  const c = catDraft;
+  c.newsPrice = +$("#cat-news").value || 0; c.deliveryFee = +$("#cat-del").value || 0; c.pickupNote = $("#cat-pick").value;
+  document.querySelectorAll("#cat .cat-row").forEach((row) => {
+    const it = c[row.dataset.kind][+row.dataset.i];
+    row.querySelectorAll("[data-f]").forEach((inp) => { it[inp.dataset.f] = inp.type === "checkbox" ? inp.checked : inp.type === "number" ? +inp.value || 0 : inp.value; });
+  });
+}
+$("#cat-open").addEventListener("click", async () => {
+  catDraft = structuredClone(await loadCatalog(true));
+  delete catDraft.qpay;
+  $("#editor").hidden = true; document.querySelector(".toolbar").hidden = true; $("#pay-bar").hidden = true;
+  $("#cat").hidden = false; drawCat();
+});
+$("#cat").addEventListener("click", async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.add) { readCat(); catDraft[b.dataset.add].push(b.dataset.add === "packages" ? { id: "", name: "", desc: "", price: 0, active: true } : { id: "", name: "", price: 0, active: true }); drawCat(); return; }
+  if (b.dataset.del != null) { readCat(); catDraft[b.closest(".cat-row").dataset.kind].splice(+b.dataset.del, 1); drawCat(); return; }
+  if (b.id === "cat-close") { showEditor(); setMeta(); return; }
+  if (b.id === "cat-save") {
+    readCat();
+    try { catDraft = await api("/api/catalog", { method: "PUT", body: JSON.stringify(catDraft) }); drawCat(); await loadCatalog(true); ed.reloadCatalog(); toast("Хадгаллаа"); }
+    catch (err) { if (err.message !== "401") toast(err.message, "err"); }
+  }
+});

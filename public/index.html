@@ -21,36 +21,90 @@
   <div class="editor" id="editor"></div>
   <div class="submit-bar">
     <button class="btn" id="submit" type="button">Захиалга илгээх</button>
-    <p id="submit-note">Илгээсний дараа бид таны утсаар холбогдож, цэцэг болон төлбөрөө тохирно.</p>
+    <p id="submit-note">Илгээсний дараа QPay-ээр төлнө. Төлбөр баталгаажмагц бид сонин, баглааг тань бэлдэж эхэлнэ.</p>
   </div>
 </main>
 <script type="module">
-import { createEditor, toast } from "./app.js";
-const ed = createEditor({ root: document.getElementById("editor"), mode: "customer" });
+import { createEditor, toast, money } from "./app.js";
+const ed = createEditor({ root: document.getElementById("editor"), mode: "customer", onChange: updateBtn });
 const btn = document.getElementById("submit");
+const main = document.getElementById("main");
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function updateBtn() {
+  const p = ed.price();
+  btn.textContent = p.total ? `Захиалаад төлөх · ${money(p.total)}` : "Захиалга илгээх";
+}
+updateBtn();
+
+function done(id, phone, paid) {
+  main.innerHTML = `
+    <div class="done">
+      <div class="brand">Зөвхөн түүнд</div>
+      <h2>${paid ? "Төлбөр амжилттай" : "Захиалга хүлээн авлаа"}</h2>
+      <p>Таны захиалгын дугаар</p>
+      <div class="code">№ ${esc(id)}</div>
+      <p>${paid ? "Баярлалаа! Бид сонин, баглааг тань бэлдэж эхэллээ." : "Бид удахгүй"} ${paid ? "" : `<b>${esc(phone)}</b> дугаарт холбогдоно.`}</p>
+      <p>Асуух зүйл байвал Instagram DM-ээр энэ дугаараа хэлээрэй.</p>
+    </div>`;
+  window.scrollTo(0, 0);
+}
+
+async function payScreen(id, phone, inv) {
+  const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+  main.innerHTML = `
+    <div class="pay">
+      <div class="brand">Зөвхөн түүнд · № ${esc(id)}</div>
+      <h2>QPay-ээр төлөх</h2>
+      <p class="pay-amt">${money(inv.amount)}</p>
+      ${inv.qr ? `<img class="pay-qr" alt="QPay QR код" src="data:image/png;base64,${inv.qr}">` : ""}
+      <p class="pay-hint">${isMobile ? "Банкны аппаа сонгоод төлнө үү." : "Банкны аппаараа QR кодыг уншуулж төлнө үү."}</p>
+      ${inv.urls?.length ? `<div class="banks">${inv.urls.map((u) => `<a class="bank" href="${esc(u.link)}"><img src="${esc(u.logo)}" alt="" loading="lazy"><span>${esc(u.description || u.name)}</span></a>`).join("")}</div>` : ""}
+      <p class="pay-status" id="pay-status"><span class="spin"></span>Төлбөр хүлээж байна…</p>
+      <button type="button" class="btn secondary" id="pay-check">Төлсөн, шалгах</button>
+    </div>`;
+  window.scrollTo(0, 0);
+  const st = document.getElementById("pay-status");
+  let stop = false;
+  const check = async () => {
+    try {
+      const r = await fetch(`/api/pay/${id}`, { cache: "no-store" }).then((x) => x.json());
+      if (r.paid) { stop = true; done(id, phone, true); return true; }
+    } catch {}
+    return false;
+  };
+  document.getElementById("pay-check").addEventListener("click", async () => {
+    st.textContent = "Шалгаж байна…";
+    if (!(await check())) st.innerHTML = `<span class="spin"></span>Төлбөр одоогоор ирээгүй байна. Төлсний дараа хэдэн секунд хүлээгээрэй.`;
+  });
+  const t0 = Date.now();
+  while (!stop && Date.now() - t0 < 20 * 60 * 1000) {
+    await new Promise((r) => setTimeout(r, 4000));
+    if (document.hidden) continue;
+    if (await check()) return;
+  }
+}
 
 btn.addEventListener("click", async () => {
   const o = ed.get();
-  if (!o.contact.phone.trim()) { toast("Утасны дугаараа оруулна уу.", "err"); document.getElementById("c-phone")?.focus(); return; }
   if (!o.photos.some((p) => p.src)) { toast("Дор хаяж нэг зураг оруулна уу.", "err"); return; }
+  if (o.delivery?.type === "delivery" && !o.delivery.address.trim()) { toast("Хүргэлтийн хаягаа бичнэ үү.", "err"); document.getElementById("d-addr")?.focus(); return; }
+  if (!o.contact.phone.trim()) { toast("Утасны дугаараа оруулна уу.", "err"); document.getElementById("c-phone")?.focus(); return; }
   btn.disabled = true; btn.textContent = "Илгээж байна…";
   try {
     const res = await fetch("/api/orders", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(o) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Илгээж чадсангүй. Дахин оролдоно уу.");
-    document.getElementById("main").innerHTML = `
-      <div class="done">
-        <div class="brand">Зөвхөн түүнд</div>
-        <h2>Захиалга хүлээн авлаа</h2>
-        <p>Таны захиалгын дугаар</p>
-        <div class="code">№ ${data.id}</div>
-        <p>Бид удахгүй <b>${o.contact.phone.replace(/[<>&]/g, "")}</b> дугаарт холбогдоно.</p>
-        <p>Instagram DM-ээр бичихдээ энэ дугаараа хэлээрэй.</p>
-      </div>`;
-    window.scrollTo(0, 0);
+    const phone = o.contact.phone;
+    if (!data.qpay || !data.price?.total) { done(data.id, phone, false); return; }
+    btn.textContent = "QPay нэхэмжлэх үүсгэж байна…";
+    const pr = await fetch(`/api/pay/${data.id}`, { method: "POST" });
+    const inv = await pr.json().catch(() => ({}));
+    if (!pr.ok) { toast(inv.error || "Төлбөрийн холбоос үүсгэж чадсангүй. Бид тантай холбогдоно.", "err"); done(data.id, phone, false); return; }
+    if (inv.paid) { done(data.id, phone, true); return; }
+    payScreen(data.id, phone, inv);
   } catch (e) {
     toast(e.message, "err");
-    btn.disabled = false; btn.textContent = "Захиалга илгээх";
+    btn.disabled = false; updateBtn();
   }
 });
 </script>

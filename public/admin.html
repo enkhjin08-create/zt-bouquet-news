@@ -25,6 +25,7 @@
   <div class="admin" id="admin" hidden>
     <aside class="side">
       <button class="btn" type="button" id="new">+ Шинэ захиалга</button>
+      <button class="btn secondary" type="button" id="cat-open">Үнэ, цэцгийн жагсаалт</button>
       <div class="filters" id="filters">
         <button class="chip" type="button" data-f="all" aria-pressed="true">Бүгд</button>
         <button class="chip" type="button" data-f="new" aria-pressed="false">Шинэ</button>
@@ -43,6 +44,11 @@
         <button class="btn" type="button" id="print">A3 хэвлэх</button>
         <button class="btn danger" type="button" id="del" hidden>Устгах</button>
       </div>
+      <div class="toolbar pay-bar" id="pay-bar" hidden>
+        <div class="meta"><b id="pay-total">0₮</b><span id="pay-info">Төлбөр</span></div>
+        <button class="btn secondary" type="button" id="mark-paid">Бэлнээр/шилжүүлгээр төлсөн</button>
+      </div>
+      <section class="cat" id="cat" hidden></section>
       <div class="editor" id="editor"></div>
     </section>
   </div>
