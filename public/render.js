@@ -85,11 +85,11 @@ function news(o) {
   return `
   <section class="page n-left">
     ${top}
-    <div class="scallop f1">${photo(ph[1], "", 1, { gray: true })}</div>
+    <div class="scallop f1" data-fr="f1">${photo(ph[1], "", 1, { gray: true })}</div>
     <p class="n-cap c1" data-tb="c1">${cap(1)}</p>
-    <div class="scallop f2">${photo(ph[2], "", 2, { gray: true })}</div>
+    <div class="scallop f2" data-fr="f2">${photo(ph[2], "", 2, { gray: true })}</div>
     <p class="n-cap c2" data-tb="c2">${cap(2)}</p>
-    <div class="scallop f3">${photo(ph[3], "", 3, { gray: true })}</div>
+    <div class="scallop f3" data-fr="f3">${photo(ph[3], "", 3, { gray: true })}</div>
     <p class="n-cap c3" data-tb="c3">${cap(3)}</p>
     <div class="n-bottom"></div>
   </section>
@@ -100,7 +100,7 @@ function news(o) {
     <p class="n-its fitw" data-tb="its">It's ${or(o.name, SAMPLE.name)}'s</p>
     <p class="n-bday" data-tb="bday">BIRTHDAY!</p>
     <div class="n-body">
-      <div class="n-main">${photo(ph[0], "", 0, { gray: true })}</div>
+      <div class="n-main" data-fr="main">${photo(ph[0], "", 0, { gray: true })}</div>
       <div class="n-qa fit" data-base="10.5" data-tb="qa">${qaHtml}</div>
     </div>
     <div class="n-bottom"></div>
@@ -113,7 +113,7 @@ function polaroid(o) {
   const wishes = (o.wishes || []).filter((w) => w && w.trim());
   const list = (wishes.length ? wishes.map(esc) : SAMPLE.wishes.map((w) => `<span class="ghost">${w}</span>`))
     .map((w) => `<li>${flower}<span>${w}</span></li>`).join("");
-  const pc = (i, cls) => `<figure class="pol ${cls}">${photo(ph[i], "", i)}<figcaption>${ph[i]?.caption ? esc(ph[i].caption) : ""}</figcaption><i class="tape"></i></figure>`;
+  const pc = (i, cls) => `<figure class="pol ${cls}" data-fr="${cls}">${photo(ph[i], "", i)}<figcaption>${ph[i]?.caption ? esc(ph[i].caption) : ""}</figcaption><i class="tape"></i></figure>`;
   return `
   <section class="page p-left">
     <div class="p-top"><span>002</span></div>
@@ -127,7 +127,7 @@ function polaroid(o) {
     <h1 class="p-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
     <div class="p-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
     <div class="p-msg fit" data-base="22" data-tb="msg"><p>${or(o.message, SAMPLE.message)}</p></div>
-    <figure class="pol pmain">${photo(ph[0], "", 0)}<figcaption>${or(o.name, SAMPLE.name)}</figcaption><i class="tape"></i></figure>
+    <figure class="pol pmain" data-fr="pmain">${photo(ph[0], "", 0)}<figcaption>${or(o.name, SAMPLE.name)}</figcaption><i class="tape"></i></figure>
     ${heart(150, 58, 10, 15)}${heart(166, 66, 7, -10)}${heart(18, 250, 12, -12)}${heart(176, 228, 9, 18)}${heart(160, 262, 7, 5, .8)}
     <div class="p-bottom"></div>
   </section>`;
@@ -135,14 +135,14 @@ function polaroid(o) {
 
 // ───────────── 3. Фото бүхээг (To / From захидал) ─────────────
 const pearl = (ph, i) => `<div class="pearl"><div class="pearl-in">${photo(ph[i], "", i)}</div></div>`;
-const film = (ph, i, cls, code) => `<figure class="film ${cls}"><span class="film-code">${code}</span>${photo(ph[i], "", i)}<span class="film-code b">▸ ${i + 43}A</span></figure>`;
+const film = (ph, i, cls, code) => `<figure class="film ${cls}" data-fr="${cls.replace("-", "")}"><span class="film-code">${code}</span>${photo(ph[i], "", i)}<span class="film-code b">▸ ${i + 43}A</span></figure>`;
 function booth(o) {
   const ph = o.photos || [];
   return `
   <section class="page b-left">
     <div class="wavy"></div>
     <div class="b-top"><span>002</span></div>
-    <div class="b-strip" data-tbx="strip">
+    <div class="b-strip" data-fr="strip">
       <span class="strip-code">2026 F 8.0 &nbsp;&nbsp; 43 &nbsp;&nbsp; 045/2.8 120 &nbsp;&nbsp; TRA</span>
       <div class="strip-grid">${pearl(ph, 2)}${pearl(ph, 3)}${pearl(ph, 4)}${pearl(ph, 5)}</div>
     </div>
@@ -176,8 +176,8 @@ function letter(o) {
   return `
   <section class="page l-left">
     <div class="l-num">002</div>
-    <div class="booth">${strip}<p class="booth-cap">${esc(dateMn(o.date))}</p></div>
-    <figure class="l-print">${photo(ph[0], "", 0)}</figure>
+    <div class="booth" data-fr="strip">${strip}<p class="booth-cap">${esc(dateMn(o.date))}</p></div>
+    <figure class="l-print" data-fr="print">${photo(ph[0], "", 0)}</figure>
     <p class="l-cap fit" data-base="11" data-tb="cap"><span>${or(ph[1]?.caption || ph[0]?.caption, "Хамтдаа өнгөрүүлсэн хамгийн гоё өдрүүд маань")}</span></p>
   </section>
   <section class="page l-right">
@@ -207,6 +207,13 @@ export function renderSheet(el, order) {
   el.className = `sheet t-${order.template}`;
   el.innerHTML = t.render(order);
   const tx = order.tx?.[order.template] || {};
+  el.querySelectorAll("[data-fr]").forEach((n) => {
+    const v = tx["fr_" + n.dataset.fr];
+    if (!v) return;
+    if (v.dx || v.dy) n.style.translate = `${v.dx || 0}mm ${v.dy || 0}mm`;
+    if (v.s && v.s !== 1) n.style.scale = v.s;
+    if (v.r) n.style.rotate = `${v.r}deg`;
+  });
   el.querySelectorAll("[data-tb]").forEach((n) => {
     const v = tx[n.dataset.tb];
     if (!v) return;

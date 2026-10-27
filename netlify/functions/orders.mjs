@@ -57,8 +57,8 @@ const cleanTx = (tx) => {
     if (!/^[a-z]{1,12}$/.test(tpl) || !blocks || typeof blocks !== "object") continue;
     out[tpl] = {};
     for (const [k, v] of Object.entries(blocks).slice(0, 20)) {
-      if (!/^[a-z0-9]{1,12}$/.test(k) || !v || typeof v !== "object") continue;
-      out[tpl][k] = { dx: num(v.dx, -300, 300, 0), dy: num(v.dy, -300, 300, 0), s: num(v.s, 0.3, 3, 1) };
+      if (!/^[a-z0-9_]{1,16}$/.test(k) || !v || typeof v !== "object") continue;
+      out[tpl][k] = { dx: num(v.dx, -400, 400, 0), dy: num(v.dy, -300, 300, 0), s: num(v.s, 0.3, 3, 1), r: num(v.r, -180, 180, 0) };
     }
   }
   return out;

@@ -103,13 +103,19 @@ export function createEditor({ root, mode, onChange }) {
         <div class="stage" id="stage"><div class="sheet" id="sheet"></div></div>
         <div class="textbar" id="textbar" hidden>
           <span class="tb-name" id="tb-name">Текст</span>
-          <button type="button" class="tb-btn" data-tbact="dec" aria-label="Үсэг жижигрүүлэх">A−</button>
+          <span class="seg" id="tb-mode" hidden>
+            <button type="button" data-mode="img" aria-pressed="true">Зургийг хөдөлгөх</button>
+            <button type="button" data-mode="frame" aria-pressed="false">Хүрээг зөөх</button>
+          </span>
+          <button type="button" class="tb-btn" data-tbact="dec" aria-label="Жижигрүүлэх" id="tb-dec">A−</button>
           <span class="tb-val" id="tb-val">100%</span>
-          <button type="button" class="tb-btn" data-tbact="inc" aria-label="Үсэг томруулах">A+</button>
+          <button type="button" class="tb-btn" data-tbact="inc" aria-label="Томруулах" id="tb-inc">A+</button>
+          <button type="button" class="tb-btn" data-tbact="rl" aria-label="Зүүн тийш эргүүлэх" id="tb-rl" hidden>↺</button>
+          <button type="button" class="tb-btn" data-tbact="rr" aria-label="Баруун тийш эргүүлэх" id="tb-rr" hidden>↻</button>
           <button type="button" class="link" data-tbact="reset">Анхны байрлал</button>
           <button type="button" class="link" data-tbact="close">Болсон</button>
         </div>
-        <p class="hint">A3 хэмжээ · Зургийг чирж байрлалыг нь, текстийг дарж хэмжээ, байрлалыг нь өөрчилнө. Саарал үсэг бол жишээ — хэвлэхэд гарахгүй.</p>
+        <p class="hint">A3 хэмжээ · Зураг эсвэл текст дээр дарж байрлал, хэмжээг нь өөрчилнө. Саарал үсэг бол жишээ — хэвлэхэд гарахгүй.</p>
       </div>
     </section>
     <section class="area-form" id="form"></section>`;
@@ -137,8 +143,8 @@ export function createEditor({ root, mode, onChange }) {
     raf = requestAnimationFrame(() => {
       renderSheet(sheet, order);
       sheet.style.setProperty("--grain", grain);
-      if (selected >= 0) sheet.querySelector(`.ph[data-idx="${selected}"]`)?.classList.add("sel");
-      if (selText) sheet.querySelector(`[data-tb="${selText}"]`)?.classList.add("tsel");
+      if (selected >= 0 && frameMode !== "frame") sheet.querySelector(`.ph[data-idx="${selected}"]`)?.classList.add("sel");
+      markSel();
       rescale();
       if (user) onChange?.(order);
     });
@@ -250,7 +256,7 @@ export function createEditor({ root, mode, onChange }) {
     if (t.name === "tpl") {
       order.template = t.value;
       selected = -1;
-      selectText(null);
+      selectText(null); selectFrame(null);
       buildForm();
       render();
       return;
@@ -303,35 +309,63 @@ export function createEditor({ root, mode, onChange }) {
 
   // ── Текстийн хэмжээ, байрлал ──
   const TB_NAMES = { mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3" };
-  let selText = null, tdrag = null;
+  let selText = null, tdrag = null, selFrame = null, frameMode = "img";
+  const FR_NAMES = { f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг" };
   const txOf = (key) => {
     order.tx = order.tx || {};
     const t = (order.tx[order.template] = order.tx[order.template] || {});
-    return (t[key] = t[key] || { dx: 0, dy: 0, s: 1 });
+    return (t[key] = t[key] || { dx: 0, dy: 0, s: 1, r: 0 });
   };
+  const curKey = () => (selText ? selText : selFrame ? "fr_" + selFrame : null);
   function updateTextBar() {
     const bar = root.querySelector("#textbar");
     if (!bar) return;
-    bar.hidden = !selText;
-    if (!selText) return;
-    const v = order.tx?.[order.template]?.[selText] || { s: 1 };
-    root.querySelector("#tb-name").textContent = TB_NAMES[selText] || "Текст";
-    root.querySelector("#tb-val").textContent = Math.round((v.s || 1) * 100) + "%";
+    const key = curKey();
+    bar.hidden = !key;
+    if (!key) return;
+    const v = order.tx?.[order.template]?.[key] || { s: 1 };
+    const isFr = !selText;
+    const showSize = !isFr || frameMode === "frame";
+    root.querySelector("#tb-name").textContent = isFr ? FR_NAMES[selFrame] || "Зураг" : TB_NAMES[selText] || "Текст";
+    root.querySelector("#tb-mode").hidden = !isFr;
+    root.querySelectorAll("#tb-mode [data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === frameMode)));
+    ["#tb-dec", "#tb-inc", "#tb-val"].forEach((q) => (root.querySelector(q).hidden = !showSize));
+    ["#tb-rl", "#tb-rr"].forEach((q) => (root.querySelector(q).hidden = !(isFr && frameMode === "frame")));
+    root.querySelector("#tb-dec").textContent = isFr ? "−" : "A−";
+    root.querySelector("#tb-inc").textContent = isFr ? "+" : "A+";
+    root.querySelector("#tb-val").textContent = Math.round((v.s || 1) * 100) + "%" + (isFr && v.r ? ` · ${v.r}°` : "");
+  }
+  function markSel() {
+    sheet.querySelectorAll(".tsel").forEach((x) => x.classList.remove("tsel"));
+    if (selText) sheet.querySelector(`[data-tb="${selText}"]`)?.classList.add("tsel");
+    if (selFrame && frameMode === "frame") sheet.querySelector(`[data-fr="${selFrame}"]`)?.classList.add("tsel");
   }
   function selectText(key) {
     selText = key;
-    sheet.querySelectorAll(".tsel").forEach((x) => x.classList.remove("tsel"));
-    if (key) sheet.querySelector(`[data-tb="${key}"]`)?.classList.add("tsel");
+    if (key) { selFrame = null; selected = -1; sheet.querySelectorAll(".ph.sel").forEach((x) => x.classList.remove("sel")); }
+    markSel();
+    updateTextBar();
+  }
+  function selectFrame(key) {
+    selFrame = key;
+    selText = null;
+    markSel();
     updateTextBar();
   }
   root.addEventListener("click", (e) => {
+    const m = e.target.closest("[data-mode]");
+    if (m) { frameMode = m.dataset.mode; markSel(); updateTextBar(); return; }
     const b = e.target.closest("[data-tbact]");
-    if (!b || !selText) return;
-    const v = txOf(selText);
-    if (b.dataset.tbact === "inc") v.s = Math.min(2.5, Math.round((v.s + 0.05) * 100) / 100);
-    if (b.dataset.tbact === "dec") v.s = Math.max(0.4, Math.round((v.s - 0.05) * 100) / 100);
-    if (b.dataset.tbact === "reset") { v.dx = 0; v.dy = 0; v.s = 1; }
-    if (b.dataset.tbact === "close") { selectText(null); return; }
+    const key = curKey();
+    if (!b || !key) return;
+    if (b.dataset.tbact === "close") { selectText(null); selectFrame(null); sheet.querySelectorAll(".ph.sel").forEach((x) => x.classList.remove("sel")); selected = -1; return; }
+    const v = txOf(key);
+    const step = selText ? 0.05 : 0.05;
+    if (b.dataset.tbact === "inc") v.s = Math.min(selText ? 2.5 : 2, Math.round((v.s + step) * 100) / 100);
+    if (b.dataset.tbact === "dec") v.s = Math.max(0.4, Math.round((v.s - step) * 100) / 100);
+    if (b.dataset.tbact === "rl") v.r = Math.max(-180, (v.r || 0) - 2);
+    if (b.dataset.tbact === "rr") v.r = Math.min(180, (v.r || 0) + 2);
+    if (b.dataset.tbact === "reset") { v.dx = 0; v.dy = 0; v.s = 1; v.r = 0; }
     updateTextBar();
     render();
   });
@@ -364,8 +398,17 @@ export function createEditor({ root, mode, onChange }) {
     if (!ph) return;
     const i = +ph.dataset.idx;
     sheet.querySelectorAll(".ph.sel").forEach((x) => x.classList.remove("sel"));
-    ph.classList.add("sel");
+    const fr = ph.closest("[data-fr]");
     selected = i;
+    selectFrame(fr ? fr.dataset.fr : null);
+    if (fr && frameMode === "frame") {
+      const v = txOf("fr_" + fr.dataset.fr);
+      tdrag = { el: fr, sx: e.clientX, sy: e.clientY, dx: v.dx, dy: v.dy, k: +stage.dataset.k || 1, v, moved: false };
+      fr.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      return;
+    }
+    ph.classList.add("sel");
     if (!order.photos[i]?.src) { $(`#file-${i}`, form)?.click(); return; }
     const k = +stage.dataset.k || 1;
     const r = ph.getBoundingClientRect();
@@ -401,7 +444,7 @@ export function createEditor({ root, mode, onChange }) {
     order.wishes = [0, 1, 2, 3, 4].map((i) => o.wishes?.[i] || "");
     if (!Array.isArray(o.qa)) order.qa = b.qa;
     order.tx = o.tx && typeof o.tx === "object" ? o.tx : {};
-    selText = null; updateTextBar();
+    selText = null; selFrame = null; updateTextBar();
     selected = -1;
     const radio = $(`#tpl-${order.template}`, root);
     if (radio) radio.checked = true;
