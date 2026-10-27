@@ -276,7 +276,7 @@ export function createEditor({ root, mode, onChange }) {
           <div class="qa-list">${order.qa.map((x, i) => `
             <div class="qa-item">
               <input id="q-${i}" data-q="${i}" class="q" maxlength="200" value="${esc(x.q)}" placeholder="Асуулт">
-              <textarea id="a-${i}" data-a="${i}" rows="2" maxlength="500" placeholder="Хариулт">${esc(x.a)}</textarea>
+              <textarea id="a-${i}" data-a="${i}" rows="3" maxlength="3000" placeholder="Хариулт">${esc(x.a)}</textarea>
               <button type="button" class="link" data-delq="${i}">Хасах</button>
             </div>`).join("")}</div>
           ${order.qa.length < 7 ? `<button type="button" class="ghost-btn" id="add-q">+ Асуулт нэмэх</button>` : ""}

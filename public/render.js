@@ -516,7 +516,7 @@ export function fitAll(root) {
     let size = parseFloat(el.dataset.base) || 12;
     el.style.fontSize = size + "pt";
     let guard = 0;
-    while (el.scrollHeight > el.clientHeight + 1 && size > 6 && guard++ < 60) {
+    while (el.scrollHeight > el.clientHeight + 1 && size > 5 && guard++ < 80) {
       size -= 0.25;
       el.style.fontSize = size + "pt";
     }

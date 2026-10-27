@@ -79,7 +79,7 @@ const clean = (body) => {
     l2: str(body.l2, 30),
     l3: str(body.l3, 30),
     tx: cleanTx(body.tx),
-    qa: (Array.isArray(body.qa) ? body.qa : []).slice(0, 8).map((x) => ({ q: str(x?.q, 300), a: str(x?.a, 800) })),
+    qa: (Array.isArray(body.qa) ? body.qa : []).slice(0, 8).map((x) => ({ q: str(x?.q, 300), a: str(x?.a, 3000) })),
     wishes: (Array.isArray(body.wishes) ? body.wishes : []).slice(0, 8).map((w) => str(w, 60)),
     photos: photos.map((p) => ({
       src: p?.src || "",
