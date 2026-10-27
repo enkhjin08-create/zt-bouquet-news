@@ -33,6 +33,7 @@ const metaOf = (order) => ({
   photoCount: (order.photos || []).filter((p) => p && p.src).length,
   total: order.price?.total || 0,
   paid: order.payment?.status === "paid",
+  payMethod: order.payment?.method || "qpay",
   delivery: order.delivery?.type || "pickup",
 });
 
@@ -106,7 +107,9 @@ export default async (req, context) => {
     if (req.method === "POST" && !id) {
       const raw = await req.text();
       if (raw.length > MAX_BODY) return json({ error: "Зургууд хэт том байна. Цөөн зураг сонгоод дахин оролдоно уу." }, 413);
-      const body = clean(JSON.parse(raw));
+      const parsedBody = JSON.parse(raw);
+      const parsedMethod = parsedBody.payMethod === "bank" ? "bank" : "qpay";
+      const body = clean(parsedBody);
       if (!body.contact.phone) return json({ error: "Утасны дугаараа оруулна уу." }, 400);
 
       const cat = await getCatalog(s);
@@ -117,7 +120,7 @@ export default async (req, context) => {
       for (let i = 0; i < 5; i++) {
         const candidate = newId();
         if (await s.getMetadata(`order/${candidate}`)) continue;
-        await s.setJSON(`order/${candidate}`, { ...body, id: candidate, status: "new", source: isAdmin(req) ? "admin" : "customer", payment: { status: "unpaid" }, createdAt: now, updatedAt: now });
+        await s.setJSON(`order/${candidate}`, { ...body, id: candidate, status: "new", source: isAdmin(req) ? "admin" : "customer", payment: { status: "unpaid", method: parsedMethod }, createdAt: now, updatedAt: now });
         orderId = candidate;
         break;
       }
@@ -125,7 +128,7 @@ export default async (req, context) => {
       const order = await s.get(`order/${orderId}`, { type: "json" });
       await s.setJSON(`meta/${orderId}`, metaOf(order));
       // QPay тохируулаагүй бол шууд мэдэгдэнэ; тохируулсан бол төлөгдсөний дараа pay.mjs мэдэгдэнэ
-      if (!isAdmin(req) && !qpayReady()) context.waitUntil(notify(order, new URL(req.url).origin));
+      if (!isAdmin(req) && (!qpayReady() || parsedMethod === "bank")) context.waitUntil(notify(order, new URL(req.url).origin));
       return json({ id: orderId, price: order.price, qpay: qpayReady() }, 201);
     }
 

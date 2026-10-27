@@ -62,7 +62,7 @@ function drawList() {
     ? list.map((o) => `
       <li><button type="button" data-id="${esc(o.id)}" aria-current="${current?.id === o.id}">
         <span class="r1"><span>№ ${esc(o.id)} · ${esc(o.contact?.name || o.name || "Нэргүй")}</span><span class="pill ${esc(o.status)}">${STATUS[o.status] || o.status}</span></span>
-        ${o.total ? `<span class="r2"><span class="pill ${o.paid ? "paid" : "unpaid"}">${o.paid ? "Төлсөн" : "Төлөөгүй"}</span> ${money(o.total)}${o.delivery === "delivery" ? " · хүргэлт" : ""}</span>` : ""}
+        ${o.total ? `<span class="r2"><span class="pill ${o.paid ? "paid" : o.payMethod === "bank" ? "bank" : "unpaid"}">${o.paid ? "Төлсөн" : o.payMethod === "bank" ? "Данс · шалгах" : "Төлөөгүй"}</span> ${money(o.total)}${o.delivery === "delivery" ? " · хүргэлт" : ""}</span>` : ""}
         <span class="r2">${esc(TEMPLATES[o.template]?.label || "")} · ${esc(o.contact?.phone || "")}${o.contact?.pickup ? ` · авах ${esc(o.contact.pickup)}` : ""}</span>
       </button></li>`).join("")
     : `<li class="empty">${filter === "all" ? "Одоогоор захиалга алга. Захиалагчид нүүр хуудасны холбоосоор бөглөнө." : "Энэ төлөвтэй захиалга алга."}</li>`;
@@ -126,7 +126,7 @@ function setMeta() {
     const p = current.price || ed.price();
     $("#pay-total").textContent = money(p.total);
     const paid = current.payment?.status === "paid";
-    $("#pay-info").textContent = paid ? `Төлсөн${current.payment.manual ? " (гараар тэмдэглэсэн)" : " · QPay"}${current.payment.paidAt ? " · " + new Date(current.payment.paidAt).toLocaleString("mn-MN") : ""}` : "Төлөөгүй";
+    $("#pay-info").textContent = paid ? `Төлсөн${current.payment.manual ? (current.payment.method === "bank" ? " · дансаар" : " (гараар тэмдэглэсэн)") : " · QPay"}${current.payment.paidAt ? " · " + new Date(current.payment.paidAt).toLocaleString("mn-MN") : ""}` : current.payment?.method === "bank" ? "Дансаар шилжүүлнэ — дансаа шалгаад «төлсөн» гэж тэмдэглэ" : "Төлөөгүй";
     $("#mark-paid").hidden = paid;
   }
   $("#cur-id").textContent = current ? `№ ${current.id}` : "Шинэ захиалга";
@@ -227,6 +227,11 @@ function drawCat() {
       <div class="field"><label for="cat-del">Хүргэлтийн төлбөр</label><input id="cat-del" type="number" min="0" step="1000" value="${c.deliveryFee}"></div>
     </div>
     <div class="field"><label for="cat-pick">Очиж авах газар</label><input id="cat-pick" maxlength="80" value="${esc(c.pickupNote)}"></div>
+    <div class="row2">
+      <div class="field"><label for="cat-bank">Банк</label><input id="cat-bank" maxlength="60" value="${esc(c.bankName || "")}"></div>
+      <div class="field"><label for="cat-acc">Дансны дугаар</label><input id="cat-acc" maxlength="40" value="${esc(c.bankAccount || "")}"></div>
+    </div>
+    <div class="field"><label for="cat-holder">Данс эзэмшигч</label><input id="cat-holder" maxlength="60" value="${esc(c.bankHolder || "")}"></div>
     <h3>Бэлэн баглаа</h3>
     <div class="cat-list" data-list="packages">${c.packages.map((p, i) => catRow(p, i, "packages")).join("")}</div>
     <button type="button" class="ghost-btn" data-add="packages">+ Баглаа нэмэх</button>
@@ -236,7 +241,7 @@ function drawCat() {
 }
 function readCat() {
   const c = catDraft;
-  c.newsPrice = +$("#cat-news").value || 0; c.deliveryFee = +$("#cat-del").value || 0; c.pickupNote = $("#cat-pick").value;
+  c.newsPrice = +$("#cat-news").value || 0; c.deliveryFee = +$("#cat-del").value || 0; c.pickupNote = $("#cat-pick").value; c.bankName = $("#cat-bank").value; c.bankAccount = $("#cat-acc").value; c.bankHolder = $("#cat-holder").value;
   document.querySelectorAll("#cat .cat-row").forEach((row) => {
     const it = c[row.dataset.kind][+row.dataset.i];
     row.querySelectorAll("[data-f]").forEach((inp) => { it[inp.dataset.f] = inp.type === "checkbox" ? inp.checked : inp.type === "number" ? +inp.value || 0 : inp.value; });

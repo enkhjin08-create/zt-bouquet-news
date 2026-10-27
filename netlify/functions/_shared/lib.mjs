@@ -17,6 +17,9 @@ export const DEFAULT_CATALOG = {
   newsPrice: 20000,
   deliveryFee: 10000,
   pickupNote: "Орчлон салбар",
+  bankName: "Хаан банк",
+  bankAccount: "490005005304653256",
+  bankHolder: "Энхжин",
   packages: [
     { id: "s", name: "Жижиг баглаа", desc: "5–7 ширхэг улирлын цэцэг", price: 35000, active: true },
     { id: "m", name: "Дунд баглаа", desc: "9–11 ширхэг, 2 төрлийн цэцэг", price: 55000, active: true },
@@ -40,6 +43,9 @@ export function cleanCatalog(c) {
     newsPrice: intIn(c?.newsPrice, 0, 10_000_000, d.newsPrice),
     deliveryFee: intIn(c?.deliveryFee, 0, 10_000_000, d.deliveryFee),
     pickupNote: str(c?.pickupNote, 80) || d.pickupNote,
+    bankName: typeof c?.bankName === "string" ? str(c.bankName, 60) : d.bankName,
+    bankAccount: typeof c?.bankAccount === "string" ? str(c.bankAccount, 40) : d.bankAccount,
+    bankHolder: typeof c?.bankHolder === "string" ? str(c.bankHolder, 60) : d.bankHolder,
     packages: (Array.isArray(c?.packages) ? c.packages : []).slice(0, 20).map((p, i) => ({ id: slug(p?.id, i), name: str(p?.name, 60), desc: str(p?.desc, 120), price: intIn(p?.price, 0, 10_000_000, 0), img: imgKey(p?.img), active: p?.active !== false })).filter((p) => p.name),
     flowers: (Array.isArray(c?.flowers) ? c.flowers : []).slice(0, 60).map((p, i) => ({ id: slug(p?.id, i), name: str(p?.name, 60), price: intIn(p?.price, 0, 10_000_000, 0), img: imgKey(p?.img), active: p?.active !== false })).filter((p) => p.name),
   };
@@ -96,7 +102,7 @@ export async function notify(order, site) {
     ["Хэнд", order.name || order.to || "—"],
     ["Зураг", `${(order.photos || []).filter((p) => p && p.src).length} ширхэг`],
     ["Нэмэлт хүсэлт", c.note || "—"],
-    ...(order.price ? [["Цэцэг", order.price.lines.slice(1).map((l) => `${l.label}: ${money(l.amount)}`).join("\n") || "—"], ["Хүргэлт", order.delivery?.type === "delivery" ? order.delivery.address || "Хүргэлт" : "Очиж авна"], ["Нийт", money(order.price.total)], ["Төлбөр", order.payment?.status === "paid" ? "QPay-ээр төлсөн ✓" : "Төлөөгүй"]] : []),
+    ...(order.price ? [["Цэцэг", order.price.lines.slice(1).map((l) => `${l.label}: ${money(l.amount)}`).join("\n") || "—"], ["Хүргэлт", order.delivery?.type === "delivery" ? order.delivery.address || "Хүргэлт" : "Очиж авна"], ["Нийт", money(order.price.total)], ["Төлбөр", order.payment?.status === "paid" ? (order.payment.manual ? "Төлсөн ✓" : "QPay-ээр төлсөн ✓") : order.payment?.method === "bank" ? "Дансаар шилжүүлнэ — дансаа шалгаарай" : "Төлөөгүй"]] : []),
   ];
   // Энгийн, захидал маягийн HTML — Promotions таб руу орох магадлалыг багасгана
   const html = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#222">
