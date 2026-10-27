@@ -141,7 +141,7 @@ function polaroid(o) {
     <div class="p-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
     <div class="p-msg fit" data-base="22" data-tb="msg"><p>${or(o.message, SAMPLE.message)}</p></div>
     <figure class="pol pmain" data-fr="pmain">${photo(ph[0], "", 0)}<figcaption>${or(o.name, SAMPLE.name)}</figcaption><i class="tape"></i></figure>
-    ${heart(150, 58, 10, 15)}${heart(166, 66, 7, -10)}${heart(18, 250, 12, -12)}${heart(176, 228, 9, 18)}${heart(160, 262, 7, 5, .8)}
+    ${heart(192, 57, 9, 15)}${heart(196, 68, 6.5, -10)}${heart(18, 250, 12, -12)}${heart(176, 228, 9, 18)}${heart(160, 262, 7, 5, .8)}
     <div class="p-bottom"></div>
   </section>`;
 }

@@ -100,7 +100,7 @@
 .p-mast { position: absolute; left: 12mm; right: 12mm; top: 17mm; text-align: center; font: 400 66pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
 .p-dateline { position: absolute; left: 12mm; right: 12mm; top: 43mm; display: flex; justify-content: space-between;
   font: 600 8.5pt "Open Sans", sans-serif; padding: 1.4mm 0; border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
-.p-msg { position: absolute; left: 20mm; right: 20mm; top: 56mm; height: 52mm; overflow: hidden; text-align: center;
+.p-msg { position: absolute; z-index: 2; left: 20mm; right: 20mm; top: 56mm; height: 52mm; overflow: hidden; text-align: center;
   font: 400 22pt/1.35 "ZT Annabelle", "Bad Script", cursive; color: var(--ink); display: flex; flex-direction: column; justify-content: safe center; }
 .pol.pmain { left: 24mm; top: 116mm; width: 162mm; height: 160mm; transform: rotate(2deg); }
 .pol.pmain figcaption { font-size: 20pt; bottom: 2.5mm; }
