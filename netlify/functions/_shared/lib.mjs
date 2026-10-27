@@ -98,11 +98,11 @@ export async function notify(order, site) {
     ["Нэмэлт хүсэлт", c.note || "—"],
     ...(order.price ? [["Цэцэг", order.price.lines.slice(1).map((l) => `${l.label}: ${money(l.amount)}`).join("\n") || "—"], ["Хүргэлт", order.delivery?.type === "delivery" ? order.delivery.address || "Хүргэлт" : "Очиж авна"], ["Нийт", money(order.price.total)], ["Төлбөр", order.payment?.status === "paid" ? "QPay-ээр төлсөн ✓" : "Төлөөгүй"]] : []),
   ];
-  const html = `<div style="font-family:Arial,sans-serif;max-width:520px;color:#2a1c1f">
-    <p style="font-size:13px;letter-spacing:.12em;color:#7a2e3d;margin:0">ЗӨВХӨН ТҮҮНД · СОНИН БАГЛАА</p>
-    <h2 style="margin:6px 0 14px">Шинэ захиалга № ${h(order.id)}</h2>
-    <table style="border-collapse:collapse;width:100%;font-size:14px">${rows.map(([k, v]) => `<tr><td style="padding:6px 10px 6px 0;color:#7d6a6c;vertical-align:top;white-space:nowrap">${h(k)}</td><td style="padding:6px 0;white-space:pre-line">${h(v)}</td></tr>`).join("")}</table>
-    <p style="margin:18px 0"><a href="${h(link)}" style="background:#7a2e3d;color:#fff;padding:11px 18px;border-radius:6px;text-decoration:none;font-weight:bold">Админ дээр нээх</a></p>
+  // Энгийн, захидал маягийн HTML — Promotions таб руу орох магадлалыг багасгана
+  const html = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#222">
+    <p>Шинэ захиалга № <b>${h(order.id)}</b></p>
+    <p>${rows.map(([k, v]) => `${h(k)}: ${h(v).replace(/\n/g, "<br>")}`).join("<br>")}</p>
+    <p>Админ дээр нээх: <a href="${h(link)}">${h(link)}</a></p>
   </div>`;
   const text = `Шинэ захиалга № ${order.id}\n` + rows.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\n${link}`;
   try {
