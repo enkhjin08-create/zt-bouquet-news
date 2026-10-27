@@ -151,3 +151,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
 .seg button { border: 0; background: var(--bg); padding: 6px 10px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .seg button[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); }
+.pick-scrap .swatch i:first-child { background: #e7dcc8 linear-gradient(160deg, #c9a37e, #b88f69) 40% 35% / 60% 45% no-repeat; }
+.pick-scrap .swatch i { background: #fbfaf7 linear-gradient(#e7e1d8, #e7e1d8) 50% 55% / 75% 45% no-repeat; }

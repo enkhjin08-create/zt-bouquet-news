@@ -173,6 +173,75 @@
   font: 400 12pt/1.55 "Open Sans", sans-serif; }
 .b-body p { white-space: pre-line; }
 
+
+/* ───── 5. Скрапбүүк ───── */
+.t-scrap .page { --kraft: #c9a982; --kraft-d: #a8865f; --paper: #f1e9db; --ink: #1d1b19; }
+.t-scrap .sc-left {
+  background:
+    radial-gradient(60% 40% at 30% 20%, rgba(255,255,255,.35), transparent 70%),
+    radial-gradient(50% 35% at 75% 70%, rgba(120,90,50,.18), transparent 70%),
+    repeating-linear-gradient(115deg, rgba(0,0,0,.035) 0 1.2mm, transparent 1.2mm 5mm),
+    repeating-linear-gradient(28deg, rgba(255,255,255,.06) 0 .8mm, transparent .8mm 7mm),
+    #e7dcc8; }
+.sc-top { position: absolute; left: 10mm; right: 0; top: 5mm; padding-bottom: 1.2mm; border-bottom: .3mm solid var(--ink); font: 600 7pt "Open Sans", sans-serif; z-index: 6; }
+.sc-news { position: absolute; display: grid; gap: 3mm; padding: 4mm; background: #f4efe6; overflow: hidden; color: #4b4740;
+  font: 400 6pt/1.35 "Old Standard TT", "Times New Roman", serif; text-align: justify; box-shadow: 0 .6mm 1.5mm rgba(0,0,0,.15); }
+.sc-news.n1 { left: 112mm; top: 0; width: 72mm; height: 58mm; grid-template-columns: 1fr 1fr; transform: rotate(-3deg); clip-path: polygon(0 0,100% 0,96% 100%,60% 92%,30% 100%,4% 90%); }
+.sc-news.n2 { left: 150mm; top: 62mm; width: 66mm; height: 210mm; grid-template-columns: 1fr 1fr; transform: rotate(2deg); clip-path: polygon(6% 0,100% 2%,100% 100%,0 98%,3% 60%,0 30%); }
+.sc-news.n3 { left: 70mm; top: 222mm; width: 110mm; height: 80mm; grid-template-columns: repeat(3, 1fr); transform: rotate(-2deg); clip-path: polygon(0 8%,40% 0,100% 6%,100% 100%,0 100%); }
+.sc-sticky { position: absolute; left: 4mm; top: 0; width: 34mm; height: 30mm; background: #f6eda6; transform: rotate(-4deg); box-shadow: 0 .6mm 1.4mm rgba(0,0,0,.15); }
+.sc-film { position: absolute; display: flex; gap: 2mm; padding: 3mm 2mm; background: #1a1816;
+  -webkit-mask: radial-gradient(circle .7mm at 1.5mm 1.5mm, transparent 95%, #000) 0 0 / 3mm 100% repeat-x; }
+.sc-film i { flex: 1; background: linear-gradient(135deg, #8a8478, #d8d2c6 60%, #6d675c); }
+.sc-film.fl1 { left: 46mm; top: 8mm; width: 70mm; height: 20mm; transform: rotate(-18deg); }
+.sc-film.fl2 { left: -8mm; top: 112mm; width: 62mm; height: 18mm; transform: rotate(72deg); }
+.sc-vinyl { position: absolute; right: -14mm; top: 112mm; width: 52mm; height: 52mm; border-radius: 50%;
+  background: radial-gradient(circle, #f0ece4 0 9%, #1a1918 10% 14%, transparent 14.5%), repeating-radial-gradient(circle, #222 0 .6mm, #333 .6mm 1.1mm); box-shadow: 0 1mm 3mm rgba(0,0,0,.3); }
+.sc-star { position: absolute; fill: none; stroke: #fff; stroke-width: 3; stroke-linejoin: round; opacity: .85; }
+.sc-star.o1 { left: 66mm; top: 6mm; width: 26mm; transform: rotate(12deg); }
+.sc-star.o2 { left: 18mm; top: 222mm; width: 46mm; transform: rotate(-10deg); }
+.sc-blackstar { position: absolute; left: 10mm; top: 156mm; width: 24mm; fill: #2a1414; transform: rotate(-8deg); }
+.sc-envelope { position: absolute; left: 24mm; top: 34mm; width: 122mm; height: 98mm; background: linear-gradient(160deg, #c9a37e, #b88f69); transform: rotate(-12deg);
+  box-shadow: 0 1.5mm 4mm rgba(70,40,20,.3); overflow: hidden; }
+.env-flap { position: absolute; inset: 0; background: linear-gradient(200deg, #d3b08c, #c19a74);
+  clip-path: polygon(0 0, 100% 0, 52% 58%); filter: drop-shadow(0 .6mm .8mm rgba(0,0,0,.2)); }
+.sc-envelope::after { content: ""; position: absolute; inset: 0; background: linear-gradient(20deg, rgba(0,0,0,.07), transparent 40%); clip-path: polygon(0 100%, 52% 52%, 100% 100%); }
+.sc-card { position: absolute; left: 50mm; top: 122mm; width: 96mm; height: 92mm; padding: 7mm 7mm 6mm; background: #faf7d9; transform: rotate(-4deg); z-index: 5;
+  box-shadow: 0 1.5mm 3.5mm rgba(0,0,0,.25); }
+.sc-msg { height: 100%; overflow: hidden; display: flex; flex-direction: column; justify-content: safe center;
+  font: 400 17pt/1.35 "Great Vibes", cursive; color: var(--ink); text-align: left; }
+.sc-heart { color: #d4202c; font-family: "Noto Sans Symbols 2", sans-serif; }
+
+.t-scrap .sc-right { background: #fbfaf7; }
+.sc-kraft { position: absolute; left: 0; right: 0; }
+.sc-kraft.top { top: 0; height: 40mm; background:
+  linear-gradient(rgba(120,80,40,.18) .25mm, transparent .25mm) 0 0 / 100% 4mm, linear-gradient(90deg, rgba(120,80,40,.18) .25mm, transparent .25mm) 0 0 / 4mm 100%, #d8c7ab; }
+.sc-kraft.bottom { bottom: 0; height: 46mm; background:
+  radial-gradient(rgba(80,50,20,.25) .3mm, transparent .45mm) 0 0 / 1.2mm 1.2mm, radial-gradient(rgba(255,255,255,.2) .3mm, transparent .45mm) .6mm .6mm / 1.2mm 1.2mm, #b08d68; }
+.sc-mast { position: absolute; left: 16mm; right: 12mm; top: 9mm; text-align: center; z-index: 3;
+  font: 400 60pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
+.sc-dateline { position: absolute; left: 0; right: 14mm; top: 44mm; display: flex; justify-content: space-between; padding: 1.2mm 0 1.2mm 4mm;
+  border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); font: 400 7.5pt "Open Sans", sans-serif; }
+.sc-dots { position: absolute; width: 60mm; height: 60mm; background: radial-gradient(#e8a0a6 .5mm, transparent .6mm) 0 0 / 2.2mm 2.2mm;
+  -webkit-mask: radial-gradient(closest-side, #000, transparent); mask: radial-gradient(closest-side, #000, transparent); }
+.sc-dots.d1 { right: 4mm; top: 82mm; } .sc-dots.d2 { left: 12mm; top: 168mm; }
+.sc-stamp { position: absolute; left: 22mm; top: 76mm; width: 170mm; height: 132mm; padding: 4mm; background: #e7e1d8; transform: rotate(-1.5deg); z-index: 2;
+  -webkit-mask: radial-gradient(circle 2mm at 50% 50%, transparent 96%, #000) -2mm -2mm / 6mm 6mm, linear-gradient(#000, #000) center / calc(100% - 6mm) calc(100% - 6mm) no-repeat;
+          mask: radial-gradient(circle 2mm at 50% 50%, transparent 96%, #000) -2mm -2mm / 6mm 6mm, linear-gradient(#000, #000) center / calc(100% - 6mm) calc(100% - 6mm) no-repeat;
+  filter: drop-shadow(0 .8mm 1.2mm rgba(0,0,0,.25)); }
+.sc-stamp-in { height: 100%; padding: 4mm; background: #fff; }
+.sc-stamp-in .ph { height: 100%; }
+.sc-xoxo { position: absolute; left: 8mm; top: 60mm; z-index: 4; padding: 4mm 9mm; background: #7fa3d9; border: 1.4mm solid #fff; border-radius: 48% 52% 45% 55% / 60% 50% 50% 40%;
+  transform: rotate(-4deg); box-shadow: 0 .8mm 1.6mm rgba(0,0,0,.25); font: 900 30pt/1 "Rubik", "Arial Black", sans-serif; color: #e2343d; letter-spacing: .04em; }
+.sc-xoxo span { -webkit-text-stroke: 1.2mm #fff; paint-order: stroke fill; }
+.sc-bff { position: absolute; right: 8mm; top: 206mm; z-index: 4; transform: rotate(-3deg); font: 900 92pt/1 "Rubik", "Arial Black", sans-serif; letter-spacing: -.02em; }
+.sc-bff span { position: relative; display: inline-block; color: transparent;
+  background: radial-gradient(circle at 30% 30%, #f4a7b5 0 18%, transparent 20%) 0 0 / 4mm 4mm, radial-gradient(circle at 70% 70%, #7fa3d9 0 16%, transparent 18%) 0 0 / 4mm 4mm, #f28a3c;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: .6mm #c4282f;
+  filter: drop-shadow(0 0 0 #fff) drop-shadow(.8mm .8mm 0 #fff) drop-shadow(-.8mm -.8mm 0 #fff) drop-shadow(.8mm -.8mm 0 #fff) drop-shadow(-.8mm .8mm 0 #fff) drop-shadow(0 1mm 1.2mm rgba(0,0,0,.25)); }
+.sc-x { position: absolute; color: #e3a98b; font: 700 20pt/1 "Open Sans", sans-serif; z-index: 3; }
+.sc-x.x1 { right: 20mm; top: 54mm; transform: rotate(15deg); } .sc-x.x2 { left: 70mm; top: 206mm; transform: rotate(-10deg); }
+
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
 .t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;

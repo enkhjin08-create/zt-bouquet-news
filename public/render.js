@@ -55,6 +55,7 @@ const SAMPLE = {
   ],
   letter:
     "Чамтайгаа учирсан тэр өдрөөс хойш миний амьдралын өнгө өөр болсон юм шиг санагддаг. Хамтдаа инээсэн, уйлсан, аялсан бүх л мөч маань надад хамгийн үнэтэй дурсамж болон үлдсэн.\n\nЧи миний хамгийн дотно хүн, хамгийн сайн найз минь. Ямар ч үед хажууд минь байж, намайг өөрийнхөөрөө байхад тусалдагт чинь баярлалаа.\n\nТөрсөн өдрөөр чинь чамд эрүүл энх, аз жаргал, мөрөөдөл бүхэн чинь биелэхийг хүсье. Үргэлж хамтдаа байцгаая. Хайртай шүү ♥",
+  bff: "Хайрт найздаа төрсөн өдрийн баярын мэнд! Чамтай өнгөрүүлсэн мөч бүр хамгийн сайхан дурсамж болдог. Ирэх жилүүдэд чи улам хөгжилтэй, аз жаргалтай байж, мөрөөдөл бүртээ хүрээрэй. Амьдрал чинь хайр, инээд хөөрөөр дүүрэн байх болтугай. Чамд хамгийн сайн сайхныг хүсэж байна.",
   note: "Төрсөн өдрийн мэнд хүргэе, миний хайр.\nЧамтайгаа хамт хөгширч, олон жилийн дараа өнөөдрийнхөө тухай инээмсэглэн дурсаж суухыг хүсэж байна.\nЧамдаа маш их хайртай шүү. Өнөөдөр, маргааш, бас насан туршдаа.",
   captions: ["Анх хамтдаа аялсан өдөр", "Төрсөн өдрийн бялуу", "Гэр бүлээрээ"],
   wishes: ["Миний хайртай", "Эгэл даруу", "Үргэлж инээмсэглэдэг", "Гэр бүлийн гол", "Хамгийн сайн найз"],
@@ -193,12 +194,59 @@ function letter(o) {
   </section>`;
 }
 
+// ───────────── 5. Скрапбүүк (BFF) ─────────────
+function torn(seed, edge, amp = 2.2, n = 46) {
+  // edge: "top" | "bottom" — хуудасны өргөнөөр урагдсан ирмэгийн clip-path
+  let r = seed;
+  const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const x = (i / n) * 100;
+    const y = amp * (0.3 + rnd());
+    pts.push(edge === "top" ? `${x}% ${y}mm` : `${x}% calc(100% - ${y}mm)`);
+  }
+  return edge === "top" ? `polygon(${pts.join(",")},100% 100%,0 100%)` : `polygon(0 0,100% 0,${pts.reverse().join(",")})`;
+}
+const NEWS_TXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ";
+const newsScrap = (cls, cols = 2) => `<div class="sc-news ${cls}" aria-hidden="true">${Array.from({ length: cols }, () => `<p>${NEWS_TXT.repeat(6)}</p>`).join("")}</div>`;
+const starOutline = (cls) => `<svg class="${cls}" viewBox="0 0 100 95"><path d="M50 4l13 29 32 3-24 21 7 32-28-17-28 17 7-32L5 36l32-3z"/></svg>`;
+const filmStrip = (cls) => `<div class="sc-film ${cls}" aria-hidden="true"><i></i><i></i><i></i><i></i></div>`;
+function scrap(o) {
+  const ph = o.photos || [];
+  return `
+  <section class="page sc-left">
+    ${newsScrap("n1", 2)}${newsScrap("n2", 2)}${newsScrap("n3", 3)}
+    <div class="sc-sticky"></div>
+    ${filmStrip("fl1")}${filmStrip("fl2")}
+    <div class="sc-vinyl"></div>
+    ${starOutline("sc-star o1")}${starOutline("sc-star o2")}
+    <svg class="sc-blackstar" viewBox="0 0 100 95"><path d="M50 2l10 30 33-6-23 24 18 30-30-13-12 28-6-31-32 6 22-24L13 18l32 10z"/></svg>
+    <div class="sc-envelope"><div class="env-flap"></div></div>
+    <div class="sc-card">
+      <div class="sc-msg fit" data-base="17" data-tb="msg"><p>${or(o.message, SAMPLE.bff)} <span class="sc-heart">♥</span></p></div>
+    </div>
+    <div class="sc-top"><span>002</span></div>
+  </section>
+  <section class="page sc-right">
+    <div class="sc-kraft top" style="clip-path:${torn(7, "bottom")}"></div>
+    <h1 class="sc-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
+    <div class="sc-dateline"><span>Зөвхөн түүнд, Улаанбаатар</span><span>${dateMn(o.date)}</span></div>
+    <div class="sc-dots d1"></div><div class="sc-dots d2"></div>
+    <figure class="sc-stamp" data-fr="stamp"><div class="sc-stamp-in">${photo(ph[0], "", 0)}</div></figure>
+    <div class="sc-xoxo" data-tb="s1"><span>${esc(o.s1 || "XOXO")}</span></div>
+    <div class="sc-bff" data-tb="s2"><span data-t="${esc(o.s2 || "BFF")}">${esc(o.s2 || "BFF")}</span></div>
+    <span class="sc-x x1">✕</span><span class="sc-x x2">✕</span>
+    <div class="sc-kraft bottom" style="clip-path:${torn(19, "top")}"></div>
+  </section>`;
+}
+
 export const MASTHEADS = ["BIRTHDAY TIMES", "ВАЛЕНТИНЫ МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
 
 export const TEMPLATES = {
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
+  scrap: { label: "Скрапбүүк", render: scrap, photos: ["Гол зураг (маркан хүрээ)"], fields: ["masthead", "message", "stickers"] },
   booth: { label: "Фото бүхээг", render: booth, photos: ["Хальсан зураг 1 (дээд)", "Хальсан зураг 2 (доод)", "Бүхээг 1", "Бүхээг 2", "Бүхээг 3", "Бүхээг 4"], fields: ["masthead", "tofrom", "note", "message"] },
 };
 
