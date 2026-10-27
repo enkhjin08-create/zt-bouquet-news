@@ -1,8 +1,8 @@
-@font-face { font-family: "ZT Annabelle"; src: url("fonts/Annabelle.woff2") format("woff2"); font-display: block; }
-@font-face { font-family: "ZT Artemis"; src: url("fonts/Artemis.woff2") format("woff2"); font-display: block; }
-@font-face { font-family: "ZT Shantell"; src: url("fonts/ShantellBold.woff2") format("woff2"); font-weight: 700 900; font-display: block; }
-@font-face { font-family: "ZT Torid"; src: url("fonts/ToridBold.woff2") format("woff2"); font-weight: 700 900; font-display: block; }
-@font-face { font-family: "Santa Catarina"; src: url("fonts/SantaCatarina.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "ZT Annabelle"; src: url("fonts/Annabelle.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "ZT Artemis"; src: url("fonts/Artemis.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "ZT Shantell"; src: url("fonts/ShantellBold.woff2") format("woff2"); font-weight: 700 900; font-display: swap; }
+@font-face { font-family: "ZT Torid"; src: url("fonts/ToridBold.woff2") format("woff2"); font-weight: 700 900; font-display: swap; }
+@font-face { font-family: "Santa Catarina"; src: url("fonts/SantaCatarina.woff2") format("woff2"); font-display: swap; }
 /* ── Хэвлэх хуудас: A3 хэвтээ, 420 × 297 мм ── */
 .sheet {
   --paper: #ebe8e1; --ink: #1d1c1a; --frame: #f6f4ef;
