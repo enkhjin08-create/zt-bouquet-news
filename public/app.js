@@ -410,7 +410,7 @@ export function createEditor({ root, mode, onChange }) {
           const fee = cat.shopLat ? (d.km > 0 ? money(deliveryFeeOf(cat, d.km)) : "") : money(cat.deliveryFee);
           const opt = (val, title, sub, price) => `<label class="dl-opt ${v === val ? "on" : ""}"><input type="radio" name="dl" value="${val}" ${v === val ? "checked" : ""}><span>${title}${sub ? `<small>${sub}</small>` : ""}</span><b>${price}</b></label>`;
           return opt("pickup", `Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}`, "", "Нэмэлт төлбөргүй")
-            + opt("delivery", "Хүргүүлнэ · UBCab-ийн мөнгийг одоо төлнө", "UBCab-ийн хүргэлтийн төлбөр захиалгын дүнд нэмэгдэнэ", fee ? "+" + fee : "Зайнаас хамаарна")
+            + opt("delivery", "Хүргүүлнэ · UBCab-ын мөнгийг одоо төлнө", "UBCab-ын хүргэлтийн төлбөр захиалгын дүнд нэмэгдэнэ", fee ? "+" + fee : "Зайнаас хамаарна")
             + opt("cod", "Хүргүүлнэ · UBCab-д хүргэлтийн үед өөрөө төлнө", "Хүлээн авахдаа жолоочид бэлнээр / дансаар төлнө", fee ? "≈" + fee : "Жолоочид төлнө"); })()}
       </div>`;
   }
@@ -423,7 +423,7 @@ export function createEditor({ root, mode, onChange }) {
         <div class="dl-tools"><button type="button" class="ghost-btn" id="dl-geo">📍 Миний байршил</button><span class="dl-q" id="dl-q">${d.km > 0 ? quoteText() : "Газрын зураг дээр дарж хүргэх цэгээ сонгоно уу."}</span></div>
         </div>` : ""}
       <div class="dl-note">🚕 Хүргэлтийг <b>UBCab</b> хийнэ. ${d.payer === "recipient"
-        ? "Та UBCab-ийн хүргэлтийн мөнгийг <b>хүргэлтийн үед жолоочид өөрөө</b> төлнө. Энэ мөнгө манай захиалгын дүнд ороогүй."
+        ? "Та UBCab-ын хүргэлтийн мөнгийг <b>хүргэлтийн үед жолоочид өөрөө</b> төлнө. Энэ мөнгө манай захиалгын дүнд ороогүй."
         : "Захиалгын дүнд орсон хүргэлтийн мөнгө нь <b>UBCab-д төлөх хүргэлтийн төлбөр</b> юм. Манай салбараас таны хаяг хүртэлх замын зайгаар ойролцоогоор бодсон."}</div>`;
   }
   const quoteText = () => `≈ ${order.delivery.km} км · UBCab ${order.delivery.payer === "recipient" ? "ойролцоогоор" : ""} <b>${money(deliveryFeeOf(cat, order.delivery.km))}</b>`;
