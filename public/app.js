@@ -1,4 +1,4 @@
-import { TEMPLATES, SIGNS, MASTHEADS, CHEAP_TEMPLATES, renderSheet, fitAll } from "./render.js";
+import { TEMPLATES, SIGNS, MASTHEADS, CHEAP_TEMPLATES, OCCASIONS, renderSheet, fitAll } from "./render.js";
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -284,6 +284,8 @@ export function createEditor({ root, mode, onChange }) {
       <div class="fields">
         <div class="row2">
           ${has("name") ? `<div class="field"><label for="f-name">Хэнд зориулах вэ?</label><input id="f-name" data-k="name" maxlength="40" placeholder="Жишээ: Хонгорзул" value="${esc(order.name)}"></div>` : ""}
+          ${has("occasion") ? `<div class="field"><label for="f-occ">Ямар баяр вэ?</label><select id="f-occ" data-occ="1">${Object.entries(OCCASIONS).map(([k, v]) => `<option value="${k}" ${(order.occ || "birthday") === k ? "selected" : ""}>${v.label}</option>`).join("")}</select></div>
+          ${order.occ === "custom" ? `<div class="row2"><div class="field"><label for="f-kick">Дээд мөр (гараар бичсэн мэт)</label><input id="f-kick" data-k="s1" maxlength="20" placeholder="Хайрт минь" value="${esc(order.s1)}"></div><div class="field"><label for="f-big">Том гарчиг</label><input id="f-big" data-k="s2" maxlength="20" placeholder="ХАЙРТАЙ ШҮҮ!" value="${esc(order.s2)}"></div></div>` : ""}` : ""}
           <div class="field"><label for="f-date">Огноо</label><input id="f-date" type="date" data-k="date" value="${esc(order.date)}"></div>
         </div>
         <div class="row2">
@@ -513,6 +515,7 @@ export function createEditor({ root, mode, onChange }) {
       if (t.value === "__custom") $("#f-mast-c", form)?.focus();
       return;
     }
+    if (d.occ) { order.occ = t.value; buildForm(); render(); return; }
     if (d.addr) { order.delivery.address = t.value; onChange?.(order); return; }
     if (d.k) order[d.k] = t.value;
     else if (d.c) order.contact[d.c] = t.value;

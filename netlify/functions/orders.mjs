@@ -66,6 +66,7 @@ const clean = (body) => {
     name: str(body.name, 80),
     date: str(body.date, 20),
     masthead: str(body.masthead, 60),
+    occ: /^[a-z_]{1,16}$/.test(body.occ || "") ? body.occ : "",
     edition: str(body.edition, 60),
     headline: str(body.headline, 200),
     message: str(body.message, 2000),

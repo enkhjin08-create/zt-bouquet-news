@@ -60,7 +60,8 @@
   font: 700 36pt/1 "Old Standard TT", "Times New Roman", serif; letter-spacing: .32em; padding-left: .32em; white-space: nowrap; }
 .n-rule { position: absolute; left: 10mm; right: 14mm; top: 44mm; height: 2.4mm; border-top: 1.1mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
 .n-its { position: absolute; left: 10mm; right: 14mm; top: 49mm; text-align: center; font: 400 38pt/1.1 "ZT Annabelle", "Bad Script", cursive; }
-.n-bday { position: absolute; left: 10mm; right: 14mm; top: 67mm; text-align: center; font: 700 60pt/1 "Oswald", Impact, sans-serif; letter-spacing: -.01em; }
+.n-bday { position: absolute; left: 10mm; right: 14mm; top: 67mm; text-align: center; font: 700 60pt/1 "Oswald", Impact, sans-serif; letter-spacing: -.01em; white-space: nowrap; }
+.n-bday.cyr { font-family: "ZT Torid", "Oswald", Impact, sans-serif; font-weight: 700; line-height: 1.2; top: 65mm; }
 .n-body { position: absolute; left: 8mm; right: 14mm; top: 93mm; bottom: 16mm; display: grid; grid-template-columns: 93mm 1fr; gap: 4mm; }
 .n-main { border: .5mm solid var(--ink); min-height: 0; }
 .n-qa { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: .9em; text-align: justify; hyphens: auto; line-height: 1.2; }

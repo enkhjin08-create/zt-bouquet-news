@@ -78,6 +78,27 @@ const heart = (x, y, s, r = 0, o = 1) =>
   `<svg class="heart" viewBox="0 0 32 29" style="left:${x}mm;top:${y}mm;width:${s}mm;transform:rotate(${r}deg);opacity:${o}"><path d="M16 28.6S0 18.7 0 8.6C0 3.6 3.8 0 8.3 0c3.4 0 6.2 2 7.7 4.9C17.5 2 20.3 0 23.7 0 28.2 0 32 3.6 32 8.6c0 10.1-16 20-16 20z"/></svg>`;
 const flower = `<svg class="flower" viewBox="0 0 20 20"><g><circle cx="10" cy="5" r="4"/><circle cx="15" cy="9" r="4"/><circle cx="13" cy="15" r="4"/><circle cx="7" cy="15" r="4"/><circle cx="5" cy="9" r="4"/></g><circle class="c" cx="10" cy="10.5" r="3"/></svg>`;
 
+// Хар цагаан сонины гарчгийн хувилбарууд ({n} = хүний нэр)
+export const OCCASIONS = {
+  birthday: { label: "Төрсөн өдөр (It's … 's BIRTHDAY!)", kick: "It's {n}'s", big: "BIRTHDAY!" },
+  mn_birthday: { label: "Төрсөн өдөр (монголоор)", kick: "{n} минь", big: "ТӨРСӨН ӨДРИЙН МЭНД!" },
+  anniversary: { label: "Ойн баяр (Happy ANNIVERSARY!)", kick: "Happy", big: "ANNIVERSARY!" },
+  love: { label: "Хайр (I love YOU!)", kick: "{n}, I love", big: "YOU!" },
+  congrats: { label: "Баяр хүргэе (CONGRATS!)", kick: "Well done, {n}", big: "CONGRATS!" },
+  graduation: { label: "Төгсөлт (GRADUATION!)", kick: "{n}'s", big: "GRADUATION!" },
+  teacher: { label: "Багшийн баяр", kick: "Хүндэт {n} багшдаа", big: "БАЯРЫН МЭНД!" },
+  mom: { label: "Ээжийн баяр", kick: "Хайрт ээждээ", big: "БАЯРЫН МЭНД!" },
+  thanks: { label: "Талархал (THANK YOU!)", kick: "Dear {n},", big: "THANK YOU!" },
+  custom: { label: "Өөрөө бичих…", kick: "", big: "" },
+};
+function occTitle(o) {
+  const oc = OCCASIONS[o.occ] || OCCASIONS.birthday;
+  const name = (o.name || "").trim();
+  const fill = (tpl) => esc(tpl).replace("{n}", name ? esc(name) : `<span class="ghost">${esc(SAMPLE.name)}</span>`);
+  if (o.occ === "custom") return { kick: or(o.s1, "Хайрт минь"), big: (o.s2 || "").trim() || "ХАЙРТАЙ ШҮҮ!" };
+  return { kick: fill(oc.kick), big: oc.big };
+}
+
 // ───────────── 1. Хар цагаан сонин ─────────────
 function news(o) {
   const ph = o.photos || [];
@@ -110,8 +131,8 @@ function news(o) {
     ${top}
     <h1 class="n-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
     <div class="n-rule"></div>
-    <p class="n-its fitw" data-tb="its">It's ${or(o.name, SAMPLE.name)}'s</p>
-    <p class="n-bday" data-tb="bday">BIRTHDAY!</p>
+    ${(() => { const t = occTitle(o); return `<p class="n-its fitw" data-tb="its">${t.kick}</p>
+    <p class="n-bday fitw${/[^\x00-\x7F]/.test(t.big) ? " cyr" : ""}" data-tb="bday">${esc(t.big)}</p>`; })()}
     <div class="n-body">
       <div class="n-main" data-fr="main">${photo(ph[0], "", 0, { gray: true })}</div>
       <div class="n-qa fit" data-base="10.5" data-tb="qa">${qaHtml}</div>
@@ -464,7 +485,7 @@ export const TEMPLATES = {
   tulip: { label: "Энгийн мэндчилгээ", cheap: true, mast: "ХҮНДЭТ БАГШДАА", render: tulip, photos: [], fields: ["masthead", "message"] },
   spring: { label: "Хаврын мэдээ", cheap: true, mast: "ХАВРЫН МЭДЭЭ", render: spring, photos: [], fields: ["masthead", "message"] },
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
-  news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "edition", "masthead", "qa", "message", "captions"] },
+  news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "occasion", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },
   party: { label: "Улаан үдэшлэг", render: party, photos: ["Зүүн polaroid", "Баруун polaroid"], fields: ["masthead", "message", "partylabels"] },
   missed: { label: "Хальсан захидал", render: missed, photos: ["Хальсны дээд зураг", "Хальсны доод том зураг"], fields: ["masthead", "message"] },
