@@ -184,7 +184,11 @@ export function createEditor({ root, mode, onChange }) {
         <p class="hint">A3 хэмжээ · Зураг эсвэл текст дээр дарж байрлал, хэмжээг нь өөрчилнө. Загвар дээрх үг бол жишээ — өөрийн үгээ бичихэд солигдоно, бичээгүй бол хэвлэхэд гарахгүй.</p>
       </div>
     </section>
-    <section class="area-form" id="form"></section>`;
+    <section class="area-form" id="form"></section>
+    <button type="button" class="peek" id="peek" hidden aria-label="Сонингоо томоор харах">
+      <span class="peek-stage" id="peek-stage"></span>
+      <span class="peek-lbl">👀 Томоор харах</span>
+    </button>`;
 
   const sheet = $("#sheet", root);
   const stage = $("#stage", root);
@@ -203,6 +207,37 @@ export function createEditor({ root, mode, onChange }) {
   };
   new ResizeObserver(rescale).observe(stage);
 
+  // ── Утсан дээр маягт бөглөж байхад сонины жижиг хуулбарыг доод буланд харуулна ──
+  const peek = $("#peek", root), peekStage = $("#peek-stage", root);
+  const card = $(".preview-card", root);
+  const narrow = matchMedia("(max-width: 880px)");
+  let previewOut = false, peekT = 0, peekShown = false;
+  const peekSync = () => {
+    clearTimeout(peekT);
+    peekT = setTimeout(() => {
+      if (peek.hidden) return;
+      const c = sheet.cloneNode(true);
+      c.removeAttribute("id");
+      c.querySelectorAll(".sel, .tsel").forEach((n) => n.classList.remove("sel", "tsel"));
+      const k = peekStage.clientWidth / (sheet.offsetWidth || 1);
+      c.style.transform = `scale(${k})`;
+      peekStage.style.height = sheet.offsetHeight * k + "px";
+      peekStage.replaceChildren(c);
+    }, 200);
+  };
+  const peekUpdate = (pulse) => {
+    const show = narrow.matches && previewOut && root.isConnected;
+    peek.hidden = !show;
+    if (show) {
+      peekSync();
+      if (pulse && peekShown) { peek.classList.remove("pulse"); void peek.offsetWidth; peek.classList.add("pulse"); }
+    }
+    peekShown = show;
+  };
+  new IntersectionObserver(([e]) => { previewOut = !e.isIntersecting && e.boundingClientRect.top < 0; peekUpdate(false); }, { threshold: 0.05 }).observe(card);
+  narrow.addEventListener?.("change", () => peekUpdate(false));
+  peek.addEventListener("click", () => card.scrollIntoView({ behavior: "smooth", block: "start" }));
+
   let raf = 0;
   const render = (user = true) => {
     cancelAnimationFrame(raf);
@@ -212,6 +247,7 @@ export function createEditor({ root, mode, onChange }) {
       if (selected >= 0 && frameMode !== "frame") sheet.querySelector(`.ph[data-idx="${selected}"]`)?.classList.add("sel");
       markSel();
       rescale();
+      peekUpdate(user);
       if (user) onChange?.(order);
     });
   };
