@@ -453,19 +453,46 @@
 .hb-bottom { position: absolute; left: 12mm; right: 12mm; bottom: 8mm; border-top: .3mm solid #9a9a9a; }
 .hb-txt { position: absolute; overflow: hidden; color: var(--ink); font: 400 15pt/1.32 "ZT Annabelle", "Bad Script", cursive; display: flex; flex-direction: column; }
 .hb-txt p { white-space: pre-line; }
-.hb-lt { left: 14mm; right: 14mm; top: 13mm; height: 54mm; justify-content: safe end; }
+.hb-lt { left: 14mm; right: 34mm; top: 13mm; height: 49mm; justify-content: safe end; }
 .hb-pl { position: absolute; left: 14mm; right: 14mm; top: 70mm; height: 152mm; margin: 0; }
-.hb-lb { left: 14mm; right: 14mm; top: 226mm; bottom: 12mm; }
+.hb-lb { left: 14mm; right: 62mm; top: 226mm; bottom: 12mm; }
 .hb-mast { position: absolute; left: 12mm; right: 12mm; top: 11mm; text-align: center; color: var(--ink);
   font: 400 66pt/1 "Santa Catarina", "Poiret One", "Didot", serif; letter-spacing: .02em; word-spacing: .35em; }
 .hb-dateline { position: absolute; left: 12mm; right: 12mm; top: 40mm; display: flex; justify-content: space-between; padding: 1.2mm 0; font: 600 8pt "Open Sans", sans-serif;
   border-top: .3mm solid var(--ink); border-bottom: .3mm solid var(--ink); }
 .hb-pr { position: absolute; left: 12mm; top: 51mm; width: 128mm; height: 164mm; margin: 0; }
 .hb-col { left: 144mm; right: 12mm; top: 51mm; height: 164mm; text-align: left; hyphens: manual; overflow-wrap: break-word; }
-.hb-rb { left: 12mm; right: 30mm; top: 219mm; bottom: 12mm; }
+.hb-rb { left: 12mm; right: 30mm; top: 221mm; bottom: 12mm; }
 .hb-stamp { position: absolute; right: 12mm; bottom: 12mm; width: 14mm; transform: rotate(4deg); filter: grayscale(1); }
 .hb-stamp .stamp { position: static; width: 14mm; }
 .hb-ph .ph { width: 100%; height: 100%; }
+
+/* Нөхөртөө — чимэглэл */
+.t-husband .page { background-color: #fdfcf9; background-image: var(--grain, none); }
+.t-husband .ink { position: absolute; stroke: #1b1b1b; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.hb-deco { position: absolute; inset: 0; pointer-events: none; }
+.hb-deco > * { pointer-events: auto; }
+.hb-left .h1 { left: 168mm; top: 16mm; width: 13mm; transform: rotate(12deg); }
+.hb-left .h2 { left: 183mm; top: 26mm; width: 7mm; transform: rotate(-10deg); }
+.hb-left .s1 { left: 160mm; top: 30mm; width: 6mm; }
+.hb-left .lf1 { left: 186mm; top: 196mm; width: 14mm; transform: rotate(18deg); z-index: 3; }
+.hb-tag { position: absolute; left: 136mm; top: 223mm; font: 400 20pt "ZT Annabelle", "Bad Script", cursive; transform: rotate(-6deg); color: #1b1b1b; }
+.hb-left .a1 { left: 168mm; top: 205mm; width: 18mm; transform: rotate(-120deg) scaleX(-1); }
+.hb-tape { position: absolute; width: 26mm; height: 8mm; background: rgba(205,200,190,.75); box-shadow: 0 .3mm .8mm rgba(0,0,0,.12); z-index: 2; }
+.hb-tape.a { left: -6mm; top: -2.5mm; transform: rotate(-35deg); }
+.hb-tape.b { right: -6mm; top: -2.5mm; transform: rotate(35deg); }
+.hb-corner { position: absolute; width: 7mm; height: 7mm; border: 0 solid #1b1b1b; z-index: 2; }
+.hb-corner.tl { left: -2mm; top: -2mm; border-left-width: .6mm; border-top-width: .6mm; }
+.hb-corner.tr { right: -2mm; top: -2mm; border-right-width: .6mm; border-top-width: .6mm; }
+.hb-corner.bl { left: -2mm; bottom: -2mm; border-left-width: .6mm; border-bottom-width: .6mm; }
+.hb-corner.br { right: -2mm; bottom: -2mm; border-right-width: .6mm; border-bottom-width: .6mm; }
+.hb-right .s2 { left: 15mm; top: 14mm; width: 7mm; }
+.hb-right .s3 { right: 15mm; top: 25mm; width: 5mm; }
+.hb-ribbon { position: absolute; left: 20mm; top: 200mm; padding: 1.5mm 6mm; background: #1b1b1b; color: #fff; z-index: 3; transform: rotate(-4deg);
+  font: 400 17pt "ZT Annabelle", "Bad Script", cursive; white-space: nowrap; box-shadow: 0 .6mm 1.5mm rgba(0,0,0,.25); }
+.hb-right .h3 { left: 176mm; top: 196mm; width: 12mm; transform: rotate(-12deg); }
+.hb-right .h4 { left: 188mm; top: 205mm; width: 6mm; transform: rotate(14deg); }
+.hb-right .sq1 { left: 144mm; top: 213mm; width: 30mm; }
 
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }

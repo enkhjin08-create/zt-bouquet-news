@@ -485,13 +485,22 @@ const HB = {
   col: "Хайртай минь, чамтай анх учирсан тэр өдрөөс хойш амьдрал минь өөр өнгөөр гэрэлтсэн. Хамтдаа инээж, хамтдаа даван туулж, хамтдаа мөрөөдсөн бүхэнд баярлалаа. Чи бол миний түшиг тулгуур, миний хамгийн сайн найз. Энэ шинэ насандаа эрүүл энх, аз жаргалтай байгаарай ❤",
   rb: "Энэ жил ч гэсэн хамтдаа олон сайхан дурсамж бүтээе. Чамдаа үргэлж хайртай шүү — чиний эхнэр.",
 };
+// Гараар зурсан мэт хар бэхэн чимэглэл
+const inkHeart = (cls, fill = false) => `<svg class="ink ${cls}" viewBox="0 0 60 54" aria-hidden="true"><path d="M30 50C14 38 3 28 4 16 5 7 13 2 20 4c5 1 8 5 10 10 2-6 6-10 12-11 8-1 15 5 14 14-1 12-14 22-26 33z" ${fill ? 'fill="#1b1b1b"' : 'fill="none"'}/><path d="M9 15c1-4 4-6 7-6" fill="none"/></svg>`;
+const inkStar = (cls) => `<svg class="ink ${cls}" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3c1 9 3 14 17 17-14 2-16 7-17 17-2-10-4-15-17-17 13-3 16-8 17-17z" fill="none"/></svg>`;
+const inkArrow = (cls) => `<svg class="ink ${cls}" viewBox="0 0 120 70" aria-hidden="true"><path d="M6 10c20 2 38 10 52 24 12 12 26 22 52 24" fill="none"/><path d="M96 46l14 12-17 6" fill="none"/></svg>`;
+const inkSquiggle = (cls) => `<svg class="ink ${cls}" viewBox="0 0 200 20" aria-hidden="true"><path d="M3 12c12-10 22 10 34 0s22 10 34 0 22 10 34 0 22 10 34 0 22 10 34 0" fill="none"/></svg>`;
+const inkLeaf = (cls) => `<svg class="ink ${cls}" viewBox="0 0 80 120" aria-hidden="true"><path d="M40 118C38 80 40 40 46 4" fill="none"/><path d="M42 88c-14-2-26-12-28-26 14 0 26 10 28 26zM43 64c12-4 22-16 22-30-14 4-22 16-22 30zM44 42c-10-4-18-14-18-26 12 2 18 12 18 26z" fill="none"/></svg>`;
 function husband(o) {
   const ph = o.photos || [];
   return `
   <section class="page hb-left">
     <div class="hb-top"><span>002</span></div>
     <div class="hb-txt hb-lt fit" data-base="15" data-tb="note"><p>${or(o.note, HB.lt)}</p></div>
-    <figure class="hb-ph hb-pl" data-fr="pl">${photo(ph[1], "", 1, { gray: true })}</figure>
+    <figure class="hb-ph hb-pl" data-fr="pl">${photo(ph[1], "", 1, { gray: true })}<i class="hb-tape a"></i><i class="hb-tape b"></i></figure>
+    <div class="hb-deco" data-fr="dl1">${inkHeart("h1")}${inkHeart("h2", true)}${inkStar("s1")}</div>
+    <div class="hb-deco" data-fr="dl2"><span class="hb-tag">my love ♡</span>${inkArrow("a1")}</div>
+    ${inkLeaf("lf1")}
     <div class="hb-txt hb-lb fit" data-base="14" data-tb="t1"><p>${or(o.t1, HB.lb)}</p></div>
     <div class="hb-bottom"></div>
   </section>
@@ -499,7 +508,11 @@ function husband(o) {
     <div class="hb-top r"><span>№ ${esc(o.id || "0247")}</span></div>
     <h1 class="hb-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
     <div class="hb-dateline"><span>Улаанбаатар, Монгол</span><span>${dateMn(o.date)}</span></div>
-    <figure class="hb-ph hb-pr" data-fr="pr">${photo(ph[0], "", 0, { gray: true })}</figure>
+    ${inkStar("s2")}${inkStar("s3")}
+    <figure class="hb-ph hb-pr" data-fr="pr">${photo(ph[0], "", 0, { gray: true })}<i class="hb-corner tl"></i><i class="hb-corner tr"></i><i class="hb-corner bl"></i><i class="hb-corner br"></i></figure>
+    <div class="hb-ribbon" data-tb="l1">${esc(o.l1 || "Happy Birthday, хайрт минь!")}</div>
+    <div class="hb-deco" data-fr="dr1">${inkHeart("h3")}${inkHeart("h4", true)}</div>
+    ${inkSquiggle("sq1")}
     <div class="hb-txt hb-col fit" data-base="15" data-tb="msg"><p>${or(o.message, HB.col)}</p></div>
     <div class="hb-txt hb-rb fit" data-base="14" data-tb="t2"><p>${or(o.t2, HB.rb)}</p></div>
     <div class="hb-stamp">${stamp("♥")}</div>

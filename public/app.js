@@ -338,6 +338,7 @@ export function createEditor({ root, mode, onChange }) {
         ${has("hbtexts") ? `
         <div class="field"><label for="f-note">Зүүн нүүрний дээд үг</label>
           <textarea id="f-note" data-k="note" rows="4" maxlength="1500" placeholder="Хайрт минь, төрсөн өдрийн мэнд хүргэе!">${esc(order.note)}</textarea></div>
+        <div class="field"><label for="f-l1">Зургийн тууз дээрх үг</label><input id="f-l1" data-k="l1" maxlength="30" placeholder="Happy Birthday, хайрт минь!" value="${esc(order.l1 || "")}"></div>
         <div class="field"><label for="f-t1">Зүүн нүүрний доод үг (зургийн доор)</label>
           <textarea id="f-t1" data-k="t1" rows="3" maxlength="1500" placeholder="Хүүхдүүдийн хэлэх үг, дурсамж г.м">${esc(order.t1 || "")}</textarea></div>` : ""}
         ${has("message") ? `
@@ -562,7 +563,7 @@ export function createEditor({ root, mode, onChange }) {
   // ── Текстийн хэмжээ, байрлал ──
   const TB_NAMES = { l1: "Шошго 1", l2: "Шошго 2", l3: "Шошго 3", s1: "Наалт 1", s2: "Наалт 2", mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3", t1: "Зүүн доод үг", t2: "Баруун доод үг" };
   let selText = null, tdrag = null, selFrame = null, frameMode = "img";
-  const FR_NAMES = { pa: "Зүүн polaroid", pb: "Баруун polaroid", neg: "Хальс", poster: "Постер зураг", sp1: "Баруун зураг 1", sp2: "Баруун зураг 2", rl: "Зүүн хальс", rr: "Баруун хальс", stamp: "Маркан хүрээ", f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг" };
+  const FR_NAMES = { pa: "Зүүн polaroid", pb: "Баруун polaroid", neg: "Хальс", poster: "Постер зураг", sp1: "Баруун зураг 1", sp2: "Баруун зураг 2", rl: "Зүүн хальс", rr: "Баруун хальс", stamp: "Маркан хүрээ", f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг", pl: "Зүүн том зураг", pr: "Баруун гол зураг", dl1: "Зүрхнүүд", dl2: "my love тэмдэг", dr1: "Зүрхнүүд" };
   const txOf = (key) => {
     order.tx = order.tx || {};
     const t = (order.tx[order.template] = order.tx[order.template] || {});
