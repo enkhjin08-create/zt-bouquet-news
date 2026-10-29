@@ -773,9 +773,15 @@ export function createEditor({ root, mode, onChange, footer }) {
     render(false);
   }
 
-  function printSheet() {
+  function printSheet({ light = 0 } = {}) {
     let host = document.getElementById("print-host");
     if (!host) { host = document.createElement("div"); host.id = "print-host"; document.body.appendChild(host); }
+    if (light > 0) host.dataset.light = String(light); else delete host.dataset.light;
+    if (!document.getElementById("zt-pl")) {
+      // Гамма муруй: дунд өнгийг цайруулна, цагаан нь цагаан, хар нь бараг хар хэвээр үлдэнэ
+      const f = (id, g, o) => `<filter id="${id}" color-interpolation-filters="sRGB"><feComponentTransfer>${["R", "G", "B"].map((c) => `<feFunc${c} type="gamma" amplitude="${1 - o}" exponent="${g}" offset="${o}"/>`).join("")}</feComponentTransfer></filter>`;
+      document.body.insertAdjacentHTML("beforeend", `<svg id="zt-pl" width="0" height="0" style="position:absolute" aria-hidden="true">${f("zt-pl1", 0.85, 0.02)}${f("zt-pl2", 0.72, 0.04)}${f("zt-pl3", 0.6, 0.06)}</svg>`);
+    }
     const clone = sheet.cloneNode(true);
     clone.removeAttribute("id");
     clone.style.transform = "none";

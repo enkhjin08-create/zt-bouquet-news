@@ -543,6 +543,10 @@
   body > :not(#print-host) { display: none !important; }
   #print-host { display: block !important; position: static !important; left: auto !important; visibility: visible !important; }
   #print-host .ghost, #print-host .ph-empty { visibility: hidden !important; }
+  /* Принтер хэт бараан хэвлэдэг бол зургуудыг цайруулна (текст тод хэвээр) */
+  #print-host[data-light="1"] .ph, #print-host[data-light="1"] img:not(.ph img) { filter: url(#zt-pl1); }
+  #print-host[data-light="2"] .ph, #print-host[data-light="2"] img:not(.ph img) { filter: url(#zt-pl2); }
+  #print-host[data-light="3"] .ph, #print-host[data-light="3"] img:not(.ph img) { filter: url(#zt-pl3); }
   #print-host .ph.sel, #print-host .tsel { outline: none; }
   #print-host .pol:has(.ph-empty), #print-host .scallop:has(.ph-empty), #print-host .l-print:has(.ph-empty), #print-host .booth-cell:has(.ph-empty), #print-host .film:has(.ph-empty), #print-host .reel-cell:has(.ph-empty), #print-host .sp-pol:has(.ph-empty), #print-host .sp-poster:has(.ph-empty), #print-host .neg-cell:has(.ph-empty), #print-host .pt-pol:has(.ph-empty), #print-host .p-wish li:has(.ghost) { display: none; }
 }

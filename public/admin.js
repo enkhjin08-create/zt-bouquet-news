@@ -172,8 +172,11 @@ $("#status").addEventListener("change", () => { if (current) save(); });
 $("#print").addEventListener("click", async () => {
   if (current && current.status === "new") await save("printed");
   else if (dirty) await save();
-  ed.printSheet();
+  ed.printSheet({ light: +$("#print-light").value || 0 });
 });
+// Хэвлэх цайралтыг энэ компьютер дээр санана
+try { const v = localStorage.getItem("zt-print-light"); if (v) $("#print-light").value = v; } catch {}
+$("#print-light").addEventListener("change", (e) => { try { localStorage.setItem("zt-print-light", e.target.value); } catch {} });
 $("#del").addEventListener("click", async (e) => {
   if (!current) return;
   if (!guard(`№ ${current.id} захиалгыг устгах уу? Дахин дарна уу.`, e.currentTarget)) return;
