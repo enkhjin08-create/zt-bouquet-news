@@ -62,7 +62,7 @@ const clean = (body) => {
   }
   const str = (v, n = 4000) => (typeof v === "string" ? v.slice(0, n) : "");
   return {
-    template: ["letter", "news", "polaroid", "booth", "scrap", "film", "sport", "missed", "party", "tulip", "spring"].includes(body.template) ? body.template : "news",
+    template: ["letter", "news", "polaroid", "booth", "scrap", "film", "sport", "missed", "party", "tulip", "spring", "husband"].includes(body.template) ? body.template : "news",
     name: str(body.name, 80),
     date: str(body.date, 20),
     masthead: str(body.masthead, 60),
@@ -73,7 +73,9 @@ const clean = (body) => {
     sign: str(body.sign, 20),
     to: str(body.to, 60),
     from: str(body.from, 60),
-    note: str(body.note, 600),
+    note: str(body.note, 1500),
+    t1: str(body.t1, 1500),
+    t2: str(body.t2, 1500),
     s1: str(body.s1, 20),
     s2: str(body.s2, 20),
     l1: str(body.l1, 30),

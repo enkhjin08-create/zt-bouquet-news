@@ -478,12 +478,42 @@ function spring(o) {
   </section>`;
 }
 
+// ───────────── 12. Нөхөртөө (хар цагаан, гар бичмэл) ─────────────
+const HB = {
+  lt: "Хайрт минь, төрсөн өдрийн мэнд хүргэе! Чамтай хамт өнгөрүүлсэн өдөр бүр миний амьдралын хамгийн гэрэлтэй хуудас. Ямар ч үед намайг дэмжиж, инээлгэж байдагт чинь баярлалаа.\n(Чи бол миний хамгийн сайн найз шүү.)",
+  lb: "Хүүхдүүд маань аавдаа хэлэх үгтэй:\n— Аав минь, бидэнтэй тоглож, биднийг хамгаалдагт баярлалаа!\n— Аав аа, бид чамдаа маш их хайртай шүү!",
+  col: "Хайртай минь, чамтай анх учирсан тэр өдрөөс хойш амьдрал минь өөр өнгөөр гэрэлтсэн. Хамтдаа инээж, хамтдаа даван туулж, хамтдаа мөрөөдсөн бүхэнд баярлалаа. Чи бол миний түшиг тулгуур, миний хамгийн сайн найз. Энэ шинэ насандаа эрүүл энх, аз жаргалтай байгаарай ❤",
+  rb: "Энэ жил ч гэсэн хамтдаа олон сайхан дурсамж бүтээе. Чамдаа үргэлж хайртай шүү — чиний эхнэр.",
+};
+function husband(o) {
+  const ph = o.photos || [];
+  return `
+  <section class="page hb-left">
+    <div class="hb-top"><span>002</span></div>
+    <div class="hb-txt hb-lt fit" data-base="15" data-tb="note"><p>${or(o.note, HB.lt)}</p></div>
+    <figure class="hb-ph hb-pl" data-fr="pl">${photo(ph[1], "", 1, { gray: true })}</figure>
+    <div class="hb-txt hb-lb fit" data-base="14" data-tb="t1"><p>${or(o.t1, HB.lb)}</p></div>
+    <div class="hb-bottom"></div>
+  </section>
+  <section class="page hb-right">
+    <div class="hb-top r"><span>№ ${esc(o.id || "0247")}</span></div>
+    <h1 class="hb-mast fitw" data-tb="mast">${esc(o.masthead || "BIRTHDAY TIMES")}</h1>
+    <div class="hb-dateline"><span>Улаанбаатар, Монгол</span><span>${dateMn(o.date)}</span></div>
+    <figure class="hb-ph hb-pr" data-fr="pr">${photo(ph[0], "", 0, { gray: true })}</figure>
+    <div class="hb-txt hb-col fit" data-base="15" data-tb="msg"><p>${or(o.message, HB.col)}</p></div>
+    <div class="hb-txt hb-rb fit" data-base="14" data-tb="t2"><p>${or(o.t2, HB.rb)}</p></div>
+    <div class="hb-stamp">${stamp("♥")}</div>
+    <div class="hb-bottom"></div>
+  </section>`;
+}
+
 export const MASTHEADS = ["BIRTHDAY TIMES", "ХҮНДЭТ БАГШДАА", "MISSED YOU", "ВАЛЕНТИНЫ МЭДЭЭ", "ХАВРЫН МЭДЭЭ", "БАЯРЫН МЭДЭЭ", "ЭЭЖИЙН МЭДЭЭ", "НАЙЗЫН МЭДЭЭ"];
 
 export const CHEAP_TEMPLATES = ["tulip", "spring"];
 export const TEMPLATES = {
   tulip: { label: "Энгийн мэндчилгээ", cheap: true, mast: "ХҮНДЭТ БАГШДАА", render: tulip, photos: [], fields: ["masthead", "message"] },
   spring: { label: "Хаврын мэдээ", cheap: true, mast: "ХАВРЫН МЭДЭЭ", render: spring, photos: [], fields: ["masthead", "message"] },
+  husband: { label: "Нөхөртөө", render: husband, photos: ["Баруун нүүрний гол зураг", "Зүүн нүүрний том зураг"], fields: ["masthead", "message", "hbtexts"] },
   letter: { label: "Захидал сонин", render: letter, photos: ["Том зураг (зүүн нүүр)", "Фото бүхээг 1", "Фото бүхээг 2", "Фото бүхээг 3"], fields: ["name", "masthead", "headline", "message", "captions"] },
   news: { label: "Хар цагаан сонин", render: news, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "occasion", "edition", "masthead", "qa", "message", "captions"] },
   polaroid: { label: "Ягаан polaroid", render: polaroid, photos: ["Гол зураг (баруун нүүр)", "Зураг 2", "Зураг 3", "Зураг 4"], fields: ["name", "masthead", "message", "wishes", "captions"] },

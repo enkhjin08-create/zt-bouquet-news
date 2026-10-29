@@ -43,6 +43,8 @@ a { color: var(--accent); }
 .pick-name { font-weight: 600; font-size: 13.5px; line-height: 1.25; }
 .swatch { display: grid; grid-template-columns: 1fr 1fr; aspect-ratio: 1.414; border-radius: 4px; overflow: hidden; max-width: 100%; }
 .swatch i { display: block; }
+.pick-husband .swatch i { background: #fff radial-gradient(ellipse at 35% 55%, #555 0 26%, transparent 27%); }
+.pick-husband .swatch i:first-child { background: #fff linear-gradient(#444,#444) 50% 60% / 80% 55% no-repeat; }
 .pick-news .swatch i { background: #e7e3dc repeating-linear-gradient(#e7e3dc 0 5px, #b9b3a8 5px 6px); }
 .pick-news .swatch i:first-child { background: #e7e3dc radial-gradient(circle at 40% 35%, #8d877d 0 22%, transparent 23%); }
 .pick-polaroid .swatch i { background: #f3c6dc radial-gradient(circle at 50% 55%, #fff 0 28%, transparent 29%); }

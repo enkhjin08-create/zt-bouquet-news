@@ -335,10 +335,18 @@ export function createEditor({ root, mode, onChange }) {
             ${SIGNS.map((s) => `<option value="${s.key}" ${order.sign === s.key ? "selected" : ""}>${s.mn} · ${s.en}</option>`).join("")}</select></div>
           <div class="field"><label for="f-headline">Гарчиг (заавал биш)</label><input id="f-headline" data-k="headline" maxlength="120" placeholder="Born under the sign of …" value="${esc(order.headline)}"></div>
         </div>` : ""}
+        ${has("hbtexts") ? `
+        <div class="field"><label for="f-note">Зүүн нүүрний дээд үг</label>
+          <textarea id="f-note" data-k="note" rows="4" maxlength="1500" placeholder="Хайрт минь, төрсөн өдрийн мэнд хүргэе!">${esc(order.note)}</textarea></div>
+        <div class="field"><label for="f-t1">Зүүн нүүрний доод үг (зургийн доор)</label>
+          <textarea id="f-t1" data-k="t1" rows="3" maxlength="1500" placeholder="Хүүхдүүдийн хэлэх үг, дурсамж г.м">${esc(order.t1 || "")}</textarea></div>` : ""}
         ${has("message") ? `
-        <div class="field"><label for="f-message">Мэндчилгээ</label>
+        <div class="field"><label for="f-message">${has("hbtexts") ? "Баруун нүүрний багана (гол мэндчилгээ)" : "Мэндчилгээ"}</label>
           <textarea id="f-message" data-k="message" rows="5" maxlength="900" placeholder="Түүнд хандаж хэлэх үгээ бичээрэй">${esc(order.message)}</textarea>
           <p class="count" id="cnt-message"></p></div>` : ""}
+        ${has("hbtexts") ? `
+        <div class="field"><label for="f-t2">Баруун нүүрний доод үг (зургийн доор)</label>
+          <textarea id="f-t2" data-k="t2" rows="3" maxlength="1500" placeholder="Чамдаа үргэлж хайртай шүү">${esc(order.t2 || "")}</textarea></div>` : ""}
         ${has("wishes") ? `
         <div class="field"><label>Түүнийг тодорхойлох богино үгс</label>
           <div class="wishes">${order.wishes.map((w, i) => `<input id="w-${i}" data-wish="${i}" maxlength="28" placeholder="${["Миний хайртай", "Эгэл даруу", "Үргэлж инээмсэглэдэг", "Гэр бүлийн гол", "Хамгийн сайн найз"][i] || ""}" value="${esc(w)}">`).join("")}</div></div>` : ""}
@@ -552,7 +560,7 @@ export function createEditor({ root, mode, onChange }) {
   });
 
   // ── Текстийн хэмжээ, байрлал ──
-  const TB_NAMES = { l1: "Шошго 1", l2: "Шошго 2", l3: "Шошго 3", s1: "Наалт 1", s2: "Наалт 2", mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3" };
+  const TB_NAMES = { l1: "Шошго 1", l2: "Шошго 2", l3: "Шошго 3", s1: "Наалт 1", s2: "Наалт 2", mast: "Сонины нэр", body: "Захидал", note: "Зүүн нүүрний үг", tofrom: "To / From", msg: "Мэндчилгээ", head: "Гарчиг", cap: "Тайлбар", qa: "Асуулт · хариулт", its: "Нэр", bday: "BIRTHDAY!", wish: "Богино үгс", c1: "Тайлбар 1", c2: "Тайлбар 2", c3: "Тайлбар 3", t1: "Зүүн доод үг", t2: "Баруун доод үг" };
   let selText = null, tdrag = null, selFrame = null, frameMode = "img";
   const FR_NAMES = { pa: "Зүүн polaroid", pb: "Баруун polaroid", neg: "Хальс", poster: "Постер зураг", sp1: "Баруун зураг 1", sp2: "Баруун зураг 2", rl: "Зүүн хальс", rr: "Баруун хальс", stamp: "Маркан хүрээ", f1: "Зураг 2-ын хүрээ", f2: "Зураг 3-ын хүрээ", f3: "Зураг 4-ийн хүрээ", main: "Гол зургийн хүрээ", p1: "Polaroid 2", p2: "Polaroid 3", p3: "Polaroid 4", pmain: "Гол polaroid", fa: "Хальсан зураг 1", fb: "Хальсан зураг 2", strip: "Фото бүхээгийн тууз", print: "Том зураг" };
   const txOf = (key) => {

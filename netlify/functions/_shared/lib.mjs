@@ -128,7 +128,7 @@ export function priceOf(order, cat) {
   return { lines, total: lines.reduce((a, l) => a + l.amount, 0) };
 }
 
-const TPL_LABEL = { spring: "Хаврын мэдээ", tulip: "Энгийн мэндчилгээ", party: "Улаан үдэшлэг", missed: "Хальсан захидал", sport: "Спорт", film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
+const TPL_LABEL = { husband: "Нөхөртөө", spring: "Хаврын мэдээ", tulip: "Энгийн мэндчилгээ", party: "Улаан үдэшлэг", missed: "Хальсан захидал", sport: "Спорт", film: "Кино хальс", scrap: "Скрапбүүк", letter: "Захидал сонин", news: "Хар цагаан сонин", polaroid: "Ягаан polaroid", booth: "Фото бүхээг" };
 const h = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 // Шинэ захиалгын мэдэгдэл (Resend). RESEND_API_KEY байхгүй бол алгасна.
