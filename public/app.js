@@ -781,8 +781,8 @@ export function createEditor({ root, mode, onChange, footer }) {
     clone.style.transform = "none";
     clone.style.setProperty("--grain", grain);
     host.replaceChildren(clone);
-    fitAll(clone);
-    setTimeout(() => window.print(), 50);
+    const go = () => { fitAll(clone); setTimeout(() => window.print(), 50); };
+    document.fonts?.ready ? document.fonts.ready.then(go) : go();
   }
 
   load(order);
