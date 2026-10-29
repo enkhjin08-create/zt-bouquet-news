@@ -142,12 +142,19 @@ function makeGrain() {
   return `url(${c.toDataURL("image/png")})`;
 }
 
-export function createEditor({ root, mode, onChange }) {
+export function createEditor({ root, mode, onChange, footer }) {
   let order = blankOrder();
+  const wiz = mode === "customer";
+  let page = 1;
   let selected = -1;
   const grain = makeGrain();
 
   root.innerHTML = `
+    ${wiz ? `<nav class="wiz" id="wiz" aria-label="Захиалгын алхам">
+      <button type="button" data-go="1"><b>1</b><span>Сонин</span></button>
+      <button type="button" data-go="2"><b>2</b><span>Цэцэг</span></button>
+      <button type="button" data-go="3"><b>3</b><span>Хүргэлт · төлбөр</span></button>
+    </nav>` : ""}
     <section class="area-picker">
       <h2 class="step"><b>1</b>Загвараа сонгоно уу</h2>
       <div class="picker" role="radiogroup" id="picker">
@@ -226,7 +233,7 @@ export function createEditor({ root, mode, onChange }) {
     }, 200);
   };
   const peekUpdate = (pulse) => {
-    const show = narrow.matches && previewOut && root.isConnected;
+    const show = narrow.matches && previewOut && root.isConnected && (!wiz || page === 1);
     peek.hidden = !show;
     if (show) {
       peekSync();
@@ -260,6 +267,7 @@ export function createEditor({ root, mode, onChange }) {
     const t = TEMPLATES[order.template];
     const slots = t.photos;
     form.innerHTML = `
+      <div class="pg" data-pg="1">
       ${slots.length ? `<h2 class="step"><b>2</b>Зургаа оруулна уу</h2>` : ""}
       <div class="photos">
         ${slots.map((label, i) => {
@@ -370,13 +378,22 @@ export function createEditor({ root, mode, onChange }) {
         </details>` : ""}
       </div>
 
-      <h2 class="step"><b>${slots.length ? 4 : 3}</b>Цэцгээ сонгоно уу</h2>
-      <p class="help">Сонины үнэ дээр сонгосон цэцэг, хүргэлтийн үнэ нэмэгдэнэ.</p>
-      <div class="flowers" id="flowers">${flowersHtml()}</div>
-      <div class="dl-box" id="dl-box"></div>
-      <div class="sum" id="sum">${sumHtml()}</div>
+      ${wiz ? `<div class="pg-nav"><span></span><button type="button" class="btn" data-go="2">Дараах: Цэцэг сонгох →</button></div>` : ""}
+      </div>
 
-      <h2 class="step"><b>${slots.length ? 5 : 4}</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
+      <div class="pg" data-pg="2">
+      <h2 class="step"><b>${slots.length ? 4 : 3}</b>Цэцгээ сонгоно уу</h2>
+      <p class="help">Сонины үнэ дээр сонгосон цэцгийн үнэ нэмэгдэнэ. Цэцэггүй бол «Зөвхөн сонин»-г сонгоорой.</p>
+      <div class="flowers" id="flowers">${flowersHtml()}</div>
+      ${wiz ? `<div class="pg-nav"><button type="button" class="btn secondary" data-go="1">← Буцах</button><button type="button" class="btn" data-go="3" id="go3">Дараах: Хүргэлт →</button></div>` : ""}
+      </div>
+
+      <div class="pg" data-pg="3">
+      <h2 class="step"><b>${slots.length ? 5 : 4}</b>Хүргэлт</h2>
+      <div class="dl" id="dlopts">${dlOptsHtml()}</div>
+      <div class="dl-box" id="dl-box"></div>
+
+      <h2 class="step"><b>${slots.length ? 6 : 5}</b>${mode === "admin" ? "Захиалагч" : "Холбоо барих"}</h2>
       <div class="fields">
         <div class="row2">
           <div class="field"><label for="c-name">Таны нэр</label><input id="c-name" data-c="name" maxlength="60" value="${esc(order.contact.name)}"></div>
@@ -384,14 +401,19 @@ export function createEditor({ root, mode, onChange }) {
         </div>
         <div class="field"><label for="c-pickup">${order.delivery.type === "delivery" ? "Хүргүүлэх өдөр" : "Авах өдөр"}</label><input id="c-pickup" type="date" data-c="pickup" value="${esc(order.contact.pickup)}"></div>
         <div class="field"><label for="c-note">Нэмэлт хүсэлт (цэцгийн өнгө, хүргэлт г.м)</label><textarea id="c-note" data-c="note" rows="3" maxlength="800">${esc(order.contact.note)}</textarea></div>
+      </div>
+      <div class="sum" id="sum">${sumHtml()}</div>
+      ${wiz ? `<div class="pg-foot" id="pg-foot"></div><div class="pg-nav"><button type="button" class="btn secondary" data-go="2">← Цэцэг рүү буцах</button><span></span></div>` : ""}
       </div>`;
+    if (wiz && footer) $("#pg-foot", form)?.appendChild(footer);
     updateCount();
+    updateGo3();
     dlMap?.map.remove(); dlMap = null; dlType = null; refreshDelivery();
   }
 
   function flowersHtml() {
     if (!cat) return `<p class="help">Цэцгийн жагсаалт ачаалж байна…</p>`;
-    const f = order.flowers, d = order.delivery;
+    const f = order.flowers;
     const pk = cat.packages.filter((p) => p.active);
     const fl = cat.flowers.filter((p) => p.active);
     const qty = (id) => f.items.find((x) => x.id === id)?.qty || 0;
@@ -413,15 +435,18 @@ export function createEditor({ root, mode, onChange }) {
           ${p.img ? `<img class="fl-img" src="/api/cimg/${esc(p.img)}" alt="" loading="lazy">` : ""}<span class="fl-name">${esc(p.name)}</span><span class="fl-price">+${money(p.price)} / ш</span>
           <span class="qty"><button type="button" data-fq="${esc(p.id)}" data-d="-1" aria-label="Хасах">−</button><b>${qty(p.id)}</b><button type="button" data-fq="${esc(p.id)}" data-d="1" aria-label="Нэмэх">+</button></span>
         </div>`).join("") || `<p class="help">Одоогоор цэцэг бүртгэгдээгүй байна.</p>`}
-      </div>`}
-      <div class="dl">
+      </div>`}`;
+  }
+  function dlOptsHtml() {
+    if (!cat) return "";
+    const d = order.delivery;
+    return `
         ${(() => { const v = d.type !== "delivery" ? "pickup" : d.payer === "recipient" ? "cod" : "delivery";
           const fee = cat.shopLat ? (d.km > 0 ? money(deliveryFeeOf(cat, d.km)) : "") : money(cat.deliveryFee);
           const opt = (val, title, sub, price) => `<label class="dl-opt ${v === val ? "on" : ""}"><input type="radio" name="dl" value="${val}" ${v === val ? "checked" : ""}><span>${title}${sub ? `<small>${sub}</small>` : ""}</span><b>${price}</b></label>`;
           return opt("pickup", `Очиж авна${cat.pickupNote ? ` · ${esc(cat.pickupNote)}` : ""}`, "", "Нэмэлт төлбөргүй")
             + opt("delivery", "Хүргүүлнэ · UBCab-ын мөнгийг одоо төлнө", "UBCab-ын хүргэлтийн төлбөр захиалгын дүнд нэмэгдэнэ", fee ? "+" + fee : "Зайнаас хамаарна")
-            + opt("cod", "Хүргүүлнэ · UBCab-д хүргэлтийн үед өөрөө төлнө", "Хүлээн авахдаа жолоочид бэлнээр / дансаар төлнө", fee ? "≈" + fee : "Жолоочид төлнө"); })()}
-      </div>`;
+            + opt("cod", "Хүргүүлнэ · UBCab-д хүргэлтийн үед өөрөө төлнө", "Хүлээн авахдаа жолоочид бэлнээр / дансаар төлнө", fee ? "≈" + fee : "Жолоочид төлнө"); })()}`;
   }
   function dlBoxHtml() {
     const d = order.delivery;
@@ -460,7 +485,7 @@ export function createEditor({ root, mode, onChange }) {
       d.km = j.km;
       if (q) q.innerHTML = quoteText();
     } catch (err) { if (q) q.textContent = err.message; }
-    const fl = $("#flowers", form); if (fl) fl.innerHTML = flowersHtml();
+    const dlo = $("#dlopts", form); if (dlo) dlo.innerHTML = dlOptsHtml();
     const s = $("#sum", form); if (s) s.innerHTML = sumHtml();
     onChange?.(order);
   }
@@ -469,9 +494,40 @@ export function createEditor({ root, mode, onChange }) {
     const p = priceOf(order, cat);
     return `${p.lines.map((l) => `<div class="sum-row"><span>${esc(l.label)}</span><span>${l.pending ? "—" : money(l.amount)}</span></div>`).join("")}<div class="sum-row total"><span>Нийт</span><span>${money(p.total)}</span></div>${order.delivery.type === "delivery" && order.delivery.payer === "recipient" ? `<div class="sum-row cod"><span>+ UBCab-д хүргэлтийн үед өөрөө төлнө</span><span>${cat.shopLat ? (order.delivery.km > 0 ? "≈" + money(deliveryFeeOf(cat, order.delivery.km)) : "—") : "≈" + money(cat.deliveryFee)}</span></div>` : ""}`;
   }
-  const refreshFlowers = (user = true) => { const el = $("#flowers", form); if (el) el.innerHTML = flowersHtml(); refreshDelivery(); if (user) onChange?.(order); };
+  const refreshFlowers = (user = true) => { const el = $("#flowers", form); if (el) el.innerHTML = flowersHtml(); const dlo = $("#dlopts", form); if (dlo) dlo.innerHTML = dlOptsHtml(); refreshDelivery(); updateGo3(); if (user) onChange?.(order); };
   let cat = null;
   loadCatalog().then((c) => { cat = c; refreshFlowers(false); });
+
+  // ── Алхам алхмаар захиалах (1 сонин → 2 цэцэг → 3 хүргэлт, төлбөр) ──
+  function updateGo3() {
+    const b = $("#go3", form); if (!b || !cat) return;
+    b.textContent = `Үргэлжлүүлэх · ${money(priceOf({ ...order, delivery: { type: "pickup" } }, cat).total)} →`;
+  }
+  function setPage(n) {
+    page = n;
+    root.dataset.page = n;
+    $("#wiz", root)?.querySelectorAll("[data-go]").forEach((b) => {
+      const k = +b.dataset.go;
+      b.classList.toggle("on", k === n); b.classList.toggle("past", k < n);
+      if (k === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    });
+    if (n !== 1) { previewOut = false; peek.hidden = true; }
+    updateGo3();
+  }
+  function go(n) {
+    if (n > 1 && page === 1) {
+      const t = TEMPLATES[order.template];
+      if (t.photos.length && !order.photos.some((p) => p.src)) { toast("Дор хаяж нэг зураг оруулна уу.", "err"); $(".photos", form)?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    }
+    setPage(n);
+    ($("#wiz", root) || root).scrollIntoView({ behavior: "smooth", block: "start" });
+    if (n === 3 && dlMap) setTimeout(() => dlMap.map.invalidateSize(), 60);
+  }
+  if (wiz) {
+    root.classList.add("wizard");
+    root.addEventListener("click", (e) => { const b = e.target.closest("[data-go]"); if (b) { e.preventDefault(); go(+b.dataset.go); } });
+    setPage(1);
+  }
 
   const updateCount = () => {
     const el = $("#cnt-message", form);

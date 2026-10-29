@@ -45,7 +45,7 @@
 <script type="module">
 import { createEditor, toast, money, loadCatalog } from "./app.js";
 import { TEMPLATES } from "./render.js";
-const ed = createEditor({ root: document.getElementById("editor"), mode: "customer", onChange: updateBtn });
+const ed = createEditor({ root: document.getElementById("editor"), mode: "customer", onChange: updateBtn, footer: document.querySelector(".submit-bar") });
 const btn = document.getElementById("submit");
 const main = document.getElementById("main");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
