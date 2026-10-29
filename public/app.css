@@ -275,3 +275,6 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   .pg[data-pg="3"] .pg-nav { position: static; background: none; padding: 0; }
 }
 @media (max-width: 420px) { .wiz button { padding: 9px 8px; font-size: 13px; gap: 6px; } }
+
+#sms.nudge { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); animation: nudge 1s ease-in-out 3; }
+@keyframes nudge { 50% { transform: translateY(-2px); } }

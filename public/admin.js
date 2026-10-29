@@ -135,6 +135,7 @@ function setMeta() {
     : "Хадгалаагүй";
   $("#status").value = current?.status || "new";
   $("#del").hidden = !current;
+  $("#sms").hidden = !current;
 }
 
 async function save(statusOverride) {
@@ -173,7 +174,26 @@ $("#print").addEventListener("click", async () => {
   if (current && current.status === "new") await save("printed");
   else if (dirty) await save();
   ed.printSheet({ light: +$("#print-light").value || 0 });
+  setTimeout(() => { const b = $("#sms"); if (!b.hidden) { b.classList.add("nudge"); setTimeout(() => b.classList.remove("nudge"), 6000); } }, 800);
 });
+// Захиалагчид «бэлэн боллоо» мессеж — утасны SMS аппыг бэлэн текстээр нээнэ (үнэгүй)
+function readyText(o) {
+  const id = current?.id ? ` (№ ${current.id})` : "";
+  return o.delivery?.type === "delivery"
+    ? `Сайн байна уу! Таны «Зөвхөн түүнд» сонин баглаа${id} бэлэн боллоо. Удахгүй UBCab-аар хүргэлтэнд гаргана. Баярлалаа 💐`
+    : `Сайн байна уу! Таны «Зөвхөн түүнд» сонин баглаа${id} бэлэн боллоо. Орчлон комплекс, 3 давхар, 312 тоотоос ирж аваарай. Баярлалаа 💐`;
+}
+function sendReady() {
+  const o = ed.get();
+  const phone = String(o.contact?.phone || "").replace(/[^\d+]/g, "");
+  if (!phone) { toast("Захиалагчийн утасны дугаар алга.", "err"); return; }
+  const text = readyText(o);
+  navigator.clipboard?.writeText(text).catch(() => {});
+  const ios = /iPhone|iPad|Macintosh/i.test(navigator.userAgent);
+  location.href = `sms:${phone}${ios ? "&" : "?"}body=${encodeURIComponent(text)}`;
+  toast(`${phone} руу мессеж нээлээ · текст хуулагдсан`);
+}
+$("#sms").addEventListener("click", sendReady);
 // Хэвлэх цайралтыг энэ компьютер дээр санана
 try { const v = localStorage.getItem("zt-print-light"); if (v) $("#print-light").value = v; } catch {}
 $("#print-light").addEventListener("change", (e) => { try { localStorage.setItem("zt-print-light", e.target.value); } catch {} });
