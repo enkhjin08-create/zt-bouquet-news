@@ -185,7 +185,8 @@ function readyText(o) {
 }
 function sendReady() {
   const o = ed.get();
-  const phone = String(o.contact?.phone || "").replace(/[^\d+]/g, "");
+  let phone = String(o.contact?.phone || "").replace(/[^\d+]/g, "");
+  if (/^\d{8}$/.test(phone)) phone = "+976" + phone; // Mac Messages энгийн SMS-д улсын код шаарддаг
   if (!phone) { toast("Захиалагчийн утасны дугаар алга.", "err"); return; }
   const text = readyText(o);
   navigator.clipboard?.writeText(text).catch(() => {});
