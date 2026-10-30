@@ -145,7 +145,7 @@ function makeGrain() {
 export function createEditor({ root, mode, onChange, footer }) {
   let order = blankOrder();
   const wiz = mode === "customer";
-  if (mode === "admin") root.classList.add("mark-ghosts");
+  if (mode === "admin") root.classList.add("hide-ghosts");
   let page = 1;
   let selected = -1;
   const grain = makeGrain();

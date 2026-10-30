@@ -173,10 +173,7 @@ $("#status").addEventListener("change", () => { if (current) save(); });
 $("#print").addEventListener("click", async () => {
   if (current && current.status === "new") await save("printed");
   else if (dirty) await save();
-  const samples = $("#print-samples").checked;
-  const n = ed.ghosts();
-  if (n && !samples) toast(`Захиалагч бичээгүй ${n} жишээ үг хэвлэгдэхгүй (тасархай хүрээтэй). Хэвлүүлэх бол «Жишээ үгийг хэвлэх»-ийг чагтлаарай.`);
-  ed.printSheet({ light: +$("#print-light").value || 0, samples });
+  ed.printSheet({ light: +$("#print-light").value || 0 });
   setTimeout(() => { const b = $("#sms"); if (!b.hidden) { b.classList.add("nudge"); setTimeout(() => b.classList.remove("nudge"), 6000); } }, 800);
 });
 // Захиалагчид «бэлэн боллоо» мессеж — утасны SMS аппыг бэлэн текстээр нээнэ (үнэгүй)

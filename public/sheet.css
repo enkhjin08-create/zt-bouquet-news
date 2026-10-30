@@ -16,8 +16,9 @@
 :where(.sheet) :where(p, h1, h2, ul, figure) { margin: 0; padding: 0; }
 .page { position: relative; width: 210mm; height: 297mm; overflow: hidden; }
 .ghost { color: inherit; }
-/* Админд: захиалагч бичээгүй жишээ үгийг тэмдэглэнэ (хэвлэхэд гарахгүй) */
-.mark-ghosts .sheet .ghost { outline: 1.5px dashed rgba(200, 16, 46, .55); outline-offset: 1px; background: rgba(255, 220, 120, .18); }
+/* Админд: захиалагч бичээгүй жишээ үгийг харуулахгүй — хэвлэгдэх байдалтай ижил */
+.hide-ghosts .sheet .ghost { visibility: hidden; }
+.hide-ghosts .sheet .p-wish li:has(.ghost) { display: none; }
 .fitw { white-space: nowrap; overflow: hidden; }
 
 /* Зургийн хүрээ */
