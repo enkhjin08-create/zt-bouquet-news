@@ -278,3 +278,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 
 #sms.nudge { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); animation: nudge 1s ease-in-out 3; }
 @keyframes nudge { 50% { transform: translateY(-2px); } }
+
+.toolbar .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted); white-space: nowrap; cursor: pointer; }

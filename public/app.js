@@ -145,6 +145,7 @@ function makeGrain() {
 export function createEditor({ root, mode, onChange, footer }) {
   let order = blankOrder();
   const wiz = mode === "customer";
+  if (mode === "admin") root.classList.add("mark-ghosts");
   let page = 1;
   let selected = -1;
   const grain = makeGrain();
@@ -773,10 +774,11 @@ export function createEditor({ root, mode, onChange, footer }) {
     render(false);
   }
 
-  function printSheet({ light = 0 } = {}) {
+  function printSheet({ light = 0, samples = false } = {}) {
     let host = document.getElementById("print-host");
     if (!host) { host = document.createElement("div"); host.id = "print-host"; document.body.appendChild(host); }
     if (light > 0) host.dataset.light = String(light); else delete host.dataset.light;
+    if (samples) host.dataset.samples = "1"; else delete host.dataset.samples;
     if (!document.getElementById("zt-pl")) {
       // Гамма муруй: дунд өнгийг цайруулна, цагаан нь цагаан, хар нь бараг хар хэвээр үлдэнэ
       const f = (id, g, o) => `<filter id="${id}" color-interpolation-filters="sRGB"><feComponentTransfer>${["R", "G", "B"].map((c) => `<feFunc${c} type="gamma" amplitude="${1 - o}" exponent="${g}" offset="${o}"/>`).join("")}</feComponentTransfer></filter>`;
@@ -792,7 +794,7 @@ export function createEditor({ root, mode, onChange, footer }) {
   }
 
   load(order);
-  return { get: () => order, load, printSheet, toast: alertBox, price: () => priceOf(order, cat), needsPin: () => !!(cat?.shopLat && order.delivery.type === "delivery" && order.delivery.payer !== "recipient" && !(order.delivery.km > 0)), reloadCatalog: async () => { cat = await loadCatalog(true); refreshFlowers(false); } };
+  return { ghosts: () => sheet.querySelectorAll(".ghost").length, get: () => order, load, printSheet, toast: alertBox, price: () => priceOf(order, cat), needsPin: () => !!(cat?.shopLat && order.delivery.type === "delivery" && order.delivery.payer !== "recipient" && !(order.delivery.km > 0)), reloadCatalog: async () => { cat = await loadCatalog(true); refreshFlowers(false); } };
 }
 
 export function toast(msg, kind = "ok") {
