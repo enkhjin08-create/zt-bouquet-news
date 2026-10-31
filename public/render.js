@@ -558,6 +558,20 @@ export function renderSheet(el, order) {
     if (v.c) { n.style.setProperty("--tc", v.c); n.classList.add("tc"); }
   });
   fitAll(el);
+  markSpill(el);
+}
+
+// Зөөсөн зураг/текст нөгөө нүүр рүү гарвал хайчлагдахгүй, нөгөө нүүрний дээр харагдана
+export function markSpill(el) {
+  el.querySelectorAll(".page").forEach((pg) => {
+    const pr = pg.getBoundingClientRect();
+    const out = pr.width > 0 && [...pg.querySelectorAll("[data-fr], [data-tb]")].some((n) => {
+      if (!n.style.translate) return false;
+      const r = n.getBoundingClientRect();
+      return r.left < pr.left - 1 || r.right > pr.right + 1 || r.top < pr.top - 1 || r.bottom > pr.bottom + 1;
+    });
+    pg.classList.toggle("spill", out);
+  });
 }
 
 export function fitAll(root) {

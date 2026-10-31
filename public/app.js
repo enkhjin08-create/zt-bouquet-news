@@ -1,4 +1,4 @@
-import { TEMPLATES, SIGNS, MASTHEADS, CHEAP_TEMPLATES, OCCASIONS, renderSheet, fitAll } from "./render.js";
+import { TEMPLATES, SIGNS, MASTHEADS, CHEAP_TEMPLATES, OCCASIONS, renderSheet, fitAll, markSpill } from "./render.js";
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -694,6 +694,7 @@ export function createEditor({ root, mode, onChange, footer }) {
     const tb = e.target.closest("[data-tb]");
     if (!tb || e.target.closest(".ph")) return;
     selectText(tb.dataset.tb);
+    tb.closest(".page")?.classList.add("spill");
     const v = txOf(tb.dataset.tb);
     tdrag = { el: tb, sx: e.clientX, sy: e.clientY, dx: v.dx, dy: v.dy, k: +stage.dataset.k || 1, v, moved: false };
     tb.setPointerCapture(e.pointerId);
@@ -707,7 +708,7 @@ export function createEditor({ root, mode, onChange, footer }) {
     tdrag.v.dy = Math.round((tdrag.dy + ddy) * 10) / 10;
     tdrag.el.style.translate = `${tdrag.v.dx}mm ${tdrag.v.dy}mm`;
   });
-  const tend = () => { if (tdrag) { const m = tdrag.moved; tdrag = null; if (m) onChange?.(order); } };
+  const tend = () => { if (tdrag) { const m = tdrag.moved; tdrag = null; markSpill(sheet); if (m) onChange?.(order); } };
   sheet.addEventListener("pointerup", tend);
   sheet.addEventListener("pointercancel", tend);
 
@@ -722,6 +723,7 @@ export function createEditor({ root, mode, onChange, footer }) {
     selected = i;
     selectFrame(fr ? fr.dataset.fr : null);
     if (fr && frameMode === "frame") {
+      fr.closest(".page")?.classList.add("spill");
       const v = txOf("fr_" + fr.dataset.fr);
       tdrag = { el: fr, sx: e.clientX, sy: e.clientY, dx: v.dx, dy: v.dy, k: +stage.dataset.k || 1, v, moved: false };
       fr.setPointerCapture(e.pointerId);
