@@ -10,6 +10,11 @@ const PROMPT = `Та монгол хэлний редактор. Доорх те
 - Emoji, тоо, мөр шилжилтийг яг хэвээр нь үлдээнэ.
 - Англи хэл дээрх үг, хэллэг (жишээ нь Happy birthday, I love you) болон хүний нэрийг латинаар нь үлдээж болно.
 - Аль хэдийн кириллээр бичсэн хэсгийг өөрчлөхгүй.
+- Латин чатад түгээмэл товчлол, алдааг зөв үг болгон сэргээ: "shu"→"шүү", "shan"→"сайхан", "min"→"минь" (хүнд хандахдаа), "hurgey"→"хүргэе", "husey"→"хүсье", "chamdaa"→"чамдаа", "bolnoo"→"болно оо".
+- Ө/Ү, О/У-г эгшиг зохицох ёсоор зөв сонго: "nuhurluliin"→"нөхөрлөлийн", "hugjiltei"→"хөгжилтэй", "busgui"→"бүсгүй", "urgelj"→"үргэлж".
+Жишээ:
+Оролт: Hairt naiz chamdaa 15 jiliin nuhurluliin mend hurgey. Chi min uhaalag, shan setgeltei busgui shu. Hairtai shu 🥰
+Гаралт: Хайрт найз чамдаа 15 жилийн нөхөрлөлийн мэнд хүргэе. Чи минь ухаалаг, сайхан сэтгэлтэй бүсгүй шүү. Хайртай шүү 🥰
 Зөвхөн хөрвүүлсэн текстийг буцаа, тайлбар бүү бич.
 
 Текст:
@@ -26,7 +31,7 @@ async function viaClaude(key, text) {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: Netlify.env.get("CYR_MODEL") || "claude-haiku-5-5", max_tokens: 4000, messages: [{ role: "user", content: PROMPT + text }] }),
+    body: JSON.stringify({ model: Netlify.env.get("CYR_MODEL") || "claude-sonnet-5-5", max_tokens: 4000, messages: [{ role: "user", content: PROMPT + text }] }),
   });
   const j = await r.json();
   if (!r.ok) throw new Error(j.error?.message || "AI алдаа");
