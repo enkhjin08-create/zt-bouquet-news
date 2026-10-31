@@ -142,6 +142,44 @@ function makeGrain() {
   return `url(${c.toDataURL("image/png")})`;
 }
 
+// Латин (чат маяг) → монгол кирилл, дүрэмд суурилсан ойролцоо хөрвүүлэлт
+export function latinMn(text) {
+  return String(text).replace(/[A-Za-zÖÜöü']+/g, (w) => {
+    const low = w.toLowerCase();
+    const front = /e|ö|ü/.test(low) || /^(?:[^aou]*i[^aou]*)$/.test(low) && !/[aou]/.test(low);
+    const U = front ? "ү" : "у", O = front ? "ө" : "о";
+    const map = [
+      ["shch", "щ"], ["sh", "ш"], ["ch", "ч"], ["ts", "ц"], ["kh", "х"], ["zh", "ж"],
+      ["ya", "я"], ["yo", "ё"], ["yu", "ю"], ["ye", "е"],
+      ["ii", "ий"], ["ai", "ай"], ["ei", "эй"], ["oi", O + "й"], ["ui", U + "й"],
+      ["aa", "аа"], ["ee", "ээ"], ["oo", O + O], ["uu", U + U], ["öö", "өө"], ["üü", "үү"],
+      ["a", "а"], ["b", "б"], ["v", "в"], ["w", "в"], ["g", "г"], ["d", "д"], ["e", "э"], ["j", "ж"], ["z", "з"],
+      ["i", "и"], ["k", "к"], ["q", "к"], ["l", "л"], ["m", "м"], ["n", "н"], ["o", O], ["ö", "ө"], ["p", "п"],
+      ["r", "р"], ["s", "с"], ["t", "т"], ["u", U], ["ü", "ү"], ["f", "ф"], ["h", "х"], ["x", "кс"], ["c", "ц"], ["'", "ь"],
+    ];
+    let out = "", i = 0;
+    while (i < low.length) {
+      // үгийн төгсгөлийн "ey" → "эе" (hurgey → хүргэе), бусад "y" → эгшгийн ард "й", эс бөгөөс "ы"
+      if (low.startsWith("ey", i) && i + 2 === low.length) { out += "эе"; i += 2; continue; }
+      if (low[i] === "y" && !/[aeiouöü]/.test(low[i + 1] || "")) { out += /[aeiouöü]/.test(low[i - 1] || "") ? "й" : "ы"; i++; continue; }
+      const m = map.find(([l]) => low.startsWith(l, i));
+      if (m) { out += m[1]; i += m[0].length; } else { out += low[i]; i++; }
+    }
+    if (w === w.toUpperCase() && w.length > 1) return out.toUpperCase();
+    if (w[0] !== low[0]) return out[0].toUpperCase() + out.slice(1);
+    return out;
+  });
+}
+
+const latinCount = (t) => (String(t).match(/[A-Za-z]/g) || []).length;
+const cyrCount = (t) => (String(t).match(/[А-Яа-яЁёӨөҮү]/g) || []).length;
+const MN_HINT = /(aa|ee|oo|uu|ii|iin|iig|aar|eer|tai|tei|daa|dee|shuu|hairt|mend|chamd|minii)/i;
+export function looksLatinMn(el) {
+  const v = el.value || "", l = latinCount(v);
+  if (l < 8 || l < cyrCount(v) * 2) return false;
+  return el.tagName === "TEXTAREA" || MN_HINT.test(v);
+}
+
 export function createEditor({ root, mode, onChange, footer }) {
   let order = blankOrder();
   const wiz = mode === "customer";
@@ -408,6 +446,7 @@ export function createEditor({ root, mode, onChange, footer }) {
       </div>`;
     if (wiz && footer) $("#pg-foot", form)?.appendChild(footer);
     updateCount();
+    form.querySelectorAll("textarea[data-k], textarea[data-a], input[data-k], input[data-cap], input[data-wish]").forEach(latHint);
     updateGo3();
     dlMap?.map.remove(); dlMap = null; dlType = null; refreshDelivery();
   }
@@ -571,6 +610,57 @@ export function createEditor({ root, mode, onChange, footer }) {
         slot?.classList.remove("busy");
       }
     }
+  });
+
+  // ── Латинаар бичсэн үгийг кирилл болгох товч ──
+  function latHint(el) {
+    if (!el?.id || el.type === "date" || el.dataset.c || el.dataset.addr) return;
+    let h = document.getElementById("lat-" + el.id);
+    const show = looksLatinMn(el);
+    if (!show) { if (h && !h.dataset.undo) h.remove(); return; }
+    if (!h) {
+      h = document.createElement("div"); h.className = "lat-hint"; h.id = "lat-" + el.id;
+      (el.closest(".qa-item") ? el : el).insertAdjacentElement("afterend", h);
+    }
+    if (h.dataset.undo) return;
+    h.innerHTML = `<span>Латин үсгээр бичсэн байна — сонин дээр кириллээр илүү гоё харагдана.</span><button type="button" class="lat-btn" data-cyr="${el.id}">🔤 Кирилл болгох</button>`;
+  }
+  async function toCyr(id, btn) {
+    const el = document.getElementById(id); if (!el) return;
+    const before = el.value;
+    btn.disabled = true; btn.textContent = "Хөрвүүлж байна…";
+    let out = "", ai = false;
+    try {
+      const r = await fetch("/api/cyr", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: before }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.text) { out = j.text; ai = true; }
+    } catch {}
+    if (!out) out = latinMn(before);
+    if (el.maxLength > 0) out = out.slice(0, el.maxLength);
+    const h = document.getElementById("lat-" + id);
+    if (h) {
+      h.dataset.undo = "1"; h._before = before;
+      h.innerHTML = `<span>✓ Кирилл болголоо${ai ? "" : " — ө, ү зэрэг үсгийг шалгаад засаарай"}.</span><button type="button" class="link" data-cyrundo="${id}">Буцаах</button>`;
+    }
+    el.value = out;
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  root.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-cyr]");
+    if (b) { e.preventDefault(); toCyr(b.dataset.cyr, b); return; }
+    const u = e.target.closest("[data-cyrundo]");
+    if (u) {
+      const id = u.dataset.cyrundo, el = document.getElementById(id), h = document.getElementById("lat-" + id);
+      if (el && h) { el.value = h._before ?? el.value; delete h.dataset.undo; el.dispatchEvent(new Event("input", { bubbles: true })); }
+    }
+  });
+  root.addEventListener("input", (e) => {
+    const t = e.target;
+    if (!t.matches?.("textarea, input")) return;
+    const h = document.getElementById("lat-" + t.id);
+    if (h?.dataset.undo && !e.isTrusted) return; // хөрвүүлсний дараах өөрчлөлт — «Буцаах»-ыг үлдээнэ
+    if (h) delete h.dataset.undo;
+    latHint(t);
   });
 
   root.addEventListener("input", (e) => {

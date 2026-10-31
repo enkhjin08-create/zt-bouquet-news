@@ -280,3 +280,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 @keyframes nudge { 50% { transform: translateY(-2px); } }
 
 .toolbar .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--muted); white-space: nowrap; cursor: pointer; }
+
+.lat-hint { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; padding: 8px 10px; border-radius: 8px; background: #fdf3e3; border: 1px solid #f0d9b0; font-size: 13px; line-height: 1.4; }
+.lat-hint span { flex: 1 1 200px; }
+.lat-btn { flex: none; border: 0; border-radius: 999px; padding: 7px 14px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 13px; cursor: pointer; }
+.lat-btn:disabled { opacity: .6; cursor: wait; }
