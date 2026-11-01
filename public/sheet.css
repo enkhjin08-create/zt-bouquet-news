@@ -545,6 +545,9 @@
   body > :not(#print-host) { display: none !important; }
   #print-host { display: block !important; position: static !important; left: auto !important; visibility: visible !important; }
   #print-host:not([data-samples]) .ghost, #print-host .ph-empty { visibility: hidden !important; }
+  /* Бүдгэрүүлсэн сүүдэр зарим принтер дээр саарал тэгш өнцөгт болж хэвлэгддэг — хэвлэхэд сүүдэргүй */
+  #print-host * { box-shadow: none !important; }
+  #print-host .env-flap, #print-host .bball, #print-host .wine, #print-host .pstar, #print-host .stamp { filter: none !important; }
   /* Принтер хэт бараан хэвлэдэг бол зургуудыг цайруулна (текст тод хэвээр) */
   #print-host[data-light="1"] .ph, #print-host[data-light="1"] img:not(.ph img) { filter: url(#zt-pl1); }
   #print-host[data-light="2"] .ph, #print-host[data-light="2"] img:not(.ph img) { filter: url(#zt-pl2); }
