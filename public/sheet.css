@@ -146,9 +146,10 @@
 .t-booth .page { --beige: #e6e0d6; --paper: #f7f4ee; --ink: #1d1b19; --red: #c8323c; background: var(--beige); }
 .t-booth .page::before { content: ""; position: absolute; inset: 0; background:
   radial-gradient(120% 80% at 20% 10%, rgba(255,255,255,.25), transparent 60%), radial-gradient(90% 70% at 80% 95%, rgba(0,0,0,.05), transparent 70%); }
-.wavy { position: absolute; inset: 12mm 9mm; background: var(--paper);
-  -webkit-mask: radial-gradient(circle 6mm at 50% 50%, #000 98%, transparent) 0 0 / 15mm 15mm, linear-gradient(#000, #000) center / calc(100% - 12mm) calc(100% - 12mm) no-repeat;
-          mask: radial-gradient(circle 6mm at 50% 50%, #000 98%, transparent) 0 0 / 15mm 15mm, linear-gradient(#000, #000) center / calc(100% - 12mm) calc(100% - 12mm) no-repeat; }
+/* Олон давхар mask зарим принтер дээр буруу хэвлэгддэг тул ижил дүрсийг background-аар зурна */
+.wavy { position: absolute; inset: 12mm 9mm;
+  background: radial-gradient(circle 6mm at 50% 50%, var(--paper) 98%, transparent) 0 0 / 15mm 15mm,
+    linear-gradient(var(--paper), var(--paper)) center / calc(100% - 12mm) calc(100% - 12mm) no-repeat; }
 .b-top { position: absolute; left: 10mm; right: 10mm; top: 5mm; padding-bottom: 1.2mm; border-bottom: .3mm solid var(--ink); font: 600 7pt "Open Sans", sans-serif; display: flex; z-index: 3; }
 .b-top.r { justify-content: flex-end; }
 .b-bottom { position: absolute; left: 10mm; right: 10mm; bottom: 6mm; height: 1.8mm; border-top: .3mm solid var(--ink); border-bottom: .9mm solid var(--ink); z-index: 3; }
@@ -236,10 +237,10 @@
   -webkit-mask: radial-gradient(closest-side, #000, transparent); mask: radial-gradient(closest-side, #000, transparent); }
 .sc-dots.d1 { right: 4mm; top: 82mm; } .sc-dots.d2 { left: 12mm; top: 168mm; }
 .sc-stamp { position: absolute; left: 22mm; top: 76mm; width: 170mm; height: 132mm; padding: 4mm; background: #e7e1d8; transform: rotate(-1.5deg); z-index: 2;
-  -webkit-mask: radial-gradient(circle 2mm at 50% 50%, transparent 96%, #000) -2mm -2mm / 6mm 6mm, linear-gradient(#000, #000) center / calc(100% - 6mm) calc(100% - 6mm) no-repeat;
-          mask: radial-gradient(circle 2mm at 50% 50%, transparent 96%, #000) -2mm -2mm / 6mm 6mm, linear-gradient(#000, #000) center / calc(100% - 6mm) calc(100% - 6mm) no-repeat;
-  filter: drop-shadow(0 .8mm 1.2mm rgba(0,0,0,.25)); }
-.sc-stamp-in { height: 100%; padding: 4mm; background: #fff; }
+  box-shadow: 0 .6mm 1.2mm rgba(0,0,0,.18); }
+/* Маркны цоорхой ирмэг — mask биш, хуудасны өнгөөр зурсан дугуйнууд (хэвлэхэд найдвартай) */
+.sc-stamp::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle 2mm at 50% 50%, #fbfaf7 96%, transparent) -2mm -2mm / 6mm 6mm; }
+.sc-stamp-in { position: relative; z-index: 1; height: 100%; padding: 4mm; background: #fff; }
 .sc-stamp-in .ph { height: 100%; }
 .sc-xoxo { position: absolute; left: 8mm; top: 60mm; z-index: 4; padding: 4mm 9mm; background: #7fa3d9; border: 1.4mm solid #fff; border-radius: 48% 52% 45% 55% / 60% 50% 50% 40%;
   transform: rotate(-4deg); box-shadow: 0 .8mm 1.6mm rgba(0,0,0,.25); font: 900 30pt/1 "ZT Shantell", "Rubik", "Arial Black", sans-serif; color: #e2343d; letter-spacing: .04em; }
@@ -501,11 +502,8 @@
 /* ───── 4. Захидал сонин ───── */
 .t-letter .page { --cream: #efe9df; --ink: #1f1b19; --red: #c8323c; background: var(--cream); }
 .t-letter .l-left::before { content: ""; position: absolute; inset: 9mm; border-radius: 3mm;
-  background: #f8f5ef;
-  -webkit-mask: radial-gradient(circle 2.6mm at 2.6mm 2.6mm, #000 98%, transparent) -2.6mm -2.6mm / 5.2mm 5.2mm,
-    linear-gradient(#000, #000) center / calc(100% - 5.2mm) calc(100% - 5.2mm) no-repeat;
-          mask: radial-gradient(circle 2.6mm at 2.6mm 2.6mm, #000 98%, transparent) -2.6mm -2.6mm / 5.2mm 5.2mm,
-    linear-gradient(#000, #000) center / calc(100% - 5.2mm) calc(100% - 5.2mm) no-repeat; }
+  background: radial-gradient(circle 2.6mm at 2.6mm 2.6mm, #f8f5ef 98%, transparent) -2.6mm -2.6mm / 5.2mm 5.2mm,
+    linear-gradient(#f8f5ef, #f8f5ef) center / calc(100% - 5.2mm) calc(100% - 5.2mm) no-repeat; }
 .l-num { position: absolute; left: 14mm; top: 4mm; font: 600 7.5pt "Open Sans", sans-serif; z-index: 2; }
 .l-num.r { left: auto; right: 14mm; }
 .booth { position: absolute; left: 20mm; top: 24mm; width: 66mm; padding: 4mm 4mm 9mm; background: #141210; transform: rotate(-6deg);
