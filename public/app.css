@@ -285,3 +285,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 .lat-hint span { flex: 1 1 200px; }
 .lat-btn { flex: none; border: 0; border-radius: 999px; padding: 7px 14px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 13px; cursor: pointer; }
 .lat-btn:disabled { opacity: .6; cursor: wait; }
+
+/* Админы хэрэгслийн мөр: доош гүйлгэсэн ч дээр наалттай харагдана */
+#admin .toolbar:not(.pay-bar) { position: sticky; top: 0; z-index: 50; box-shadow: 0 6px 16px rgba(42, 28, 31, .08); }
+#save.dirty { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+#admin .area-preview { top: calc(var(--tbh, 0px) + 12px); }

@@ -11,6 +11,8 @@ let orders = [];
 let filter = "all";
 let current = null; // { id, status } эсвэл null (шинэ)
 let dirty = false;
+// «Хадгалах» товч хадгалаагүй өөрчлөлт байвал тодорно
+function markDirty() { const b = document.getElementById("save"); if (b) { b.classList.toggle("dirty", dirty); b.textContent = dirty ? "Хадгалах •" : "Хадгалах"; } }
 let ed = null;
 
 async function api(path, opts = {}) {
@@ -43,7 +45,7 @@ async function start() {
   $("#login").hidden = true;
   $("#admin").hidden = false;
   if (!ed) {
-    ed = createEditor({ root: $("#editor"), mode: "admin", onChange: () => { dirty = true; } });
+    ed = createEditor({ root: $("#editor"), mode: "admin", onChange: () => { dirty = true; markDirty(); } });
     newOrder();
     const want = decodeURIComponent(location.hash.slice(1));
     if (want && orders.some((o) => o.id === want)) openOrder(want);
@@ -136,6 +138,7 @@ function setMeta() {
   $("#status").value = current?.status || "new";
   $("#del").hidden = !current;
   $("#sms").hidden = !current;
+  markDirty();
 }
 
 async function save(statusOverride) {
@@ -209,6 +212,10 @@ $("#del").addEventListener("click", async (e) => {
   } catch (err) { if (err.message !== "401") toast(err.message, "err"); }
 });
 
+{ const tb = document.querySelector(".toolbar"); if (tb) new ResizeObserver(() => document.documentElement.style.setProperty("--tbh", tb.offsetHeight + "px")).observe(tb); }
+window.addEventListener("keydown", (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s" && !$("#admin").hidden) { e.preventDefault(); save(); }
+});
 window.addEventListener("beforeunload", (e) => { if (dirty) e.preventDefault(); });
 start();
 
