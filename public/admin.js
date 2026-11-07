@@ -6,7 +6,9 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const STATUS = { new: "Шинэ", printed: "Хэвлэсэн", done: "Өгсөн" };
 
 let pass = "";
-try { pass = sessionStorage.getItem("bn-pass") || ""; } catch {}
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+try { pass = localStorage.getItem("bn-pass") || sessionStorage.getItem("bn-pass") || ""; } catch {}
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/admin-sw.js", { scope: "/admin" }).catch(() => {});
 let orders = [];
 let filter = "all";
 let current = null; // { id, status } эсвэл null (шинэ)
@@ -14,6 +16,9 @@ let dirty = false;
 // «Хадгалах» товч хадгалаагүй өөрчлөлт байвал тодорно
 function markDirty() { const b = document.getElementById("save"); if (b) { b.classList.toggle("dirty", dirty); b.textContent = dirty ? "Хадгалах •" : "Хадгалах"; } }
 let ed = null;
+// Утсан дээр: жагсаалт ба захиалга тусдаа дэлгэц
+const mobile = matchMedia("(max-width: 1000px)");
+function view(v) { $("#admin").dataset.view = v; if (mobile.matches) window.scrollTo({ top: 0 }); }
 
 async function api(path, opts = {}) {
   const res = await fetch(path, { ...opts, headers: { "content-type": "application/json", "x-admin-pass": pass, ...(opts.headers || {}) } });
@@ -24,6 +29,8 @@ async function api(path, opts = {}) {
 }
 
 function showLogin(msg) {
+  if (msg) { try { localStorage.removeItem("bn-pass"); } catch {} }
+  $("#remember").checked = standalone || !!localStorage.getItem("bn-pass");
   $("#admin").hidden = true;
   $("#login").hidden = false;
   const e = $("#login-err");
@@ -35,7 +42,10 @@ function showLogin(msg) {
 $("#login").addEventListener("submit", async (e) => {
   e.preventDefault();
   pass = $("#pass").value;
-  try { sessionStorage.setItem("bn-pass", pass); } catch {}
+  try {
+    if ($("#remember").checked) localStorage.setItem("bn-pass", pass); else localStorage.removeItem("bn-pass");
+    sessionStorage.setItem("bn-pass", pass);
+  } catch {}
   await start();
 });
 
@@ -47,6 +57,7 @@ async function start() {
   if (!ed) {
     ed = createEditor({ root: $("#editor"), mode: "admin", onChange: () => { dirty = true; markDirty(); } });
     newOrder();
+    view("list");
     const want = decodeURIComponent(location.hash.slice(1));
     if (want && orders.some((o) => o.id === want)) openOrder(want);
   }
@@ -107,7 +118,7 @@ function guard(msg, el) {
   return false;
 }
 
-function showEditor() { $("#cat").hidden = true; $("#editor").hidden = false; document.querySelector(".toolbar").hidden = false; }
+function showEditor() { $("#cat").hidden = true; $("#editor").hidden = false; document.querySelector(".toolbar").hidden = false; view("order"); }
 function newOrder() {
   showEditor();
   current = null;
@@ -209,10 +220,19 @@ $("#del").addEventListener("click", async (e) => {
     toast("Устгалаа");
     await refresh();
     newOrder();
+    if (mobile.matches) view("list");
   } catch (err) { if (err.message !== "401") toast(err.message, "err"); }
 });
 
 { const tb = document.querySelector(".toolbar"); if (tb) new ResizeObserver(() => document.documentElement.style.setProperty("--tbh", tb.offsetHeight + "px")).observe(tb); }
+$("#back").addEventListener("click", (e) => {
+  if (dirty && !guard("Хадгалаагүй өөрчлөлт байна. Дахин дарвал хаягдана.", e.currentTarget)) return;
+  if (dirty) { dirty = false; markDirty(); }
+  view("list");
+});
+// Апп руу буцаж ороход жагсаалтыг шинэчилнэ
+document.addEventListener("visibilitychange", () => { if (!document.hidden && pass && !$("#admin").hidden) refresh().catch(() => {}); });
+$("#reload")?.addEventListener("click", async (e) => { e.currentTarget.disabled = true; try { await refresh(); toast("Шинэчиллээ"); } catch {} e.currentTarget.disabled = false; });
 window.addEventListener("keydown", (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s" && !$("#admin").hidden) { e.preventDefault(); save(); }
 });
@@ -298,13 +318,13 @@ $("#cat-open").addEventListener("click", async () => {
   catDraft = structuredClone(await loadCatalog(true));
   delete catDraft.qpay;
   $("#editor").hidden = true; document.querySelector(".toolbar").hidden = true; $("#pay-bar").hidden = true;
-  $("#cat").hidden = false; drawCat();
+  $("#cat").hidden = false; drawCat(); view("order");
 });
 $("#cat").addEventListener("click", async (e) => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.add) { readCat(); catDraft[b.dataset.add].push(b.dataset.add === "packages" ? { id: "", name: "", desc: "", price: 0, active: true } : { id: "", name: "", price: 0, active: true }); drawCat(); return; }
   if (b.dataset.del != null) { readCat(); catDraft[b.closest(".cat-row").dataset.kind].splice(+b.dataset.del, 1); drawCat(); return; }
-  if (b.id === "cat-close") { showEditor(); setMeta(); return; }
+  if (b.id === "cat-close") { showEditor(); setMeta(); if (mobile.matches) view("list"); return; }
   if (b.id === "cat-save") {
     readCat();
     try { catDraft = await api("/api/catalog", { method: "PUT", body: JSON.stringify(catDraft) }); drawCat(); await loadCatalog(true); ed.reloadCatalog(); toast("Хадгаллаа"); }

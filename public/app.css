@@ -290,3 +290,33 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 #admin .toolbar:not(.pay-bar) { position: sticky; top: 0; z-index: 50; box-shadow: 0 6px 16px rgba(42, 28, 31, .08); }
 #save.dirty { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 #admin .area-preview { top: calc(var(--tbh, 0px) + 12px); }
+
+/* ── Админ: утас / суулгасан апп ── */
+.tb-actions { display: contents; }
+.toolbar .back { display: none; }
+#login .remember { display: flex; align-items: center; gap: 10px; margin: 6px 0 14px; font-size: 14px; color: var(--muted); cursor: pointer; }
+#login .remember input[type=checkbox] { width: 18px; height: 18px; margin: 0; flex: none; accent-color: var(--accent); }
+.filters .reload { margin-left: auto; }
+@media (max-width: 1000px) {
+  .admin[data-view="list"] > section { display: none; }
+  .admin[data-view="order"] > .side { display: none; }
+  #admin .toolbar:not(.pay-bar) { gap: 8px; padding: 10px; margin-bottom: 12px; }
+  #admin .toolbar .back { display: inline-flex; order: 0; padding: 8px 14px; font-size: 18px; }
+  #admin .toolbar:not(.pay-bar) .meta { order: 1; flex: 1 1 calc(100% - 200px); min-width: 0; }
+  #admin .toolbar .meta b { font-size: 16px; }
+  #admin .toolbar .meta span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #admin .pay-bar .meta { flex: 1 1 100%; }
+  #admin .pay-bar .btn { flex: 1 1 100%; }
+  #admin .toolbar #save { order: 2; padding: 9px 14px; }
+  #admin .tb-actions { order: 3; flex: 1 1 100%; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -10px; padding: 0 10px 2px; }
+  #admin .tb-actions::-webkit-scrollbar { display: none; }
+  #admin .tb-actions select { width: auto; max-width: 140px; }
+  #admin .tb-actions > * { flex: none; padding: 8px 12px; font-size: 13.5px; min-height: 40px; white-space: nowrap; }
+  .olist button { padding-block: 14px; }
+  .side { position: static; }
+}
+@media (display-mode: standalone) {
+  header.top { padding-top: env(safe-area-inset-top, 0px); }
+  header.top h1 { font-size: 22px; }
+  .wrap { padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+}

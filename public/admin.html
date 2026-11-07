@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Сонин баглаа · Админ</title>
+<link rel="manifest" href="/admin.webmanifest">
+<meta name="theme-color" content="#7a2e3d">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Сонин админ">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Manrope:wght@400;600;700&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@400;600;700&family=Oswald:wght@700&family=PT+Mono&family=Rubik:wght@900&family=Playfair+Display:ital,wght@0,800;1,900&family=Poiret+One&display=swap">
 <link rel="stylesheet" href="sheet.css">
 <link rel="stylesheet" href="app.css">
@@ -19,6 +27,7 @@
     <h2>Нэвтрэх</h2>
     <div class="field"><label for="pass">Нууц үг</label><input id="pass" type="password" autocomplete="current-password"></div>
     <p class="err-text" id="login-err" hidden></p>
+    <label class="remember"><input type="checkbox" id="remember"><span>Энэ төхөөрөмж дээр сануулах</span></label>
     <button class="btn" type="submit">Нэвтрэх</button>
   </form>
 
@@ -31,22 +40,26 @@
         <button class="chip" type="button" data-f="new" aria-pressed="false">Шинэ</button>
         <button class="chip" type="button" data-f="printed" aria-pressed="false">Хэвлэсэн</button>
         <button class="chip" type="button" data-f="done" aria-pressed="false">Өгсөн</button>
+        <button class="chip reload" type="button" id="reload" aria-label="Жагсаалт шинэчлэх">⟳</button>
       </div>
       <ul class="olist" id="olist"><li class="empty">Ачаалж байна…</li></ul>
     </aside>
     <section>
       <div class="toolbar">
+        <button class="btn secondary back" type="button" id="back" aria-label="Захиалгын жагсаалт руу буцах">←</button>
         <div class="meta"><b id="cur-id">Шинэ</b><span id="cur-info">Хадгалаагүй</span></div>
+        <button class="btn secondary" type="button" id="save">Хадгалах</button>
+        <div class="tb-actions">
         <select id="status" aria-label="Төлөв">
           <option value="new">Шинэ</option><option value="printed">Хэвлэсэн</option><option value="done">Хүлээлгэж өгсөн</option>
         </select>
-        <button class="btn secondary" type="button" id="save">Хадгалах</button>
         <select id="print-light" aria-label="Хэвлэх өнгө" title="Принтер хэт бараан хэвлэвэл зургийг цайруулна">
           <option value="0">Хэвлэх: хэвийн</option><option value="1">Бага зэрэг цайвар</option><option value="2">Цайвар</option><option value="3">Маш цайвар</option>
         </select>
         <button class="btn" type="button" id="print">A3 хэвлэх</button>
         <button class="btn secondary" type="button" id="sms" hidden title="Захиалагчид бэлэн боллоо гэж мессеж бичих">📩 Бэлэн боллоо SMS</button>
         <button class="btn danger" type="button" id="del" hidden>Устгах</button>
+        </div>
       </div>
       <div class="toolbar pay-bar" id="pay-bar" hidden>
         <div class="meta"><b id="pay-total">0₮</b><span id="pay-info">Төлбөр</span></div>
